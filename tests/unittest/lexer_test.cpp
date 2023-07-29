@@ -11,6 +11,7 @@ void Lexer_Test::run()
     test_realNumbers();
     test_intNumbers();
     test_identifiers();
+    test_quotedString();
     cleanupTestCase();
 }
 
@@ -188,6 +189,54 @@ void Lexer_Test::test_identifiers()
         assert(i < n);
         assert(lexerIds.currentToken() == tokens[i]);
         i++;
+    }
+}
+
+void Lexer_Test::test_quotedString()
+{
+    const int n = 6;
+    u32string strCode[6] = {
+        U"\"hello\"",
+        U"\'hello\'",
+        U"`hello`",
+        U"\"single \'quote\' inside \\\"double\\\" \nquoted `string`\"",
+        U"\'double \"quoted\" \\\"string\\\" inside the \\'single\\\' quoted \\`string\\`\'",
+        U"`back \\`quoted\\` string with \'single\\\' and \"double\\\" quote`"
+    };
+
+    u32string strCodePattern[6] = {
+        U"hello",
+        U"hello",
+        U"hello",
+        U"single \'quote\' inside \"double\" \nquoted `string`",
+        U"double \"quoted\" \"string\" inside the \'single\' quoted `string`",
+        U"back `quoted` string with \'single\' and \"double\" quote",
+    };
+    Token strTypes[6] = {
+        Token::QuotedString,
+        Token::QuotedString,
+        Token::BackQuotedString,
+        Token::QuotedString,
+        Token::QuotedString,
+        Token::BackQuotedString,
+    };
+    // это генератор нормальных строк, используйте его для вывода в терминал
+    // и создания массива strCodePattern[], который используется для проверки
+    // возвращаемой лексемы
+    // но их нужно чуть исправить, чтобы экранировать в C++ коде
+    /*for (auto &s : strCode) {
+        wstring_convert<codecvt_utf8<char32_t>, char32_t> converter;
+        cout << converter.to_bytes(s) << "," << endl;
+    }*/
+    int i = 0;
+    for (; i < n; i++) {
+        Lexer lexer(strCode[i]);
+        Token t = lexer.next();
+        assert(t == strTypes[i]);
+        // это оставим для отладочного вывода
+        // wstring_convert<codecvt_utf8<char32_t>, char32_t> converter;
+        // cout << converter.to_bytes(lexer.tokenText()) << endl;
+        assert(lexer.tokenText() == strCodePattern[i]);
     }
 }
 

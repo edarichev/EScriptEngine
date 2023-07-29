@@ -51,6 +51,13 @@ Token Lexer::next()
             }
 
         }
+        switch (c) {
+        case '\'':
+        case '\"':
+        case '`':
+            readQuotedString(c);
+            return currentToken();
+        }
         PUSH(c);
         switch (c) {
         case ';':
@@ -437,13 +444,45 @@ void Lexer::readNumber(int firstChar)
 
 void Lexer::error(const std::string &msg)
 {
-    std::cout << "line: " << _line << ", pos:" << _pos << " " << msg;
+    std::cout << "line: " << _line << ", pos:" << _pos << " " << msg << "\n";
     exit(1);
+}
+
+void Lexer::warning(const std::string &msg)
+{
+    std::cout << "WARNING: line: " << _line << ", pos:" << _pos
+              << " " << msg << "\n";
 }
 
 void Lexer::unexpected(char unexpectedChar)
 {
     error(std::string("Unexpected character: [") + unexpectedChar + "]");
+}
+
+void Lexer::unexpectedEnd()
+{
+    error("Unexpected end of code stream");
+}
+
+int Lexer::escapeChar(int charCode)
+{
+    switch (charCode) {
+    case 'r': return '\r';
+    case 'n': return '\n';
+    case 't': return '\t';
+    case 'v': return '\v';
+    case 'f': return '\f';
+    case 'b': return '\b';
+    case '\'': return '\'';
+    case '\"': return '\"';
+    case '\\': return '\\';
+    case '`': return '`';
+    default:
+        warning("Unknown escape sequence");
+        break;
+    }
+
+    return charCode;
 }
 
 void Lexer::skipToEndOfLine()
@@ -468,6 +507,36 @@ void Lexer::skipMultilineComment()
             if (c == '/' || c < 0)
                 break;
         }
+    }
+}
+
+void Lexer::readQuotedString(int firstQuoteChar)
+{
+    _tokenText.clear();
+    assert(firstQuoteChar == '\'' ||
+           firstQuoteChar == '\"' ||
+           firstQuoteChar == '`');
+    switch (firstQuoteChar) {
+    case '\"':
+    case '\'':
+        _token = Token::QuotedString;
+        break;
+    case '`':
+        _token = Token::BackQuotedString;
+        break;
+    }
+    int c = 0;
+    while ((c = read()) > 0) {
+        if (c == '\\') {
+            if ((c = read()) < 0)
+                unexpectedEnd();
+            PUSH(escapeChar(c));
+            continue;
+        }
+        if (c == firstQuoteChar) {
+            break; // строка закрыта
+        }
+        PUSH(c);
     }
 }
 

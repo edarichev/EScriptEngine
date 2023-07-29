@@ -12,6 +12,7 @@ private:
     void test_realNumbers();
     void test_intNumbers();
     void test_identifiers();
+    void test_quotedString();
 };
 
 #endif // LEXER_TEST_H

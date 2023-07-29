@@ -12,5 +12,6 @@
 #include <locale>
 #include <codecvt>
 #include <exception>
+#include <cassert>
 
 #endif // STDAFX_H

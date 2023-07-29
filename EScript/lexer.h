@@ -111,6 +111,12 @@ private:
      * @brief пропускает многострочный комментарий, включая '*' и '/'
      */
     void skipMultilineComment();
+    /**
+     * @brief Считывает строку в кавычках
+     * @param firstQuoteChar первый символ - это код кавычки.
+     */
+    void readQuotedString(int firstQuoteChar);
+
     // обработка ошибок
 private:
     /**
@@ -119,10 +125,28 @@ private:
      */
     void error(const std::string &msg);
     /**
+     * @brief Выводит предупреждение
+     * @param msg сообщение
+     */
+    void warning(const std::string &msg);
+    /**
      * @brief Выбрасывает исключение при недопустимом символе
      * @param unexpectedChar неправильный символ
      */
     void unexpected(char unexpectedChar);
+    /**
+     * @brief Неожиданный конец потока
+     */
+    void unexpectedEnd();
+    /**
+     * @brief Переводит второй символ управляющей последовательности в код
+     *        управляющего символа. Предполагается, сто ведущий слэш прочитан.
+     * @param charCode код экранированного символа, например, в "\t" (TAB) слэш
+     *        предварительно считан, а входящий сюда символ - это "t".
+     * @return Если это экранированный управляющий символ, то возвращается его
+     *        код, иначе возвращается сам символ, это не будет считаться ошибкой.
+     */
+    int escapeChar(int charCode);
 };
 
 } // namespace escript
