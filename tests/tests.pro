@@ -1,4 +1,6 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
-    simple
+    simple \
+    smalltests \
+    unittest

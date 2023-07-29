@@ -9,5 +9,8 @@
 #include <string>
 #include <iostream>
 #include <map>
+#include <locale>
+#include <codecvt>
+#include <exception>
 
 #endif // STDAFX_H

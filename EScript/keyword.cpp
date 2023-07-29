@@ -110,7 +110,7 @@ Token KeyWord::checkKeyWord(const std::u32string &str)
         int i = 0;
         for (auto &t : tokenKeywords) {
             // мы гарантируем, что размер обоих массивов одинаковый
-            keyWordsHash[keyWords[i]] = t;
+            keyWordsHash[keyWords[i++]] = t;
         }
     }
     auto it = keyWordsHash.find(str);
