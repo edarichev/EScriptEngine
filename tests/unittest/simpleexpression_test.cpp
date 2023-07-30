@@ -24,8 +24,8 @@ void SimpleExpression_Test::cleanupTestCase()
 
 void SimpleExpression_Test::test_simpleAssign()
 {
-    const u32string code = U"i = 3 + 2;";
     EScript engine;
+    const u32string code = U"i = 3 + 2;";
     engine.eval(code);
     const u32string code2 = U"i = 3 + 2*3;";
     engine.eval(code2);

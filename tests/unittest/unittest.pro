@@ -5,12 +5,14 @@ CONFIG -= qt
 CONFIG += PRECOMPILE_HEADER
 
 SOURCES += \
+        codeunit_test.cpp \
         lexer_test.cpp \
         main.cpp \
         simpleexpression_test.cpp \
         stdafx.cpp
 
 HEADERS += \
+    codeunit_test.h \
     lexer_test.h \
     simpleexpression_test.h \
     stdafx.h

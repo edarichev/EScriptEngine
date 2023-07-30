@@ -6,6 +6,7 @@
 #define ESCRIPT_H
 
 #include "EScript_global.h"
+#include "unit.h"
 
 namespace escript {
 
@@ -14,6 +15,8 @@ namespace escript {
  */
 class ESCRIPT_EXPORT EScript
 {
+private:
+    std::shared_ptr<Unit> _unit;
 public:
     /**
      * @brief Создаёт новый экземпляр скриптового движка
@@ -28,6 +31,15 @@ public:
      * @param strCode строка кода
      */
     void eval(const std::u32string &strCode);
+    /**
+     * @brief Возвращает указатель на программный модуль.
+     * @return
+     */
+    Unit *unit();
+    /**
+     * @brief Сбрасывает движок в первоначальное состояние.
+     */
+    void clear();
 };
 
 } // namespace escript

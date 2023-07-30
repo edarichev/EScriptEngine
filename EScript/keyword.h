@@ -6,13 +6,14 @@
 #define KEYWORD_H
 
 #include "token.h"
+#include "EScript_global.h"
 
 namespace escript {
 
 /**
  * @brief Класс для определения ключевых слов
  */
-class KeyWord
+class ESCRIPT_EXPORT KeyWord
 {
 public:
     /**
