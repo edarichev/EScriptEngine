@@ -111,6 +111,23 @@ enum class Token
     Identifier,         // идентификатор
 };
 
+/**
+ * @brief Предназначен для преобразования токена в его строковое представление.
+ */
+class TokenName
+{
+private:
+    static const char *_names[];
+    static const Token _values[];
+public:
+    /**
+     * @brief Преобразует токен в его строковое (читабельное) представление
+     * @param token токен для преобразования
+     * @return U"UNKNOWN", если не удалось найти
+     */
+    static std::string toString(Token token);
+};
+
 } // namespace escript
 
 #endif // TOKEN_H

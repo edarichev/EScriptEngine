@@ -7,10 +7,12 @@ CONFIG += PRECOMPILE_HEADER
 SOURCES += \
         lexer_test.cpp \
         main.cpp \
+        simpleexpression_test.cpp \
         stdafx.cpp
 
 HEADERS += \
     lexer_test.h \
+    simpleexpression_test.h \
     stdafx.h
 
 PRECOMPILED_HEADER = stdafx.h

@@ -29,6 +29,38 @@ public:
      * @param strCode строка кода
      */
     void parse(const std::u32string &strCode);
+    // правила: см. файл грамматики
+private:
+    void StatementList();
+    void Statement();
+    void AssignStatement();
+    void Variable();
+    void Expression();
+    void SimpleExpression();
+    void Term();
+    void Factor();
+    // перемещение
+private:
+    /**
+     * @brief Проверяет на совпадение текущий токен с указанным токеном
+     *        и в случае ошибки выбрасывает исключение, в случае
+     *        успеха считывает следующий токен.
+     * @param t токен, с которым должен совпадать текущий символ
+     */
+    void match(Token t);
+    /**
+     * @brief Читает следующий токен
+     */
+    void next();
+    /**
+     * @brief Возвращает текущий токен лексического анализатора.
+     */
+    Token lookahead();
+    // обработка ошибок
+private:
+    void error(const std::string &msg);
+    void expected(Token expectedToken);
+    void unexpected(Token unexpectedToken);
 };
 
 } // namespace escript

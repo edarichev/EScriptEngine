@@ -22,6 +22,16 @@ Lexer::~Lexer()
 
 }
 
+int Lexer::pos() const
+{
+    return _pos;
+}
+
+int Lexer::line() const
+{
+    return _line;
+}
+
 // поместить символ в буфер токена
 #define PUSH(c) _tokenText.push_back((c))
 // выражение возврата
@@ -266,7 +276,7 @@ Token Lexer::next()
             unexpected(c);
         }
     }
-    return Token::Eof;
+    return TOKEN(Token::Eof);
 }
 
 Token Lexer::currentToken() const
@@ -382,7 +392,7 @@ void Lexer::readNumber(int firstChar)
     bool hasExpSign = false;        // есть + или -, иначе ошибка
     bool hasExpE = false;           // знак E
     bool hasExpNum = false;         // есть ли число после E
-    _tokenText.push_back(firstChar);
+    PUSH(firstChar);
     int c;
     while ((c = read()) > 0) {
         if (std::isdigit(c)) {

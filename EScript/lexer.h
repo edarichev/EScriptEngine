@@ -58,6 +58,10 @@ public:
      * @return
      */
     const std::u32string &tokenText() const;
+    int pos() const;
+
+    int line() const;
+
 private:
     /**
      * @brief Считывает следующий символ из входного потока
