@@ -13,6 +13,7 @@ private:
     void test_intNumbers();
     void test_identifiers();
     void test_quotedString();
+    void test_comments();
 };
 
 #endif // LEXER_TEST_H

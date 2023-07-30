@@ -310,12 +310,6 @@ void Lexer::back()
         if (_pos > 0)
             _pos--;
     }
-    // обработать \r
-    while (*_p == '\r') {
-        if (_p == _text.begin())
-            break;
-        --_p;
-    }
 }
 
 bool Lexer::isSpace(int charCode) const
@@ -369,6 +363,8 @@ void Lexer::readIdentifier(int charCode)
         charCode = read();
         if (isLetterOrDigit(charCode) || charCode == '_')
             continue;
+        if (charCode > 0)
+            back(); // лишний
         break;
     }
     Token kw = KeyWord::checkKeyWord(_tokenText);

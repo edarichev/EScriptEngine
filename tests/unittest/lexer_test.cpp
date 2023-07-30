@@ -12,6 +12,7 @@ void Lexer_Test::run()
     test_intNumbers();
     test_identifiers();
     test_quotedString();
+    test_comments();
     cleanupTestCase();
 }
 
@@ -237,6 +238,23 @@ void Lexer_Test::test_quotedString()
         // wstring_convert<codecvt_utf8<char32_t>, char32_t> converter;
         // cout << converter.to_bytes(lexer.tokenText()) << endl;
         assert(lexer.tokenText() == strCodePattern[i]);
+    }
+}
+
+void Lexer_Test::test_comments()
+{
+    const u32string comment = U"for /*multiline\n\ncomment\n*/ var i; //\n\ntest";
+    const int n = 5;
+    Token tokens[n] = {
+        Token::For, Token::Var, Token::Identifier,
+        Token::Semicolon, Token::Identifier
+    };
+    Lexer lexer(comment);
+    int i = 0;
+    while (lexer.next() != Token::Eof) {
+        assert(i < n);
+        assert(lexer.currentToken() == tokens[i]);
+        i++;
     }
 }
 
