@@ -9,6 +9,7 @@ SOURCES += \
         codeunit_test.cpp \
         lexer_test.cpp \
         main.cpp \
+        opcode_test.cpp \
         simpleexpression_test.cpp \
         stdafx.cpp
 
@@ -16,6 +17,7 @@ HEADERS += \
     codegen_test.h \
     codeunit_test.h \
     lexer_test.h \
+    opcode_test.h \
     simpleexpression_test.h \
     stdafx.h
 

@@ -16,6 +16,7 @@ SOURCES += \
     icodeemitter.cpp \
     keyword.cpp \
     lexer.cpp \
+    opcode.cpp \
     parser.cpp \
     stdafx.cpp \
     symbol.cpp \
@@ -30,6 +31,7 @@ HEADERS += \
     icodeemitter.h \
     keyword.h \
     lexer.h \
+    opcode.h \
     parser.h \
     stdafx.h \
     symbol.h \

@@ -237,7 +237,7 @@ void Parser::emitBinaryOp(OperationType opType, std::shared_ptr<Symbol> &tmpVari
             _variables.pop();
             break;
         }
-        _emitter->binaryOp(opType, tmpVariable,
+        _emitter->binaryOp(opType, tmpVariable.get(),
                            op1Type, op1ptr, op2Type, op2ptr);
         break;
     }
