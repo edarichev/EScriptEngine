@@ -10,7 +10,7 @@ namespace escript {
 
 Unit::Unit()
 {
-    _block = std::make_shared<Block>();
+
 }
 
 Unit::~Unit()
@@ -25,7 +25,20 @@ void Unit::clear()
 
 std::shared_ptr<Block> Unit::block()
 {
+    if (!_block)
+        _block = std::make_shared<Block>(shared_from_this());
     return _block;
+}
+
+long *Unit::addStaticIntValue()
+{
+    _staticIntegerValues.push_front(0);
+    return &_staticIntegerValues.front();
+}
+
+const std::forward_list<long> &Unit::staticIntegerValues() const
+{
+    return _staticIntegerValues;
 }
 
 

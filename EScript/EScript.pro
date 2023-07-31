@@ -33,6 +33,7 @@ HEADERS += \
     symbol.h \
     symboltable.h \
     token.h \
+    types.h \
     unit.h
 
 PRECOMPILED_HEADER = stdafx.h

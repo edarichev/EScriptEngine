@@ -7,12 +7,12 @@
 
 namespace escript {
 
-Block::Block(std::shared_ptr<Block> parent)
-    : _parentBlock(parent)
+Block::Block(std::shared_ptr<Unit> unit, std::shared_ptr<Block> parent)
+    : _unit(unit), _parentBlock(parent)
 {
     std::shared_ptr<SymbolTable> parentTable =
             parent == nullptr ? nullptr : parent->_symbolTable;
-    _symbolTable = std::make_shared<SymbolTable>(parentTable);
+    _symbolTable = std::make_shared<SymbolTable>(_unit, parentTable);
 }
 
 Block::~Block()
@@ -27,7 +27,7 @@ std::shared_ptr<SymbolTable> Block::symbolTable()
 
 std::shared_ptr<Block> Block::addBlock()
 {
-    std::shared_ptr<Block> newBlock = std::make_shared<Block>(shared_from_this());
+    std::shared_ptr<Block> newBlock = std::make_shared<Block>(_unit, shared_from_this());
     _blocks.push_back(newBlock);
     return newBlock;
 }

@@ -18,6 +18,7 @@ namespace escript {
 class ESCRIPT_EXPORT Block : public std::enable_shared_from_this<Block>
 {
 private:
+    std::shared_ptr<Unit> _unit;
     std::vector<std::shared_ptr<Block> > _blocks;
     std::shared_ptr<Block> _parentBlock;
     std::shared_ptr<SymbolTable> _symbolTable;
@@ -25,7 +26,7 @@ public:
     /**
      * @brief Создаёт новый экземпляр класса Block
      */
-    Block(std::shared_ptr<Block> parent = nullptr);
+    Block(std::shared_ptr<Unit> unit, std::shared_ptr<Block> parent = nullptr);
     /**
      * @brief Освобождает связанные с этим экземпляром ресурсы
      */
