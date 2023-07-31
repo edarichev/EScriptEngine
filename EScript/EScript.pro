@@ -13,6 +13,7 @@ CONFIG += PRECOMPILE_HEADER
 SOURCES += \
     block.cpp \
     escript.cpp \
+    icodeemitter.cpp \
     keyword.cpp \
     lexer.cpp \
     parser.cpp \
@@ -26,6 +27,7 @@ HEADERS += \
     EScript_global.h \
     block.h \
     escript.h \
+    icodeemitter.h \
     keyword.h \
     lexer.h \
     parser.h \

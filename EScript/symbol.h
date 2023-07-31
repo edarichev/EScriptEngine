@@ -49,6 +49,9 @@ public:
      * @return
      */
     void *data() const;
+    const std::u32string &name() const;
+    const std::string utf8Name() const;
+
 private:
     /**
      * @brief Отсоединяет старое значение

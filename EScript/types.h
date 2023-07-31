@@ -19,10 +19,13 @@ enum class SymbolType
     Boolean,
     String,
     Function,
-    Object
+    Object,
+    Variable, // вспомогательный тип
 };
 
-using IntType = long;
+using IntType = long long;
+using RealType = long double;
+using StringType = std::u32string; // потом сделать по стандарту отдельный класс
 
 } // namespace escript
 

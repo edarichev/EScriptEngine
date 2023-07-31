@@ -30,7 +30,7 @@ void EScript::clear()
 
 void EScript::eval(const std::u32string &strCode)
 {
-    Parser parser;
+    Parser parser(_unit);
     parser.parse(strCode);
 }
 

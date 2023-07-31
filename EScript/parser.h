@@ -5,25 +5,39 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+#include "EScript_global.h"
 #include "lexer.h"
+#include "icodeemitter.h"
+#include <stack>
 
 namespace escript {
 
-#include "EScript_global.h"
+class Unit;
+class SymbolTable;
+class Symbol;
 
+/**
+ * @brief Cинтаксический анализатор
+ */
 class ESCRIPT_EXPORT Parser
 {
 private:
     std::unique_ptr<Lexer> _lexer;
+    std::shared_ptr<Unit> _unit;
+    // стек для типа обнаруженного символа
+    std::stack<SymbolType> _types;
+    // стек для обнаруженных переменных в выражениях
+    std::stack<std::shared_ptr<Symbol> > _variables;
+    // стек для обнаруженных целых чисел в выражениях
+    std::stack<IntType> _integers;
+    std::stack<RealType> _reals;
+    std::stack<StringType*> _strings;
+    std::unique_ptr<ICodeEmitter> _emitter;
 public:
     /**
      * @brief Создаёт новый экземпляр класса Parser
      */
-    Parser();
-    /**
-     * @brief Освобождает связанные с этим экземпляром ресурсы
-     */
-    virtual ~Parser();
+    Parser(std::shared_ptr<Unit> &unit);
     /**
      * @brief производит синтаксический разбор строки кода
      * @param strCode строка кода
@@ -39,7 +53,7 @@ private:
     void SimpleExpression();
     void Term();
     void Factor();
-    // перемещение
+    // перемещение по потоку
 private:
     /**
      * @brief Проверяет на совпадение текущий токен с указанным токеном
@@ -56,11 +70,26 @@ private:
      * @brief Возвращает текущий токен лексического анализатора.
      */
     Token lookahead();
+    /**
+     * @brief Возвращает текущий токен
+     */
+    const std::u32string &tokenText() const;
+    // работа с символами
+private:
+    /**
+     * @brief Возвращает текущую таблицу символов
+     */
+    std::shared_ptr<SymbolTable> currentSymbolTable();
+    void pushInt(IntType value);
+    void pushVariable(std::shared_ptr<Symbol> &variable);
+    void emitBinaryOp(OperationType opType, std::shared_ptr<Symbol> &tmpVariable);
+    void emitAssign(std::shared_ptr<Symbol> &lvalue, SymbolType rvalueType, void *rvalue);
     // обработка ошибок
 private:
     void error(const std::string &msg);
     void expected(Token expectedToken);
     void unexpected(Token unexpectedToken);
+    static std::string toUtf8(const std::u32string &s);
 };
 
 } // namespace escript

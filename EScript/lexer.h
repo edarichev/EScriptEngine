@@ -6,6 +6,7 @@
 #define LEXER_H
 
 #include "EScript_global.h"
+#include "types.h"
 #include "token.h"
 
 namespace escript {
@@ -34,6 +35,10 @@ private:
     int _line = 1;
     // длина предыдущей строки (для подсчёта позиции при возврате символа)
     int _prevLineLen = 0;
+    // последнее разобранное целое число
+    IntType _lastIntegerNumber = 0;
+    // последнее разобранное вещественное число
+    RealType _lastRealNumber = 0;
 public:
     /**
      * @brief Создаёт новый экземпляр класса Lexer
@@ -58,9 +63,23 @@ public:
      * @return
      */
     const std::u32string &tokenText() const;
+    /**
+     * @brief Возвращает позицию в строке от 1
+     */
     int pos() const;
-
+    /**
+     * @brief Возвращает номер строки от 1
+     */
     int line() const;
+
+    /**
+     * @brief Возвращает последнее разобранное целое число
+     */
+    IntType lastIntegerNumber() const;
+    /**
+     * @brief Возвращает последнее разобранное вещественное число
+     */
+    RealType lastRealNumber() const;
 
 private:
     /**
@@ -151,6 +170,18 @@ private:
      *        код, иначе возвращается сам символ, это не будет считаться ошибкой.
      */
     int escapeChar(int charCode);
+    /**
+     * @brief Переводит строку в длинное целое
+     * @param s строковое представление числа
+     * @return число
+     */
+    static long long toLongInteger(const std::u32string &s);
+    /**
+     * @brief Переводит строку в длинное вещественное
+     * @param s строковое представление числа
+     * @return число
+     */
+    static long double toLongDouble(const std::u32string &s);
 };
 
 } // namespace escript
