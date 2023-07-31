@@ -22,7 +22,12 @@ public:
                   Symbol *resultVariable,
                   SymbolType operand1Type, void *operand1,
                   SymbolType operand2Type, void *operand2);
-    void assign(Symbol *lvalue, SymbolType rvalueType, void *rvalue);
+    void binaryOp(OperationType operationType,
+                  Symbol *resultVariable,
+                  SymbolType operand1Type, const OperandRecord &operand1,
+                  SymbolType operand2Type, const OperandRecord &operand2);
+    void assign(Symbol *lvalue, SymbolType rvalueType,
+                const OperandRecord &operand1);
 };
 
 } // namespace escript

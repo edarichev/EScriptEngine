@@ -9,6 +9,7 @@
 #include "lexer.h"
 #include "icodeemitter.h"
 #include <stack>
+#include "opcode.h"
 
 namespace escript {
 
@@ -83,7 +84,8 @@ private:
     void pushInt(IntType value);
     void pushVariable(std::shared_ptr<Symbol> &variable);
     void emitBinaryOp(OperationType opType, std::shared_ptr<Symbol> &tmpVariable);
-    void emitAssign(std::shared_ptr<Symbol> &lvalue, SymbolType rvalueType, void *rvalue);
+    void emitAssign(std::shared_ptr<Symbol> &lvalue);
+    std::pair<SymbolType, OperandRecord> popStackValue();
     // обработка ошибок
 private:
     void error(const std::string &msg);

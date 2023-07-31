@@ -56,23 +56,7 @@ void Parser::AssignStatement()
     _variables.pop();
     match(Token::Assign);
     Expression();
-    // после Expression всегда что-то есть в стеке
-    void *rvalue = nullptr;
-    auto rvalueType = _types.top();
-    _types.pop();
-    IntType irvalue;
-    switch (rvalueType) {
-    case SymbolType::Variable:
-        rvalue = _variables.top().get();
-        _variables.pop();
-        break;
-    case SymbolType::Integer:
-        irvalue = _integers.top();
-        rvalue = &irvalue;
-        _integers.pop();
-        break;
-    }
-    emitAssign(lvalue, rvalueType, rvalue);
+    emitAssign(lvalue);
 }
 
 void Parser::Variable()
@@ -199,54 +183,48 @@ void Parser::emitBinaryOp(OperationType opType, std::shared_ptr<Symbol> &tmpVari
     switch (opType) {
     case OperationType::Add:
     case OperationType::Multiply: {
-        // binaryop
-        // что в стеке терминалов?
-        auto op2Type = _types.top();
-        _types.pop();
-        auto op1Type = _types.top();
-        _types.pop();
-        // здесь проверка типов и по возможности результирующий тип
-        // если нет, то это отдаётся на время выполнения
-        void *op1ptr = nullptr;
-        void *op2ptr = nullptr;
-        IntType iop1, iop2;
-        // обратный порядок
-        switch (op2Type) {
-        case SymbolType::Integer:
-            // нужно временно поместить число куда-нибудь
-            iop2 = _integers.top();
-            op2ptr = &iop2;
-            _integers.pop();
-            break;
-        case SymbolType::Variable:
-            // запись в таблице символов
-            op2ptr = _variables.top().get();
-            _variables.pop();
-            break;
-        }
-        switch (op1Type) {
-        case SymbolType::Integer:
-            // нужно временно поместить число куда-нибудь
-            iop1 = _integers.top();
-            op1ptr = &iop1;
-            _integers.pop();
-            break;
-        case SymbolType::Variable:
-            // запись в таблице символов
-            op1ptr = _variables.top().get();
-            _variables.pop();
-            break;
-        }
+        auto opRecord2 = popStackValue();
+        auto opRecord1 = popStackValue();
         _emitter->binaryOp(opType, tmpVariable.get(),
-                           op1Type, op1ptr, op2Type, op2ptr);
+                           opRecord1.first, opRecord1.second,
+                           opRecord2.first, opRecord2.second);
         break;
     }
+    default:
+        throw std::domain_error("Invalid binary operation");
     }
 }
 
-void Parser::emitAssign(std::shared_ptr<Symbol> &lvalue, SymbolType rvalueType, void *rvalue)
+void Parser::emitAssign(std::shared_ptr<Symbol> &lvalue)
 {
-    _emitter->assign(lvalue.get(), rvalueType, rvalue);
+    // после Expression всегда что-то есть в стеке
+    auto rec = popStackValue();
+    _emitter->assign(lvalue.get(), rec.first, rec.second);
+}
+
+std::pair<SymbolType, OperandRecord> Parser::popStackValue()
+{
+    std::pair<SymbolType, OperandRecord> rec;
+    auto valueType = _types.top();
+    rec.first = valueType;
+    _types.pop();
+    switch (valueType) {
+    case SymbolType::Variable:
+        rec.second.variable = _variables.top().get();
+        _variables.pop();
+        break;
+    case SymbolType::Integer:
+        rec.second.intValue = _integers.top();
+        _integers.pop();
+        break;
+    case SymbolType::Real:
+        rec.second.realValue = _integers.top();
+        _reals.pop();
+        break;
+    default:
+        throw std::domain_error("Unsupported SymbolType");
+    }
+    return rec;
 }
 
 /////////////////////// обработка ошибок //////////////////////////////////////
