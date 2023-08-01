@@ -46,17 +46,23 @@ void Parser::StatementList()
 void Parser::Statement()
 {
     AssignStatement();
+    // после AssignStatement всегда есть что-то, т.к. это выражение,
+    // поэтому вытаскиваем из стека его результат
+    popStackValue();
 }
 
 void Parser::AssignStatement()
 {
     Variable();
-    _types.pop(); // пока всегда SymbolType::Variable
-    auto lvalue = _variables.top();
-    _variables.pop();
+    auto lvalueSymbol = _variables.top();
+    auto top = popStackValue(); // пока всегда SymbolType::Variable
+    auto lvalue = top.second.variable;
     match(Token::Assign);
     Expression();
     emitAssign(lvalue);
+    // поскольку присваивание само является выражением, нужно поместить в стек
+    // результат вычислений
+    pushVariable(lvalueSymbol);
 }
 
 void Parser::Variable()
@@ -73,6 +79,22 @@ void Parser::Variable()
 
 void Parser::Expression()
 {
+    if (lookahead() == Token::Identifier) {
+        // проверяем наличие идентификатора
+        auto tokenText0 = tokenText();
+        auto token0 = lookahead();
+        next();
+        // если знак присваивания, то в ветку AssignStatement
+        if (Lexer::isAssignOp(lookahead())) {
+            // перейти в ветку присваивания
+            pushBack(token0, std::move(tokenText0));
+            AssignStatement();
+            return;
+        }
+        // вернуть идентификатор (прямой порядок, это очередь)
+        pushBack(token0, std::move(tokenText0));
+        // перейти в SimpleExpression
+    }
     SimpleExpression();
 }
 
@@ -126,8 +148,14 @@ void Parser::Term()
 
 void Parser::Factor()
 {
+    std::shared_ptr<Symbol> symbol;
     switch (lookahead()) {
     case Token::Identifier:
+        // это правая часть, здесь - только ранее объявленный id
+        symbol = currentSymbolTable()->find(tokenText());
+        if (!symbol)
+            undeclaredIdentifier();
+        pushVariable(symbol);
         next();
         break;
     case Token::IntegerNumber:
@@ -139,6 +167,8 @@ void Parser::Factor()
     }
 }
 
+//////////////////////// работа с символами  /////////////////////////////
+
 void Parser::match(Token t)
 {
     if (lookahead() != t)
@@ -148,17 +178,40 @@ void Parser::match(Token t)
 
 void Parser::next()
 {
+    if (!_tokensQueue.empty()) {
+        _tokensQueue.pop_front();
+        _tokenTextsQueue.pop_front();
+        return;
+    }
     _lexer->next();
 }
 
 Token Parser::lookahead()
 {
+    if (!_tokensQueue.empty()) {
+        return _tokensQueue.front();
+    }
     return _lexer->currentToken();
 }
 
 const u32string &Parser::tokenText() const
 {
+    if (!_tokenTextsQueue.empty()) {
+        return _tokenTextsQueue.front();
+    }
     return _lexer->tokenText();
+}
+
+void Parser::pushBack(Token t, const std::u32string &str)
+{
+    _tokensQueue.push_back(t);
+    _tokenTextsQueue.push_back(str);
+}
+
+void Parser::pushBack(Token t, std::u32string &&str)
+{
+    _tokensQueue.push_back(t);
+    _tokenTextsQueue.push_back(std::move(str));
 }
 
 std::shared_ptr<SymbolTable> Parser::currentSymbolTable()
@@ -195,11 +248,11 @@ void Parser::emitBinaryOp(OperationType opType, std::shared_ptr<Symbol> &tmpVari
     }
 }
 
-void Parser::emitAssign(std::shared_ptr<Symbol> &lvalue)
+void Parser::emitAssign(Symbol *lvalue)
 {
     // после Expression всегда что-то есть в стеке
     auto rec = popStackValue();
-    _emitter->assign(lvalue.get(), rec.first, rec.second);
+    _emitter->assign(lvalue, rec.first, rec.second);
 }
 
 std::pair<SymbolType, OperandRecord> Parser::popStackValue()
@@ -247,6 +300,11 @@ void Parser::expected(Token expectedToken)
 void Parser::unexpected(Token unexpectedToken)
 {
     error("Unexpected " + TokenName::toString(unexpectedToken));
+}
+
+void Parser::undeclaredIdentifier()
+{
+    error("Undeclared identifier: " + toUtf8(tokenText()));
 }
 
 string Parser::toUtf8(const std::u32string &s)

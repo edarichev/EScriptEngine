@@ -80,7 +80,13 @@ public:
      * @brief Возвращает последнее разобранное вещественное число
      */
     RealType lastRealNumber() const;
-
+    /**
+     * @brief Проверяет, является ли указанный токен одним из операторов
+     *        присваивания.
+     * @param t проверяемый токен
+     * @return true, если это Assign, MulAssign и т.п.
+     */
+    static bool isAssignOp(Token t);
 private:
     /**
      * @brief Считывает следующий символ из входного потока

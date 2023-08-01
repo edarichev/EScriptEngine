@@ -9,6 +9,7 @@
 #include "lexer.h"
 #include "icodeemitter.h"
 #include <stack>
+#include <deque>
 #include "opcode.h"
 
 namespace escript {
@@ -34,6 +35,10 @@ private:
     std::stack<RealType> _reals;
     std::stack<StringType*> _strings;
     std::unique_ptr<ICodeEmitter> _emitter;
+    // типы лексем для возврата
+    std::deque<Token> _tokensQueue;
+    // тексты лексем для возврата
+    std::deque<std::u32string> _tokenTextsQueue;
 public:
     /**
      * @brief Создаёт новый экземпляр класса Parser
@@ -84,13 +89,16 @@ private:
     void pushInt(IntType value);
     void pushVariable(std::shared_ptr<Symbol> &variable);
     void emitBinaryOp(OperationType opType, std::shared_ptr<Symbol> &tmpVariable);
-    void emitAssign(std::shared_ptr<Symbol> &lvalue);
+    void emitAssign(Symbol *lvalue);
     std::pair<SymbolType, OperandRecord> popStackValue();
+    void pushBack(Token t, const std::u32string &str);
+    void pushBack(Token t, std::u32string &&str);
     // обработка ошибок
 private:
     void error(const std::string &msg);
     void expected(Token expectedToken);
     void unexpected(Token unexpectedToken);
+    void undeclaredIdentifier();
     static std::string toUtf8(const std::u32string &s);
 };
 

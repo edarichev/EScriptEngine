@@ -32,6 +32,28 @@ RealType Lexer::lastRealNumber() const
     return _lastRealNumber;
 }
 
+bool Lexer::isAssignOp(Token t)
+{
+    switch (t) {
+    case Token::Assign:             // =
+    case Token::PlusAssign:         // +=
+    case Token::MinusAssign:        // -=
+    case Token::MulAssign:          // *=
+    case Token::SlashAssign:        // /=
+    case Token::PercentAssign:      // %=
+    case Token::RShiftAssign:       // >>=
+    case Token::RShiftZeroAssign:   // >>>=
+    case Token::BitAndAssign:       // &=
+    case Token::BitOrAssign:        // |=
+    case Token::XorAssign:          // ^=
+    case Token::BitNotAssign:       // ~=
+        return true;
+    default:
+        break;
+    }
+    return false;
+}
+
 int Lexer::pos() const
 {
     return _pos;

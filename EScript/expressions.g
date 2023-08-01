@@ -25,6 +25,7 @@ Variable : Identifier
          ;
 
 Expression : SimpleExpression
+           | AssignStatement
            ;
 
 SimpleExpression : Term

@@ -29,4 +29,6 @@ void SimpleExpression_Test::test_simpleAssign()
     engine.eval(code);
     const u32string code2 = U"i = 3 + 2*3;";
     engine.eval(code2);
+    const u32string code3 = U"x = y = 4;";
+    engine.eval(code3);
 }
