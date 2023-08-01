@@ -181,13 +181,13 @@ private:
      * @param s строковое представление числа
      * @return число
      */
-    static long long toLongInteger(const std::u32string &s);
+    static long toLongInteger(const std::u32string &s);
     /**
      * @brief Переводит строку в длинное вещественное
      * @param s строковое представление числа
      * @return число
      */
-    static long double toLongDouble(const std::u32string &s);
+    static double toReal(const std::u32string &s);
 };
 
 } // namespace escript

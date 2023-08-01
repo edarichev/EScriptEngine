@@ -33,6 +33,10 @@ std::string OpCode::toString() const
         numberOfOperands = 1;
         opSign = assign;
         break;
+    case OperationType::UMinus:
+        numberOfOperands = 1;
+        opSign = assign + " UNIMUS";
+        break;
     }
     std::string result;
     if (lvalue)

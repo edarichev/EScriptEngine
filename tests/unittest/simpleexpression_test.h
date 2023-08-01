@@ -10,6 +10,7 @@ private:
     void initTestCase();
     void cleanupTestCase();
     void test_simpleAssign();
+    void test_unaryPlusMinus();
 };
 
 #endif // SIMPLEEXPRESSION_TEST_H

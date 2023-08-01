@@ -56,14 +56,11 @@ std::shared_ptr<Symbol> SymbolTable::find(const std::u32string &identifier)
 std::u32string SymbolTable::makeTempId()
 {
     std::u32string identifier;
+    identifier.reserve(30);
     identifier.append(TEMP_VARIABLE_PREFIX);
     long i = _tmpVariableCounter++;
-    while (i) {
-        long k = i % 10;
-        char32_t c = k + '0';
-        identifier.push_back(c);
-        i /= 10;
-    }
+    std::string id = std::to_string(i);
+    identifier.insert(identifier.begin() + identifier.length(), id.begin(), id.end());
     return identifier;
 }
 

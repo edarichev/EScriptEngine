@@ -475,7 +475,7 @@ void Lexer::readNumber(int firstChar)
         return;
     }
     if (isReal) {
-        _lastRealNumber = toLongDouble(_tokenText);
+        _lastRealNumber = toReal(_tokenText);
         _token = Token::RealNumber;
     } else {
         _lastIntegerNumber = toLongInteger(_tokenText);
@@ -526,13 +526,13 @@ int Lexer::escapeChar(int charCode)
     return charCode;
 }
 
-long long Lexer::toLongInteger(const std::u32string &s)
+long Lexer::toLongInteger(const std::u32string &s)
 {
     std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convert;
     return std::stoll(convert.to_bytes(s));
 }
 
-long double Lexer::toLongDouble(const std::u32string &s)
+double Lexer::toReal(const std::u32string &s)
 {
     std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convert;
     return std::stold(convert.to_bytes(s));

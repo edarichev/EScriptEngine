@@ -7,6 +7,7 @@
 
 #include "EScript_global.h"
 #include "types.h"
+#include <memory>
 
 namespace escript {
 

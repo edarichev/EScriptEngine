@@ -118,7 +118,8 @@ void Parser::SimpleExpression()
         default:
             break;
         }
-    } while (false);
+        break;
+    } while (true);
 }
 
 void Parser::Term()
@@ -143,13 +144,43 @@ void Parser::Term()
         default:
             break;
         }
-    } while (false);
+        break;
+    } while (true);
 }
 
 void Parser::Factor()
 {
     std::shared_ptr<Symbol> symbol;
     switch (lookahead()) {
+    case Token::Plus:
+        // унарный плюс, ничего не делаем
+        next();
+        Factor();
+        return;
+    case Token::Minus:
+        next();
+        // унарный минус
+        Factor();
+        // смотря что положили
+        IntType lastInt;
+        switch (_types.top()) {
+        case SymbolType::Integer:
+            lastInt = _integers.top();
+            _integers.pop();
+            _types.pop();
+            // не нужно тут никакого кода
+            lastInt = -lastInt;
+            pushInt(lastInt);
+            break;
+        case SymbolType::Variable:
+            symbol = _variables.top();
+            emitUnaryOp(OperationType::UMinus, symbol);
+            pushVariable(symbol); // ту же самую
+            break;
+        default:
+            throw std::domain_error("Unsupported SymbolType/Factor");
+        }
+        return;
     case Token::Identifier:
         // это правая часть, здесь - только ранее объявленный id
         symbol = currentSymbolTable()->find(tokenText());
@@ -241,6 +272,20 @@ void Parser::emitBinaryOp(OperationType opType, std::shared_ptr<Symbol> &tmpVari
         _emitter->binaryOp(opType, tmpVariable.get(),
                            opRecord1.first, opRecord1.second,
                            opRecord2.first, opRecord2.second);
+        break;
+    }
+    default:
+        throw std::domain_error("Invalid binary operation");
+    }
+}
+
+void Parser::emitUnaryOp(OperationType opType, std::shared_ptr<Symbol> &tmpVariable)
+{
+    switch (opType) {
+    case OperationType::UMinus: {
+        auto opRecord1 = popStackValue();
+        _emitter->unaryOp(opType, tmpVariable.get(),
+                           opRecord1.first, opRecord1.second);
         break;
     }
     default:

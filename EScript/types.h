@@ -23,8 +23,8 @@ enum class SymbolType
     Variable, // вспомогательный тип
 };
 
-using IntType = long long;
-using RealType = long double;
+using IntType = long;
+using RealType = double;
 using StringType = std::u32string; // потом сделать по стандарту отдельный класс
 
 } // namespace escript

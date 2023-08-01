@@ -28,6 +28,9 @@ public:
                   SymbolType operand2Type, const OperandRecord &operand2);
     void assign(Symbol *lvalue, SymbolType rvalueType,
                 const OperandRecord &operand1);
+    void unaryOp(OperationType operationType,
+                 Symbol *resultVariable,
+                 SymbolType operand1Type, const OperandRecord &operand1);
 };
 
 } // namespace escript

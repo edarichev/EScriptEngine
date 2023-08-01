@@ -89,6 +89,7 @@ private:
     void pushInt(IntType value);
     void pushVariable(std::shared_ptr<Symbol> &variable);
     void emitBinaryOp(OperationType opType, std::shared_ptr<Symbol> &tmpVariable);
+    void emitUnaryOp(OperationType opType, std::shared_ptr<Symbol> &tmpVariable);
     void emitAssign(Symbol *lvalue);
     std::pair<SymbolType, OperandRecord> popStackValue();
     void pushBack(Token t, const std::u32string &str);

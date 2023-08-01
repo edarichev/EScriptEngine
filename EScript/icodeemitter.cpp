@@ -66,5 +66,22 @@ void ICodeEmitter::assign(Symbol *lvalue, SymbolType rvalueType,
     cout << code.toString() << endl;
 }
 
+void ICodeEmitter::unaryOp(OperationType operationType, Symbol *resultVariable,
+                           SymbolType operand1Type, const OperandRecord &operand1)
+{
+    switch (operationType) {
+    case OperationType::UMinus:
+        break;
+    default:
+        throw std::domain_error("Invalid unary operation");
+    }
+    OpCode code;
+    code.lvalue = resultVariable;
+    code.operand1Type = operand1Type;
+    code.operand1 = operand1;
+    code.operation = operationType;
+    cout << code.toString() << endl;
+}
+
 } // namespace escript
 
