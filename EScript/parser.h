@@ -50,6 +50,7 @@ public:
      */
     void parse(const std::u32string &strCode);
     // правила: см. файл грамматики
+    
 private:
     void StatementList();
     void Statement();
@@ -88,12 +89,18 @@ private:
     std::shared_ptr<SymbolTable> currentSymbolTable();
     void pushInt(IntType value);
     void pushVariable(std::shared_ptr<Symbol> &variable);
-    void emitBinaryOp(OperationType opType, std::shared_ptr<Symbol> &tmpVariable);
-    void emitUnaryOp(OperationType opType, std::shared_ptr<Symbol> &tmpVariable);
-    void emitAssign(Symbol *lvalue);
+    void emitBinaryOp(OperationType opType);
+    /**
+     * @brief Унарная операция. Применяется к переменной, находящейся наверху
+     *        стека.
+     * @param opType тип операции
+     */
+    void emitUnaryOp(OperationType opType);
+    void emitAssign(std::shared_ptr<Symbol> &lvalue);
     std::pair<SymbolType, OperandRecord> popStackValue();
     void pushBack(Token t, const std::u32string &str);
     void pushBack(Token t, std::u32string &&str);
+    IntType popInt();
     // обработка ошибок
 private:
     void error(const std::string &msg);

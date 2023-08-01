@@ -7,7 +7,7 @@
 
 namespace escript {
 
-static const constexpr char32_t *TEMP_VARIABLE_PREFIX = U"_tmp_";
+static const constexpr char32_t *TEMP_VARIABLE_PREFIX = U"#tmp_";
 
 SymbolTable::SymbolTable(
         std::shared_ptr<Unit> unit,

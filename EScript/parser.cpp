@@ -38,6 +38,7 @@ void Parser::StatementList()
             continue;
         default:
             Statement();
+            match(Token::Semicolon);
             break;
         }
     } while (true);
@@ -55,11 +56,10 @@ void Parser::AssignStatement()
 {
     Variable();
     auto lvalueSymbol = _variables.top();
-    auto top = popStackValue(); // пока всегда SymbolType::Variable
-    auto lvalue = top.second.variable;
+    popStackValue(); // пока всегда SymbolType::Variable
     match(Token::Assign);
     Expression();
-    emitAssign(lvalue);
+    emitAssign(lvalueSymbol);
     // поскольку присваивание само является выражением, нужно поместить в стек
     // результат вычислений
     pushVariable(lvalueSymbol);
@@ -67,14 +67,18 @@ void Parser::AssignStatement()
 
 void Parser::Variable()
 { // это правило исключительно для l-value
-    expected(Token::Identifier);
-    auto id = tokenText();
-    // отыскиваем переменную в таблице символов
-    auto symbol = currentSymbolTable()->find(id);
-    if (!symbol) // или добавляем новую запись
-        symbol = currentSymbolTable()->add(id);
-    pushVariable(symbol);
-    match(Token::Identifier);
+    if (lookahead() == Token::Identifier) {
+        auto id = tokenText();
+        // отыскиваем переменную в таблице символов
+        auto symbol = currentSymbolTable()->find(id);
+        if (!symbol) // или добавляем новую запись
+            symbol = currentSymbolTable()->add(id);
+        pushVariable(symbol);
+        next();
+    } else {
+        // может быть составной идентификатор: obj.property.method
+        match(Token::Identifier);
+    }
 }
 
 void Parser::Expression()
@@ -100,16 +104,13 @@ void Parser::Expression()
 
 void Parser::SimpleExpression()
 {
-    std::shared_ptr<Symbol> tmp;
     Term();
     do {
         switch (lookahead()) {
         case Token::Plus:
             next();
             Term();
-            tmp = currentSymbolTable()->addTemp();
-            emitBinaryOp(OperationType::Add, tmp);
-            pushVariable(tmp);
+            emitBinaryOp(OperationType::Add);
             continue;
         case Token::Minus:
             next();
@@ -125,7 +126,6 @@ void Parser::SimpleExpression()
 void Parser::Term()
 {
     // временная переменная, нужна для генерации инструкции и помещения её в стек
-    std::shared_ptr<Symbol> tmp;
     Factor();
     // в стеке находится результат вызова Factor(), например, число.
     do {
@@ -133,9 +133,7 @@ void Parser::Term()
         case Token::Asterisk: // умножение
             next();
             Factor();
-            tmp = currentSymbolTable()->addTemp();
-            emitBinaryOp(OperationType::Multiply, tmp);
-            pushVariable(tmp);
+            emitBinaryOp(OperationType::Multiply);
             continue;
         case Token::Slash: // деление
             next();
@@ -167,25 +165,7 @@ void Parser::Factor()
         next();
         // унарный минус
         Factor();
-        // смотря что положили
-        IntType lastInt;
-        switch (_types.top()) {
-        case SymbolType::Integer:
-            lastInt = _integers.top();
-            _integers.pop();
-            _types.pop();
-            // не нужно тут никакого кода
-            lastInt = -lastInt;
-            pushInt(lastInt);
-            break;
-        case SymbolType::Variable:
-            symbol = _variables.top();
-            emitUnaryOp(OperationType::UMinus, symbol);
-            pushVariable(symbol); // ту же самую
-            break;
-        default:
-            throw std::domain_error("Unsupported SymbolType/Factor");
-        }
+        emitUnaryOp(OperationType::UMinus);
         return;
     case Token::Identifier:
         // это правая часть, здесь - только ранее объявленный id
@@ -268,16 +248,26 @@ void Parser::pushVariable(std::shared_ptr<Symbol> &variable)
     _types.push(SymbolType::Variable);
 }
 
-void Parser::emitBinaryOp(OperationType opType, std::shared_ptr<Symbol> &tmpVariable)
+IntType escript::Parser::popInt()
+{
+    IntType lastInt = _integers.top();
+    _integers.pop();
+    _types.pop();
+    return lastInt;
+}
+
+void Parser::emitBinaryOp(OperationType opType)
 {
     switch (opType) {
     case OperationType::Add:
     case OperationType::Multiply: {
         auto opRecord2 = popStackValue();
         auto opRecord1 = popStackValue();
-        _emitter->binaryOp(opType, tmpVariable.get(),
+        std::shared_ptr<Symbol> tmp = currentSymbolTable()->addTemp();
+        _emitter->binaryOp(opType, tmp.get(),
                            opRecord1.first, opRecord1.second,
                            opRecord2.first, opRecord2.second);
+        pushVariable(tmp);
         break;
     }
     default:
@@ -285,25 +275,43 @@ void Parser::emitBinaryOp(OperationType opType, std::shared_ptr<Symbol> &tmpVari
     }
 }
 
-void Parser::emitUnaryOp(OperationType opType, std::shared_ptr<Symbol> &tmpVariable)
+void Parser::emitUnaryOp(OperationType opType)
 {
-    switch (opType) {
-    case OperationType::UMinus: {
+    std::shared_ptr<Symbol> symbol;
+    // смотря что положили
+    IntType lastInt;
+    switch (_types.top()) {
+    case SymbolType::Integer:
+        lastInt = popInt();
+        // не нужно тут никакого кода, сразу выполняем действие
+        switch (opType) {
+        case OperationType::UMinus:
+            lastInt = -lastInt;
+            break;
+        default:
+            throw std::domain_error("Invalid unary operation");
+        }
+        pushInt(lastInt);
+        break;
+    case SymbolType::Variable: {
+        symbol = _variables.top();
         auto opRecord1 = popStackValue();
-        _emitter->unaryOp(opType, tmpVariable.get(),
+        _emitter->unaryOp(opType, opRecord1.second.variable,
                            opRecord1.first, opRecord1.second);
+        pushVariable(symbol); // ту же самую
         break;
     }
     default:
-        throw std::domain_error("Invalid binary operation");
+        error("Unsupported SymbolType/Factor");
     }
+
 }
 
-void Parser::emitAssign(Symbol *lvalue)
+void Parser::emitAssign(std::shared_ptr<Symbol> &lvalue)
 {
     // после Expression всегда что-то есть в стеке
     auto rec = popStackValue();
-    _emitter->assign(lvalue, rec.first, rec.second);
+    _emitter->assign(lvalue.get(), rec.first, rec.second);
 }
 
 std::pair<SymbolType, OperandRecord> Parser::popStackValue()
