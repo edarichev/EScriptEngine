@@ -10,6 +10,7 @@ void SimpleExpression_Test::run()
     initTestCase();
     test_simpleAssign();
     test_unaryPlusMinus();
+    test_parenth();
     cleanupTestCase();
 }
 
@@ -51,5 +52,17 @@ void SimpleExpression_Test::test_unaryPlusMinus()
     engine.eval(code5);
     const u32string code6 = U"i = 0; x = -i + +i + -7;";
     engine.eval(code6);
-    cout << "end if Unary plus\n";
+    cout << "end of Unary plus\n";
+}
+
+void SimpleExpression_Test::test_parenth()
+{
+    cout << "No Parenth:\n";
+    EScript engine;
+    const u32string code1 = U"x = 7 + 8 * 3 + 2 + 5 * 4;";
+    engine.eval(code1);
+    cout << "Parenth\'s:\n";
+    const u32string code2 = U"x = ((7 + 8) * 3) + (2 + 5) * 4;";
+    engine.eval(code2);
+    cout << "End of Parenth\'s\n";
 }

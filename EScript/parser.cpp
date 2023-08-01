@@ -152,6 +152,12 @@ void Parser::Factor()
 {
     std::shared_ptr<Symbol> symbol;
     switch (lookahead()) {
+    case Token::LeftParenth:
+        // круглые скобки
+        next();
+        SimpleExpression();
+        match(Token::RightParenth);
+        return;
     case Token::Plus:
         // унарный плюс, ничего не делаем
         next();
