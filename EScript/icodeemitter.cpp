@@ -23,7 +23,7 @@ void ICodeEmitter::binaryOp(OperationType operationType,
     default:
         throw std::domain_error("Invalid binary operation");
     }
-    OpCode code;
+    TCode code;
     code.lvalue = resultVariable;
     code.setOperand1(operand1Type, operand1);
     code.setOperand2(operand2Type, operand2);
@@ -45,7 +45,7 @@ void ICodeEmitter::binaryOp(OperationType operationType,
     default:
         throw std::domain_error("Invalid binary operation");
     }
-    OpCode code;
+    TCode code;
     code.lvalue = resultVariable;
     code.operand1Type = operand1Type;
     code.operand1 = operand1;
@@ -58,7 +58,7 @@ void ICodeEmitter::binaryOp(OperationType operationType,
 void ICodeEmitter::assign(Symbol *lvalue, SymbolType rvalueType,
                           const OperandRecord &operand1)
 {
-    OpCode code;
+    TCode code;
     code.lvalue = lvalue;
     code.operation = OperationType::Assign;
     code.operand1Type = rvalueType;
@@ -75,7 +75,7 @@ void ICodeEmitter::unaryOp(OperationType operationType, Symbol *resultVariable,
     default:
         throw std::domain_error("Invalid unary operation");
     }
-    OpCode code;
+    TCode code;
     code.lvalue = resultVariable;
     code.operand1Type = operand1Type;
     code.operand1 = operand1;

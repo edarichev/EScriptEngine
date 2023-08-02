@@ -11,31 +11,38 @@ CONFIG += PRECOMPILE_HEADER
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    assembler.cpp \
     block.cpp \
     escript.cpp \
     icodeemitter.cpp \
+    instruction.cpp \
     keyword.cpp \
     lexer.cpp \
-    opcode.cpp \
+    machine.cpp \
     parser.cpp \
     stdafx.cpp \
     symbol.cpp \
     symboltable.cpp \
+    tcode.cpp \
     token.cpp \
     unit.cpp
 
 HEADERS += \
     EScript_global.h \
+    assembler.h \
     block.h \
     escript.h \
     icodeemitter.h \
+    instruction.h \
     keyword.h \
     lexer.h \
+    machine.h \
     opcode.h \
     parser.h \
     stdafx.h \
     symbol.h \
     symboltable.h \
+    tcode.h \
     token.h \
     types.h \
     unit.h

@@ -4,6 +4,7 @@
 #include "codeunit_test.h"
 #include "codegen_test.h"
 #include "opcode_test.h"
+#include "assembler_test.h"
 
 using namespace std;
 
@@ -14,6 +15,7 @@ int main()
     CodeUnit_Test().run();
     CodeGen_Test().run();
     OpCode_Test().run();
+    Assembler_Test().run();
     cout << "Tests OK" << endl;
     return 0;
 }

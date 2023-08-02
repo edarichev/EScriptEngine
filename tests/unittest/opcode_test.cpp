@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "opcode_test.h"
 
-#include "opcode.h"
+#include "tcode.h"
 
 using namespace escript;
 using namespace std;
@@ -26,7 +26,7 @@ void OpCode_Test::cleanupTestCase()
 
 void OpCode_Test::test_opCodeWork()
 {
-    OpCode code1;
+    TCode code1;
     code1.operand1Type = SymbolType::Integer;
     code1.operand1.intValue = 15;
     code1.operand2Type = SymbolType::Real;

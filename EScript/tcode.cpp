@@ -3,13 +3,13 @@
  * @brief Инструкция трёхадресного кода
  */
 #include "stdafx.h"
-#include "opcode.h"
+#include "tcode.h"
 #include "symbol.h"
 #include "types.h"
 
 namespace escript {
 
-std::string OpCode::toString() const
+std::string TCode::toString() const
 {
     std::string op;
     int numberOfOperands = 0;
@@ -56,17 +56,17 @@ std::string OpCode::toString() const
     return result;
 }
 
-void OpCode::setOperand1(SymbolType operandType, void *value)
+void TCode::setOperand1(SymbolType operandType, void *value)
 {
     setOperand(operand1Type, operand1, operandType, value);
 }
 
-void OpCode::setOperand2(SymbolType operandType, void *value)
+void TCode::setOperand2(SymbolType operandType, void *value)
 {
     setOperand(operand2Type, operand2, operandType, value);
 }
 
-void OpCode::setOperand(SymbolType &operandType, OperandRecord &op,
+void TCode::setOperand(SymbolType &operandType, OperandRecord &op,
                         SymbolType newOperandType, void *value)
 {
     operandType = newOperandType;
@@ -85,7 +85,7 @@ void OpCode::setOperand(SymbolType &operandType, OperandRecord &op,
     }
 }
 
-std::string OpCode::operandToString(SymbolType operandType, OperandRecord op) const
+std::string TCode::operandToString(SymbolType operandType, OperandRecord op) const
 {
     std::string opStr;
     switch (operandType) {

@@ -10,7 +10,7 @@
 #include "icodeemitter.h"
 #include <stack>
 #include <deque>
-#include "opcode.h"
+#include "tcode.h"
 
 namespace escript {
 

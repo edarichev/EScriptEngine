@@ -7,7 +7,7 @@
 
 #include "EScript_global.h"
 #include "symbol.h"
-#include "opcode.h"
+#include "tcode.h"
 
 namespace escript {
 

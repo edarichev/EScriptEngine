@@ -5,6 +5,7 @@ CONFIG -= qt
 CONFIG += PRECOMPILE_HEADER
 
 SOURCES += \
+        assembler_test.cpp \
         codegen_test.cpp \
         codeunit_test.cpp \
         lexer_test.cpp \
@@ -14,6 +15,7 @@ SOURCES += \
         stdafx.cpp
 
 HEADERS += \
+    assembler_test.h \
     codegen_test.h \
     codeunit_test.h \
     lexer_test.h \
