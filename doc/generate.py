@@ -48,7 +48,7 @@ def shiftText(t, shift):
     return s
 
 def makeEnumId(sMnemonic):
-    return sMnemonic.replace(",", "_").replace(" ", "_").replace("__", "_");
+    return sMnemonic.replace(".", "_").replace(",", "_").replace(" ", "_").replace("__", "_");
 
 def generateEnumItem(parts, shift, orderNum):
     s = ""
@@ -100,7 +100,7 @@ def makeTestCode(parts):
     '''
     
     sTemplateOpCode2 = '''
-    value64 = rand();
+    $(Variable) = rand();
     a.$(Func)($(Variable));
     p = obj.data() + n;
     n += Assembler::instructionSize(OpCode::$(OpCode));
@@ -110,16 +110,9 @@ def makeTestCode(parts):
     assert(obj.size() == n);
     '''
     
-    sVariable = "value64" # заменить на другой
+    
     sType = parts[3]
-    if sType == "uint64_t":
-        sVariable = "value64"
-    elif sType == "uint32_t":
-        sVariable = "value32"
-    elif sType == "uint16_t":
-        sVariable = "value16"
-    elif sType == "uint8_t":
-        sVariable = "value8"
+    sVariable = sType + "_value" # заменить на другой
     nOperands = int(parts[1])
     if nOperands == 0:
         s = sTemplateOpCode1
@@ -236,7 +229,14 @@ testCppFile = "assembler_test.cpp"
 with codecs.open(testCppFile, "w", "utf-8") as temp:
     temp.write(strTestContent)
 
+mainProjectDir = "../EScript/"
+testProjectDir = "../tests/unittest/"
 
+import shutil
+shutil.copyfile(fileOpCodeH, mainProjectDir + fileOpCodeH)
+shutil.copyfile(fileAssemblerH, mainProjectDir + fileAssemblerH)
+shutil.copyfile(fileAssemblerCPP, mainProjectDir + fileAssemblerCPP)
+shutil.copyfile(testCppFile, testProjectDir + testCppFile)
 
 
 

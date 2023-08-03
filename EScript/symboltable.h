@@ -41,6 +41,10 @@ public:
     {
         return _symbols.end();
     }
+    size_t size()
+    {
+        return _symbols.size();
+    }
     /**
      * @brief Добавляет новый символ в таблицу
      * @param identifier идентификатор

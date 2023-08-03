@@ -18,4 +18,13 @@
 #  define ESCRIPT_EXPORT Q_DECL_IMPORT
 #endif
 
+namespace escript {
+
+/**
+ * Тип данных, равный размеру указателя
+ */
+using PtrIntType = uint64_t;
+
+} // namespace escript
+
 #endif // ESCRIPT_GLOBAL_H

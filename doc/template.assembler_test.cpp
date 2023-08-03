@@ -36,7 +36,9 @@ void Assembler_Test::test_byteSequence()
     std::vector<uint8_t> obj;
     Assembler a(obj);
     // переменные для теста записи
-    uint64_t value64 = 0;
+    uint64_t uint64_t_value = 0;
+    int64_t int64_t_value = 0;
+    double double_value = 0;
     //uint64_t value32 = 0;
     //uint64_t value16 = 0;
     //uint64_t value8 = 0;

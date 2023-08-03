@@ -8,6 +8,16 @@
 
 namespace escript {
 
+uint64_t Symbol::location() const
+{
+    return _location;
+}
+
+void Symbol::setLocation(uint64_t newLocation)
+{
+    _location = newLocation;
+}
+
 Symbol::Symbol(std::shared_ptr<Unit> unit,
                const std::u32string &id,
                SymbolType dataType)
@@ -40,26 +50,14 @@ SymbolType Symbol::type() const
 void Symbol::setType(SymbolType newType)
 {
     if (_type != newType) {
-        detachOldValue();
         _type = newType;
         switch (_type) {
         case SymbolType::Integer:
-            _dataPtr = _unit->addStaticIntValue();
             break;
         default:
             throw std::domain_error("Unsupported data type");
         }
     }
-}
-
-void *Symbol::data() const
-{
-    return _dataPtr;
-}
-
-void Symbol::detachOldValue()
-{
-    // TODO: уведомить среду выполнения, что cтарое значение больше не нужно
 }
 
 } // namespace escript

@@ -39,6 +39,7 @@ void EScript::eval(const std::u32string &strCode)
     Translator translator;
     // пока нет вложенных блоков, передаём глобальный блок
     translator.translate(_unit->block(), buffer, objectFile);
+    Assembler::disassemble(objectFile, std::cout);
 }
 
 } // namespace escript

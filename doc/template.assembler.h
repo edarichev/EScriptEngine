@@ -61,6 +61,13 @@ public:
      */
     static uint8_t instructionSize(OpCode opCode);
 
+    /**
+     * @brief Дизассемблирует объектный файл
+     * @param objectFile объектный файл
+     * @param out поток вывода, например, std::cout
+     */
+    static void disassemble(const std::vector<ContainerElementType> &objectFile, std::ostream &out);
+
     // Команды. Код и операнды записываются в буфер памяти
 public:
 $(CommandList)
@@ -81,7 +88,7 @@ private:
      * @param data операнд
      */
     template<typename T>
-    typename std::enable_if_t<std::is_integral_v<T>, void>
+    typename std::enable_if_t<std::is_arithmetic_v<T>, void>
     op2(OpCode opCode, T data)
     {
         op1(opCode);                  // код операции

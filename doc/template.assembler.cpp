@@ -50,4 +50,25 @@ void Assembler::initOpCodesMap()
     }
 }
 
+void Assembler::disassemble(const std::vector<ContainerElementType> &objectFile, std::ostream &out)
+{
+    size_t i = 0;
+    const uint8_t *p = objectFile.data();
+    // пропустить 4 байта "DATA"
+    uint32_t dataLength = *(uint32_t*)(p + 4);
+    i = 4 + 4 + dataLength + 4; // 4=DATA + dataLength + 4=CODE
+    uint32_t codeLength = *(uint32_t*)(p + i);
+    i += sizeof (codeLength);
+    size_t n = i + codeLength;
+    while (i < n) {
+        // читаем команду
+        OpCodeType opCodeType = *(OpCodeType*)(p + i);
+        OpCode opCode = (OpCode)opCodeType;
+        uint8_t instrSize = instructionSize(opCode);
+        i += instrSize;
+        out << mnemonics(opCode) << std::endl;
+    }
+    assert (n == i);
+}
+
 } // namespace escript

@@ -29,7 +29,7 @@ public:
     if (method == #name) { \
         param1type param1 = 0; /* из стека извлечь */ \
         returnType result = name(param1); \
-        cout << result << endl; /*поместить в стек результат*/\
+        /*cout << result << endl;*/ /*поместить результат в стек*/\
         return true; \
     } \
 
@@ -78,11 +78,10 @@ void Automation_Test::run()
     cleanupTestCase();
 }
 
+#include <regex>
 void Automation_Test::initTestCase()
 {
-    string s1 = "hrehioewhewi;";
-    string str2 = "hjfhgjh";
-    cout << s1.compare(2, 1000, str2, 3, 44444);
+
 }
 
 void Automation_Test::cleanupTestCase()

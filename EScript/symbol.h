@@ -23,8 +23,9 @@ private:
     const std::u32string _name;
     // тип данных
     SymbolType _type { SymbolType::Undefined };
-    // указатель на данные
-    void *_dataPtr = nullptr;
+    // При трансляции: размещение области памяти этой переменной
+    // относительно начала объектного файла.
+    uint64_t _location = 0;
 public:
     /**
      * @brief Создаёт новый экземпляр класса Symbol
@@ -45,19 +46,15 @@ public:
      * @param newType новый тип данных
      */
     void setType(SymbolType newType);
-    /**
-     * @brief Возвращает указатель на данные
-     * @return
-     */
-    void *data() const;
     const std::u32string &name() const;
     const std::string utf8Name() const;
-
-private:
     /**
-     * @brief Отсоединяет старое значение
+     * @brief При трансляции: размещение области памяти этой переменной
+     *        относительно начала объектного файла.
+     * @return
      */
-    void detachOldValue();
+    uint64_t location() const;
+    void setLocation(uint64_t newLocation);
 };
 
 } // namespace escript
