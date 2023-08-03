@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "escript.h"
 #include "parser.h"
+#include "translator.h"
 
 namespace escript {
 
@@ -30,8 +31,14 @@ void EScript::clear()
 
 void EScript::eval(const std::u32string &strCode)
 {
-    Parser parser(_unit);
+    std::vector<TCode> buffer;
+    Parser parser(_unit, buffer);
     parser.parse(strCode);
+    // оптимизатор промежуточного кода будет находиться здесь
+    std::vector<uint8_t> objectFile;
+    Translator translator;
+    // пока нет вложенных блоков, передаём глобальный блок
+    translator.translate(_unit->block(), buffer, objectFile);
 }
 
 } // namespace escript

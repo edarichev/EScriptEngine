@@ -5,7 +5,7 @@ Created on Wed Aug  2 14:25:12 2023
 
 @author: de
 
-Генерирует классы Assembler, OpCode
+Генерирует классы Assembler, OpCode, Assembler_Test
 """
 
 from datetime import datetime

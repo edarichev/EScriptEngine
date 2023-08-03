@@ -8,6 +8,7 @@
 #include "EScript_global.h"
 #include "symbol.h"
 #include "tcode.h"
+#include <vector>
 
 namespace escript {
 
@@ -17,7 +18,10 @@ namespace escript {
  */
 class ESCRIPT_EXPORT ICodeEmitter
 {
+private:
+    std::vector<TCode> &_buffer;
 public:
+    ICodeEmitter(std::vector<TCode> &buffer);
     void binaryOp(OperationType operationType,
                   Symbol *resultVariable,
                   SymbolType operand1Type, void *operand1,

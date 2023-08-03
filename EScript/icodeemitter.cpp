@@ -10,6 +10,12 @@ using std::endl;
 
 namespace escript {
 
+ICodeEmitter::ICodeEmitter(std::vector<TCode> &buffer)
+    : _buffer(buffer)
+{
+
+}
+
 void ICodeEmitter::binaryOp(OperationType operationType,
                             Symbol *resultVariable,
                             SymbolType operand1Type, void *operand1,
@@ -28,7 +34,7 @@ void ICodeEmitter::binaryOp(OperationType operationType,
     code.setOperand1(operand1Type, operand1);
     code.setOperand2(operand2Type, operand2);
     code.operation = operationType;
-    cout << code.toString() << endl;
+    _buffer.push_back(code);
 }
 
 void ICodeEmitter::binaryOp(OperationType operationType,
@@ -52,7 +58,7 @@ void ICodeEmitter::binaryOp(OperationType operationType,
     code.operand2Type = operand2Type;
     code.operand2 = operand2;
     code.operation = operationType;
-    cout << code.toString() << endl;
+    _buffer.push_back(code);
 }
 
 void ICodeEmitter::assign(Symbol *lvalue, SymbolType rvalueType,
@@ -63,7 +69,7 @@ void ICodeEmitter::assign(Symbol *lvalue, SymbolType rvalueType,
     code.operation = OperationType::Assign;
     code.operand1Type = rvalueType;
     code.operand1 = operand1;
-    cout << code.toString() << endl;
+    _buffer.push_back(code);
 }
 
 void ICodeEmitter::unaryOp(OperationType operationType, Symbol *resultVariable,
@@ -80,7 +86,7 @@ void ICodeEmitter::unaryOp(OperationType operationType, Symbol *resultVariable,
     code.operand1Type = operand1Type;
     code.operand1 = operand1;
     code.operation = operationType;
-    cout << code.toString() << endl;
+    _buffer.push_back(code);
 }
 
 } // namespace escript

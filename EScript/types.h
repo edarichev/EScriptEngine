@@ -20,7 +20,10 @@ enum class SymbolType
     String,
     Function,
     Object,
-    Variable, // вспомогательный тип
+    /**
+     * Вспомогательный тип, он нужен только в таблице символов
+     */
+    Variable,
 };
 
 using IntType = long;

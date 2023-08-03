@@ -43,7 +43,7 @@ public:
     /**
      * @brief Создаёт новый экземпляр класса Parser
      */
-    Parser(std::shared_ptr<Unit> &unit);
+    Parser(std::shared_ptr<Unit> &unit, std::vector<TCode> &outBuffer);
     /**
      * @brief производит синтаксический разбор строки кода
      * @param strCode строка кода

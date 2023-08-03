@@ -10,10 +10,10 @@ using namespace std;
 
 namespace escript {
 
-Parser::Parser(std::shared_ptr<Unit> &unit)
+Parser::Parser(std::shared_ptr<Unit> &unit, std::vector<TCode> &outBuffer)
     : _unit(unit)
 {
-    _emitter = std::make_unique<ICodeEmitter>();
+    _emitter = std::make_unique<ICodeEmitter>(outBuffer);
 }
 
 void Parser::parse(const std::u32string &strCode)

@@ -25,6 +25,7 @@ SOURCES += \
     symboltable.cpp \
     tcode.cpp \
     token.cpp \
+    translator.cpp \
     unit.cpp
 
 HEADERS += \
@@ -44,6 +45,7 @@ HEADERS += \
     symboltable.h \
     tcode.h \
     token.h \
+    translator.h \
     types.h \
     unit.h
 

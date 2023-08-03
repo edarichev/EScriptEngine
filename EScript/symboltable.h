@@ -33,6 +33,14 @@ public:
      * @brief Освобождает связанные с этим экземпляром ресурсы
      */
     virtual ~SymbolTable();
+    std::map<std::u32string, std::shared_ptr<Symbol> >::iterator begin()
+    {
+        return _symbols.begin();
+    }
+    std::map<std::u32string, std::shared_ptr<Symbol> >::iterator end()
+    {
+        return _symbols.end();
+    }
     /**
      * @brief Добавляет новый символ в таблицу
      * @param identifier идентификатор
