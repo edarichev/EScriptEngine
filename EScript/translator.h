@@ -29,15 +29,33 @@ public:
      * @brief Освобождает связанные с этим экземпляром ресурсы
      */
     virtual ~Translator() = default;
-
+    /**
+     * @brief Транслирует в машинный код указанный блок как единое целое,
+     *        получая объектный файл outBuffer
+     * @param block транслируемый блок верхнего уровня
+     * @param inputBuffer буфер с трёхадресным кодом
+     * @param outBuffer выходной объектный файл (должен быть пустым)
+     */
     void translate(std::shared_ptr<Block> block,
                    const std::vector<TCode> &inputBuffer,
                    std::vector<uint8_t> &outBuffer);
 private:
+    /**
+     * @brief Возвращает короткую ссылку на ассемблер для удобства
+     */
     Assembler &as() { return *_asm.get(); }
+    /**
+     * @brief Записывает секцию DATA (переменные)
+     * @param block транслируемый блок
+     * @param outBuffer выходной буфер
+     */
     void writeVariableSection(std::shared_ptr<Block> block,
                               std::vector<uint8_t> &outBuffer);
-    void translateOperation(const TCode &c, std::vector<uint8_t> &outBuffer);
+    /**
+     * @brief Транслирует в машинный код указанную операцию
+     * @param c трёхадресная операция
+     */
+    void translateOperation(const TCode &c);
     /**
      * @brief Абстракция для извлечения адреса
      * @param symbol
@@ -45,6 +63,7 @@ private:
      */
     PtrIntType location(Symbol *symbol);
 private:
+    void binaryOp(const TCode &c);
     void opAdd(const TCode &c);
     void opMul(const TCode &c);
     void opUMinus(const TCode &c);

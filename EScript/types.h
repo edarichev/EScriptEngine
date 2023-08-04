@@ -10,7 +10,7 @@ namespace escript {
 /**
  * @brief Тип символа
  */
-enum class SymbolType
+enum class SymbolType : uint8_t
 {
     Undefined,
     Null,

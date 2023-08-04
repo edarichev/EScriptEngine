@@ -7,6 +7,7 @@
 
 #include "EScript_global.h"
 #include "unit.h"
+#include "machine.h"
 
 namespace escript {
 
@@ -16,6 +17,7 @@ namespace escript {
 class ESCRIPT_EXPORT EScript
 {
 private:
+    Machine _machine;
     std::shared_ptr<Unit> _unit;
 public:
     /**
@@ -40,6 +42,7 @@ public:
      * @brief Сбрасывает движок в первоначальное состояние.
      */
     void clear();
+    ObjectRecord *getObjectRecord(std::shared_ptr<Symbol> symbol);
 };
 
 } // namespace escript

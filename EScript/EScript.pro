@@ -20,7 +20,9 @@ SOURCES += \
     lexer.cpp \
     machine.cpp \
     parser.cpp \
+    processor.cpp \
     stdafx.cpp \
+    storage.cpp \
     symbol.cpp \
     symboltable.cpp \
     tcode.cpp \
@@ -40,7 +42,9 @@ HEADERS += \
     machine.h \
     opcode.h \
     parser.h \
+    processor.h \
     stdafx.h \
+    storage.h \
     symbol.h \
     symboltable.h \
     tcode.h \

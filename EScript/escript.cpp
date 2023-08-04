@@ -29,6 +29,13 @@ void EScript::clear()
     _unit->clear();
 }
 
+ObjectRecord *EScript::getObjectRecord(std::shared_ptr<Symbol> symbol)
+{
+    auto s = _machine.storage();
+    ObjectRecord *r = s.findRecord(symbol.get());
+    return r;
+}
+
 void EScript::eval(const std::u32string &strCode)
 {
     std::vector<TCode> buffer;
@@ -40,6 +47,8 @@ void EScript::eval(const std::u32string &strCode)
     // пока нет вложенных блоков, передаём глобальный блок
     translator.translate(_unit->block(), buffer, objectFile);
     Assembler::disassemble(objectFile, std::cout);
+    _machine.load(_unit->block(), objectFile);
+    _machine.run();
 }
 
 } // namespace escript
