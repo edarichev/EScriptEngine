@@ -20,7 +20,6 @@ class ESCRIPT_EXPORT Assembler
 {
 public:
     using ContainerElementType = uint8_t;
-    using OpCodeType = $(OpCodeEnumDataType);
 private:
     // буфер для записи (объектный файл)
     std::vector<ContainerElementType> &_buffer;

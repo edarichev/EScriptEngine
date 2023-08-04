@@ -1,0 +1,34 @@
+public:
+    /**
+     * @brief Запуск выполнения с текущей позиции PC
+     */
+    void run()
+    {
+        _p = _memory + _pc;
+        while (_pc < _memoryLimit) {
+            OpCode opCode = (OpCode) *((OpCodeType*)(_p));
+            auto shift = Assembler::instructionSize(opCode);
+            switch (opCode) {
+            case OpCode::HALT:
+                next(shift);
+                return;
+$(OpCodesRunCase)
+            default:
+                throw std::domain_error("Unsupported instruction: " + std::to_string((int)opCode));
+            }
+        }
+    }
+private:
+
+    void next()
+    {
+        next(sizeof (OpCodeType));
+    }
+
+    void next(size_t shift)
+    {
+        _pc += shift;
+        _p += shift;
+    }
+
+$(OpCodesProcessorFunctions)

@@ -9,6 +9,8 @@
 
 namespace escript {
 
+using OpCodeType = $(OpCodeEnumDataType);
+
 /**
  * @brief Перечисление кодов операций
  */
