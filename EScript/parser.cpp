@@ -115,6 +115,7 @@ void Parser::SimpleExpression()
         case Token::Minus:
             next();
             Term();
+            emitBinaryOp(OperationType::Minus);
             continue;
         default:
             break;
@@ -138,6 +139,7 @@ void Parser::Term()
         case Token::Slash: // деление
             next();
             Factor();
+            emitBinaryOp(OperationType::Div);
             continue;
         default:
             break;
@@ -260,6 +262,8 @@ void Parser::emitBinaryOp(OperationType opType)
 {
     switch (opType) {
     case OperationType::Add:
+    case OperationType::Div:
+    case OperationType::Minus:
     case OperationType::Multiply: {
         auto opRecord2 = popStackValue();
         auto opRecord1 = popStackValue();

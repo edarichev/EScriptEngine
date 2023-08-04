@@ -11,6 +11,7 @@ void SimpleExpression_Test::run()
     test_simpleAssign();
     test_unaryPlusMinus();
     test_parenth();
+    test_integerExpressions1();
     cleanupTestCase();
 }
 
@@ -84,4 +85,14 @@ void SimpleExpression_Test::test_parenth()
     const u32string code2 = U"x = ((7 + 8) * 3) + (2 + 5) * 4;";
     engine2.eval(code2);
     //cout << "End of Parenth\'s\n";
+}
+
+void SimpleExpression_Test::test_integerExpressions1()
+{
+    EScript engine1;
+    const u32string code1 = U"x = 1 - 2 + 3*4 - 5 / 2 + 6;";
+    engine1.eval(code1);
+    auto x = engine1.unit()->block()->symbolTable()->find(U"x");
+    auto record = engine1.getObjectRecord(x);
+    assert((int64_t)record->data == 1 - 2 + 3*4 - 5 / 2 + 6);
 }

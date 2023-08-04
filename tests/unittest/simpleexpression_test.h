@@ -12,6 +12,7 @@ private:
     void test_simpleAssign();
     void test_unaryPlusMinus();
     void test_parenth();
+    void test_integerExpressions1();
 };
 
 #endif // SIMPLEEXPRESSION_TEST_H

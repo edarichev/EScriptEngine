@@ -18,6 +18,8 @@ enum class OperationType
     Assign,         // lvalue = op1
     Multiply,       // op1*op2
     Add,            // op1+op2
+    Div,            // op1/op2
+    Minus,          // op1-op2
     UMinus,         // -op1
 };
 

@@ -74,6 +74,12 @@ public:
             case OpCode::MULST:
                 mulst();
                 break;
+            case OpCode::SUBST:
+                subst();
+                break;
+            case OpCode::DIVST:
+                divst();
+                break;
             case OpCode::LDC_INT64_DATA64:
                 ldc_int64_data64();
                 break;
@@ -87,8 +93,7 @@ public:
                 neg();
                 break;
             default:
-                std::cout << "Unsupported instruction: " << (int)opCode << std::endl;
-                next();
+                throw std::domain_error("Unsupported instruction: " + std::to_string((int)opCode));
             }
         }
     }
@@ -116,90 +121,107 @@ private:
         }
     }
 
-    void mulst()
+    using BinaryIntFnPtr = int64_t (*)(int64_t value1, int64_t value2);
+
+    static int64_t _add(int64_t value1, int64_t value2)
+    {
+        return value1 + value2;
+    }
+
+    static int64_t _mul(int64_t value1, int64_t value2)
+    {
+        return value1 * value2;
+    }
+
+    static int64_t _sub(int64_t value1, int64_t value2)
+    {
+        return value1 - value2;
+    }
+
+    static int64_t _div(int64_t value1, int64_t value2)
+    {
+        return value1 / value2;
+    }
+
+    void binaryStackOp(OpCode opCode)
     {
         next();
+        BinaryIntFnPtr fn = nullptr;
+        switch (opCode) {
+        case OpCode::SUBST:
+            fn = _sub;
+            break;
+        case OpCode::MULST:
+            fn = _mul;
+            break;
+        case OpCode::ADDST:
+            fn = _add;
+            break;
+        case OpCode::DIVST:
+            fn = _div;
+            break;
+        default:
+            throw std::domain_error("Unsupported binary operation");
+        }
         auto item2 = popFromStack();
         auto item1 = popFromStack();
+        int64_t v1{}, v2{};
         if (item1.first == SymbolType::Integer && item2.first == SymbolType::Integer) {
-            int64_t v1 = (int64_t)item1.second;
-            int64_t v2 = (int64_t)item2.second;
-            pushToStack(SymbolType::Integer, v1 * v2);
+            v1 = (int64_t)item1.second;
+            v2 = (int64_t)item2.second;
         } else if (item1.first == SymbolType::Integer && item2.first == SymbolType::Variable) {
             ObjectRecord *ptr = (ObjectRecord*)item2.second;
-            // здесь проверка, как сложить два разных типа
             if (ptr->type == SymbolType::Integer) {
-                int64_t value = (int64_t)ptr->data;
-                value *= (int64_t)item1.second;
-                pushToStack(SymbolType::Integer, value);
+                v1 = (int64_t)item1.second;
+                v2 = (int64_t)ptr->data;
             } else {
                 // здесь проверка, как сложить два разных типа
                 pushToStack(SymbolType::Integer, 0); // пока 0
+                return;
             }
         } else if (item1.first == SymbolType::Variable && item2.first == SymbolType::Integer) {
             ObjectRecord *ptr = (ObjectRecord*)item1.second;
             if (ptr->type == SymbolType::Integer) {
-                int64_t value = (int64_t)ptr->data;
-                value *= (int64_t)item2.second;
-                pushToStack(SymbolType::Integer, value);
+                v1 = (int64_t)ptr->data;
+                v2 = (int64_t)item2.second;
             } else {
                 // здесь проверка, как сложить два разных типа
                 pushToStack(SymbolType::Integer, 0); // пока 0
+                return;
             }
         } else if (item1.first == SymbolType::Variable && item2.first == SymbolType::Variable) {
             ObjectRecord *ptr1 = (ObjectRecord*)item1.second;
             ObjectRecord *ptr2 = (ObjectRecord*)item2.second;
             if (ptr1->type == SymbolType::Integer && ptr2->type == SymbolType::Integer) {
-                int64_t result = (int64_t)ptr1->data * (int64_t)ptr2->data;
-                pushToStack(SymbolType::Integer, result);
+                v1 = (int64_t)ptr1->data;
+                v2 = (int64_t)ptr2->data;
             } else {
                 // здесь проверка, как сложить два разных типа
                 pushToStack(SymbolType::Integer, 0); // пока 0
+                return;
             }
         }
+        pushToStack(SymbolType::Integer, fn(v1, v2));
     }
 
     void addst()
     {
-        next();
-        auto item2 = popFromStack();
-        auto item1 = popFromStack();
-        if (item1.first == SymbolType::Integer && item2.first == SymbolType::Integer) {
-            int64_t v1 = (int64_t)item1.second;
-            int64_t v2 = (int64_t)item2.second;
-            pushToStack(SymbolType::Integer, v1 + v2);
-        } else if (item1.first == SymbolType::Integer && item2.first == SymbolType::Variable) {
-            ObjectRecord *ptr = (ObjectRecord*)item2.second;
-            // здесь проверка, как сложить два разных типа
-            if (ptr->type == SymbolType::Integer) {
-                int64_t value = (int64_t)ptr->data;
-                value += (int64_t)item1.second;
-                pushToStack(SymbolType::Integer, value);
-            } else {
-                // здесь проверка, как сложить два разных типа
-                pushToStack(SymbolType::Integer, 0); // пока 0
-            }
-        } else if (item1.first == SymbolType::Variable && item2.first == SymbolType::Integer) {
-            ObjectRecord *ptr = (ObjectRecord*)item1.second;
-            if (ptr->type == SymbolType::Integer) {
-                int64_t value = (int64_t)ptr->data;
-                value += (int64_t)item2.second;
-                pushToStack(SymbolType::Integer, value);
-            } else {
-                // здесь проверка, как сложить два разных типа
-                pushToStack(SymbolType::Integer, 0); // пока 0
-            }
-        } else if (item1.first == SymbolType::Variable && item2.first == SymbolType::Variable) {
-            ObjectRecord *ptr1 = (ObjectRecord*)item1.second;
-            ObjectRecord *ptr2 = (ObjectRecord*)item2.second;
-            if (ptr1->type == SymbolType::Integer && ptr2->type == SymbolType::Integer) {
-                int64_t result = (int64_t)ptr1->data + (int64_t)ptr2->data;
-                pushToStack(SymbolType::Integer, result);
-            } else {
-                // здесь проверка, как сложить два разных типа
-                pushToStack(SymbolType::Integer, 0); // пока 0
-            }
-        }
+        binaryStackOp(OpCode::ADDST);
+    }
+
+    void mulst()
+    {
+        binaryStackOp(OpCode::MULST);
+    }
+
+    void divst()
+    {
+        binaryStackOp(OpCode::DIVST);
+    }
+
+    void subst()
+    {
+        binaryStackOp(OpCode::SUBST);
     }
 
     void ldloc_m()

@@ -77,6 +77,8 @@ void Translator::translateOperation(const TCode &c)
     switch (c.operation) {
     case OperationType::Add:
     case OperationType::Multiply:
+    case OperationType::Div:
+    case OperationType::Minus:
         binaryOp(c);
         break;
     case OperationType::Assign:
@@ -108,8 +110,15 @@ void Translator::binaryOp(const TCode &c)
         case OperationType::Add:
             result = c.operand1.intValue + c.operand2.intValue;
             break;
+        case OperationType::Minus:
+            result = c.operand1.intValue - c.operand2.intValue;
+            break;
         case OperationType::Multiply:
             result = c.operand1.intValue * c.operand2.intValue;
+            break;
+        case OperationType::Div:
+            // TODO: если 0, сделать NaN
+            result = c.operand1.intValue / c.operand2.intValue;
             break;
         default:
             throw std::domain_error("Unsupported binary operation");
@@ -143,6 +152,12 @@ void Translator::binaryOp(const TCode &c)
         break;
     case OperationType::Multiply:
         a.mulst();
+        break;
+    case OperationType::Minus:
+        a.subst();
+        break;
+    case OperationType::Div:
+        a.divst();
         break;
     default:
         throw std::domain_error("Unsupported binary operation");

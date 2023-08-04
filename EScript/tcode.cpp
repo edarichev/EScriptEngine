@@ -29,6 +29,16 @@ std::string TCode::toString() const
         numberOfOperands = 2;
         opSign = assign;
         break;
+    case OperationType::Minus:
+        op = "-";
+        numberOfOperands = 2;
+        opSign = assign;
+        break;
+    case OperationType::Div:
+        op = "*";
+        numberOfOperands = 2;
+        opSign = assign;
+        break;
     case OperationType::Assign:
         numberOfOperands = 1;
         opSign = assign;
