@@ -20,6 +20,7 @@ private:
     void test_realAssignChangeTypeToIntVar();
     void test_chTypeBinaryOp1();
     void test_chTypeBinaryOp2();
+    void test_sequentialRun();
 };
 
 #endif // SIMPLEEXPRESSION_TEST_H

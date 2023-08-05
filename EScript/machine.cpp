@@ -6,6 +6,7 @@
 #include "machine.h"
 #include "opcode.h"
 #include "assembler.h"
+#include "block.h"
 
 namespace escript {
 
@@ -28,6 +29,12 @@ void Machine::load([[maybe_unused]] std::shared_ptr<Block> block,
                    const std::vector<uint8_t> &objectFile)
 {
     uint64_t currentPos = _memory.size();
+    auto blockSymbolTable = block->symbolTable();
+    // корректируем все символы в блоке, ставим действительный адрес
+    block->addOffset(currentPos);
+    // теперь перемещаем глобальную таблицу символов в главный блок
+    auto globalSymbolTable = block->globalBlock()->symbolTable();
+    globalSymbolTable->addRange(std::move(blockSymbolTable));
 
     // первый JMP
     _memory.insert(_memory.end(), objectFile.begin(), objectFile.begin() + sizeof(OpCodeType));

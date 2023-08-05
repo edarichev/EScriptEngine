@@ -19,9 +19,6 @@ class ESCRIPT_EXPORT Unit : public std::enable_shared_from_this<Unit>
 {
 private:
     std::shared_ptr<Block> _block;
-    // статический блок для хранения целых чисел
-    // т.к. ссылки должны всегда сохраняться, используем список
-    std::forward_list<long> _staticIntegerValues;
 public:
     /**
      * @brief Создаёт новый экземпляр класса Unit
@@ -40,12 +37,6 @@ public:
      * @return
      */
     std::shared_ptr<Block> block();
-    /**
-     * @brief Добавляет целочисленное значение в блок целых чисел
-     * @return указатель на целое вставленное число.
-     */
-    long *addStaticIntValue();
-    const std::forward_list<long> &staticIntegerValues() const;
 };
 
 } // namespace escript

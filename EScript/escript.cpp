@@ -39,15 +39,16 @@ ObjectRecord *EScript::getObjectRecord(std::shared_ptr<Symbol> symbol)
 void EScript::eval(const std::u32string &strCode)
 {
     std::vector<TCode> buffer;
-    Parser parser(_unit, buffer);
+    auto newBlock = _unit->block()->addBlock();
+    Parser parser(_unit, newBlock, buffer);
     parser.parse(strCode);
     // оптимизатор промежуточного кода будет находиться здесь
     std::vector<uint8_t> objectFile;
     Translator translator;
     // пока нет вложенных блоков, передаём глобальный блок
-    translator.translate(_unit->block(), buffer, objectFile);
+    translator.translate(newBlock, buffer, objectFile);
     Assembler::disassemble(objectFile, std::cout);
-    _machine.load(_unit->block(), objectFile);
+    _machine.load(newBlock, objectFile);
     _machine.run();
 }
 

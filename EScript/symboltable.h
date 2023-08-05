@@ -52,6 +52,7 @@ public:
      * @return объект Symbol
      */
     std::shared_ptr<Symbol> add(const std::u32string &identifier, SymbolType type = SymbolType::Undefined);
+    void addRange(std::shared_ptr<SymbolTable> &&otherTable);
     /**
      * @brief Добавляет временную переменную в таблицу
      * @return объект Symbol
@@ -65,6 +66,11 @@ public:
      * @return указатель на nullptr, если не найдено
      */
     std::shared_ptr<Symbol> find(const std::u32string &identifier);
+    /**
+     * @brief Добавляет ко всем символам смещение
+     * @param offset смещение
+     */
+    void addOffset(uint64_t offset);
 private:
     /**
      * @brief Генерирует временное имя для идентификатора

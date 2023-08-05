@@ -41,6 +41,16 @@ public:
      * @return
      */
     std::shared_ptr<SymbolTable> symbolTable();
+    /**
+     * @brief Возвращает глобальный блок (самый верхний в иерархии)
+     * @return
+     */
+    std::shared_ptr<Block> globalBlock();
+    /**
+     * @brief Добавляет смещение ко всем символам всех дочерних таблиц символов
+     * @param offset смещение
+     */
+    void addOffset(uint64_t offset);
 };
 
 } // namespace escript

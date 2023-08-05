@@ -32,6 +32,11 @@ std::shared_ptr<Symbol> SymbolTable::add(const std::u32string &identifier,
     return symbol;
 }
 
+void SymbolTable::addRange(std::shared_ptr<SymbolTable> &&otherTable)
+{
+    _symbols.merge(std::move(otherTable->_symbols));
+}
+
 std::shared_ptr<Symbol> SymbolTable::addTemp()
 {
     return add(makeTempId());
@@ -51,6 +56,13 @@ std::shared_ptr<Symbol> SymbolTable::find(const std::u32string &identifier)
         return _parentTable->find(identifier);
     }
     return nullptr;
+}
+
+void SymbolTable::addOffset(uint64_t offset)
+{
+    for (auto &item : _symbols)
+        item.second->addOffset(offset);
+
 }
 
 std::u32string SymbolTable::makeTempId()

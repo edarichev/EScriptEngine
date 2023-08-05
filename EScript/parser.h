@@ -17,6 +17,7 @@ namespace escript {
 class Unit;
 class SymbolTable;
 class Symbol;
+class Block;
 
 /**
  * @brief Cинтаксический анализатор
@@ -26,6 +27,7 @@ class ESCRIPT_EXPORT Parser
 private:
     std::unique_ptr<Lexer> _lexer;
     std::shared_ptr<Unit> _unit;
+    std::shared_ptr<Block> _rootBlock;
     // стек для типа обнаруженного символа
     std::stack<SymbolType> _types;
     // стек для обнаруженных переменных в выражениях
@@ -43,7 +45,9 @@ public:
     /**
      * @brief Создаёт новый экземпляр класса Parser
      */
-    Parser(std::shared_ptr<Unit> &unit, std::vector<TCode> &outBuffer);
+    Parser(std::shared_ptr<Unit> &unit,
+           std::shared_ptr<Block> &block,
+           std::vector<TCode> &outBuffer);
     /**
      * @brief производит синтаксический разбор строки кода
      * @param strCode строка кода

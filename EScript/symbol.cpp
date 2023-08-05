@@ -18,6 +18,11 @@ void Symbol::setLocation(uint64_t newLocation)
     _location = newLocation;
 }
 
+void Symbol::addOffset(uint64_t offset)
+{
+    _location += offset;
+}
+
 Symbol::Symbol(std::shared_ptr<Unit> unit,
                const std::u32string &id,
                SymbolType dataType)

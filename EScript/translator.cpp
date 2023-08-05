@@ -35,7 +35,6 @@ void Translator::translate(std::shared_ptr<Block> block,
     Assembler &a = as();
     a.jmp_m(0); // сюда запишем смещение в конце
     writeVariableSection(block, outBuffer);
-
     const char codeHeader[] = {'C', 'O', 'D', 'E'};
     outBuffer.insert(outBuffer.end(),
                      codeHeader, codeHeader + sizeof (codeHeader));

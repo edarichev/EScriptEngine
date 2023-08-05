@@ -10,8 +10,10 @@ using namespace std;
 
 namespace escript {
 
-Parser::Parser(std::shared_ptr<Unit> &unit, std::vector<TCode> &outBuffer)
-    : _unit(unit)
+Parser::Parser(std::shared_ptr<Unit> &unit,
+               std::shared_ptr<Block> &block,
+               std::vector<TCode> &outBuffer)
+    : _unit(unit), _rootBlock(block)
 {
     _emitter = std::make_unique<ICodeEmitter>(outBuffer);
 }
@@ -239,7 +241,7 @@ void Parser::pushBack(Token t, std::u32string &&str)
 
 std::shared_ptr<SymbolTable> Parser::currentSymbolTable()
 {
-    return _unit->block()->symbolTable();
+    return _rootBlock->symbolTable();
 }
 
 void Parser::pushInt(IntType value)

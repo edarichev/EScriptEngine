@@ -19,6 +19,7 @@ void SimpleExpression_Test::run()
     test_realAssignChangeTypeToIntVar();
     test_chTypeBinaryOp1();
     test_chTypeBinaryOp2();
+    test_sequentialRun();
     cleanupTestCase();
 }
 
@@ -195,4 +196,29 @@ void SimpleExpression_Test::test_chTypeBinaryOp2()
     auto record = engine1.getObjectRecord(x);
     assert(record->type == SymbolType::Real);
     assert(equals_double(2.7+17, record->data));
+}
+
+void SimpleExpression_Test::test_sequentialRun()
+{
+    EScript engine;
+    const u32string code1 = U"x = 45;";
+    engine.eval(code1);
+    auto x = engine.unit()->block()->symbolTable()->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::Integer);
+    assert(equals_int64(45, record->data));
+    // добавим второй блок
+    const u32string code2 = U"y = x + 45;";
+    engine.eval(code2);
+    auto y = engine.unit()->block()->symbolTable()->find(U"y");
+    auto recordY = engine.getObjectRecord(y);
+    assert(recordY->type == SymbolType::Integer);
+    assert(equals_int64(90, recordY->data));
+    // добавим второй блок, сменим тип
+    const u32string code3 = U"z = y + 3.3;";
+    engine.eval(code3);
+    auto z = engine.unit()->block()->symbolTable()->find(U"z");
+    auto recordZ = engine.getObjectRecord(z);
+    assert(recordZ->type == SymbolType::Real);
+    assert(equals_double(90+3.3, recordZ->data));
 }

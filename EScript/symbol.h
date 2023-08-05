@@ -55,6 +55,11 @@ public:
      */
     uint64_t location() const;
     void setLocation(uint64_t newLocation);
+    /**
+     * @brief Добавляет смещение
+     * @param offset смещение
+     */
+    void addOffset(uint64_t offset);
 };
 
 } // namespace escript

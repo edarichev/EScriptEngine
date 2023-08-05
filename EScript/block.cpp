@@ -25,6 +25,24 @@ std::shared_ptr<SymbolTable> Block::symbolTable()
     return _symbolTable;
 }
 
+std::shared_ptr<Block> Block::globalBlock()
+{
+    std::shared_ptr<Block> parent = _parentBlock;
+    while (parent) {
+        if (!parent->_parentBlock)
+            return parent;
+        parent = parent->_parentBlock;
+    }
+    return shared_from_this();
+}
+
+void Block::addOffset(uint64_t offset)
+{
+    _symbolTable->addOffset(offset);
+    for (auto &b : _blocks)
+        b->addOffset(offset);
+}
+
 std::shared_ptr<Block> Block::addBlock()
 {
     std::shared_ptr<Block> newBlock = std::make_shared<Block>(_unit, shared_from_this());
