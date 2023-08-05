@@ -12,6 +12,13 @@ void SimpleExpression_Test::run()
     test_unaryPlusMinus();
     test_parenth();
     test_integerExpressions1();
+    test_realAssign1();
+    test_realAssignChangeTypeToReal();
+    test_realAssignChangeTypeToInt();
+    test_realAssignChangeTypeToRealVar();
+    test_realAssignChangeTypeToIntVar();
+    test_chTypeBinaryOp1();
+    test_chTypeBinaryOp2();
     cleanupTestCase();
 }
 
@@ -95,4 +102,97 @@ void SimpleExpression_Test::test_integerExpressions1()
     auto x = engine1.unit()->block()->symbolTable()->find(U"x");
     auto record = engine1.getObjectRecord(x);
     assert((int64_t)record->data == 1 - 2 + 3*4 - 5 / 2 + 6);
+}
+
+bool equals_int64(int64_t d1, uint64_t raw)
+{
+    return d1 == bit_cast<int64_t>(raw);
+}
+
+bool equals_double(double d1, double d2)
+{
+    return abs(d1 - d2) <= numeric_limits<double>::epsilon();
+}
+
+bool equals_double(double d1, uint64_t doubleAsUInt64)
+{
+    double d2 = bit_cast<double>(doubleAsUInt64);
+    return abs(d1 - d2) <= numeric_limits<double>::epsilon();
+}
+
+void SimpleExpression_Test::test_realAssign1()
+{
+    EScript engine1;
+    const u32string code1 = U"x = 1.5;";
+    engine1.eval(code1);
+    auto x = engine1.unit()->block()->symbolTable()->find(U"x");
+    auto record = engine1.getObjectRecord(x);
+    assert(equals_double(1.5, record->data));
+
+}
+
+void SimpleExpression_Test::test_realAssignChangeTypeToReal()
+{
+    EScript engine1;
+    const u32string code1 = U"x = 5; x = 4.7;";
+    engine1.eval(code1);
+    auto x = engine1.unit()->block()->symbolTable()->find(U"x");
+    auto record = engine1.getObjectRecord(x);
+    assert(record->type == SymbolType::Real);
+    assert(equals_double(4.7, record->data));
+}
+
+void SimpleExpression_Test::test_realAssignChangeTypeToInt()
+{
+    EScript engine1;
+    const u32string code1 = U"x = 8.5; x = 7;";
+    engine1.eval(code1);
+    auto x = engine1.unit()->block()->symbolTable()->find(U"x");
+    auto record = engine1.getObjectRecord(x);
+    assert(record->type == SymbolType::Integer);
+    assert(equals_int64(7, record->data));
+}
+
+void SimpleExpression_Test::test_realAssignChangeTypeToRealVar()
+{
+    EScript engine1;
+    const u32string code1 = U"x = 5; y = 4.7; x = y;";
+    engine1.eval(code1);
+    auto x = engine1.unit()->block()->symbolTable()->find(U"x");
+    auto record = engine1.getObjectRecord(x);
+    assert(record->type == SymbolType::Real);
+    assert(equals_double(4.7, record->data));
+}
+
+void SimpleExpression_Test::test_realAssignChangeTypeToIntVar()
+{
+    EScript engine1;
+    const u32string code1 = U"x = 8.5; y = 7; x = y;";
+    engine1.eval(code1);
+    auto x = engine1.unit()->block()->symbolTable()->find(U"x");
+    auto record = engine1.getObjectRecord(x);
+    assert(record->type == SymbolType::Integer);
+    assert(equals_int64(7, record->data));
+}
+
+void SimpleExpression_Test::test_chTypeBinaryOp1()
+{
+    EScript engine1;
+    const u32string code1 = U"x = 11; x = x + 2.3;";
+    engine1.eval(code1);
+    auto x = engine1.unit()->block()->symbolTable()->find(U"x");
+    auto record = engine1.getObjectRecord(x);
+    assert(record->type == SymbolType::Real);
+    assert(equals_double(11+2.3, record->data));
+}
+
+void SimpleExpression_Test::test_chTypeBinaryOp2()
+{
+    EScript engine1;
+    const u32string code1 = U"x = 2.7; y = 17; x = x + y;";
+    engine1.eval(code1);
+    auto x = engine1.unit()->block()->symbolTable()->find(U"x");
+    auto record = engine1.getObjectRecord(x);
+    assert(record->type == SymbolType::Real);
+    assert(equals_double(2.7+17, record->data));
 }

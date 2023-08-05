@@ -68,6 +68,12 @@ private:
     void opMul(const TCode &c);
     void opUMinus(const TCode &c);
     void opAssign(const TCode &c);
+    /**
+     * @brief Генерирует вывод команды ldc_*** в зависимотси от типа
+     * @param type тип аргумента
+     * @param operand значение операнда
+     */
+    void emit_ldc(SymbolType type, const OperandRecord &operand);
 };
 
 } // namespace escript

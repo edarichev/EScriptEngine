@@ -7,6 +7,7 @@
 
 #include "EScript_global.h"
 #include <forward_list>
+#include <list>
 #include "types.h"
 
 namespace escript {
@@ -45,7 +46,7 @@ struct ObjectRecord
 class ESCRIPT_EXPORT Storage
 {
     // записи для ссылок на объекты в куче
-    std::forward_list<ObjectRecord> _records;
+    std::list<ObjectRecord> _records;
 public:
     /**
      * @brief Создаёт новый экземпляр класса Storage

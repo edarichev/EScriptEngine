@@ -127,6 +127,9 @@ void Translator::binaryOp(const TCode &c)
         a.stloc_m(location(c.lvalue)); // смещение переменной
         return;
     }
+    emit_ldc(c.operand1Type, c.operand1);
+    emit_ldc(c.operand2Type, c.operand2);
+/*
     // 2. Целое и переменная
     // #tmp_1 := число операция #tmp_2
     if (c.operand1Type == SymbolType::Integer && c.operand2Type == SymbolType::Variable) {
@@ -144,7 +147,7 @@ void Translator::binaryOp(const TCode &c)
     else if (c.operand1Type == SymbolType::Variable && c.operand2Type == SymbolType::Variable) {
         a.ldloc_m(location(c.operand1.variable));
         a.ldloc_m(location(c.operand2.variable));
-    }
+    }*/
     // действие над элементами
     switch (c.operation) {
     case OperationType::Add:
@@ -190,6 +193,9 @@ void Translator::opAssign(const TCode &c)
     case SymbolType::Integer:
         a.ldc_int64_data64(c.operand1.intValue);
         break;
+    case SymbolType::Real:
+        a.ldc_double_data64(c.operand1.realValue);
+        break;
     case SymbolType::Variable:
         a.ldloc_m(location(c.operand1.variable));
         break;
@@ -197,6 +203,24 @@ void Translator::opAssign(const TCode &c)
         throw std::domain_error("Unsupported operand type for assign operation");
     }
     a.stloc_m(location(c.lvalue));
+}
+
+void Translator::emit_ldc(SymbolType type, const OperandRecord &operand)
+{
+    Assembler &a = as();
+    switch (type) {
+    case SymbolType::Integer:
+        a.ldc_int64_data64(operand.intValue);
+        break;
+    case SymbolType::Real:
+        a.ldc_double_data64(operand.realValue);
+        break;
+    case SymbolType::Variable:
+        a.ldloc_m(location(operand.variable));
+        break;
+    default:
+        throw std::domain_error("Unsupported type");
+    }
 }
 
 } // namespace escript

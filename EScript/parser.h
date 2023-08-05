@@ -88,6 +88,7 @@ private:
      */
     std::shared_ptr<SymbolTable> currentSymbolTable();
     void pushInt(IntType value);
+    void pushReal(RealType value);
     void pushVariable(std::shared_ptr<Symbol> &variable);
     void emitBinaryOp(OperationType opType);
     /**
@@ -101,6 +102,7 @@ private:
     void pushBack(Token t, const std::u32string &str);
     void pushBack(Token t, std::u32string &&str);
     IntType popInt();
+    IntType popReal();
     // обработка ошибок
 private:
     void error(const std::string &msg);

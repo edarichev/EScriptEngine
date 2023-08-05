@@ -8,5 +8,6 @@
 #include <cassert>
 #include <locale>
 #include <codecvt>
+#include <limits>
 
 #endif // STDAFX_H

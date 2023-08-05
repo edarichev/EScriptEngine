@@ -181,6 +181,10 @@ void Parser::Factor()
         pushInt(_lexer->lastIntegerNumber());
         next();
         break;
+    case Token::RealNumber:
+        pushReal(_lexer->lastRealNumber());
+        next();
+        break;
     default: // ошибка, нужен терминал в виде числа, идентификатора и т.п.
         expected(Token::Identifier);
     }
@@ -244,16 +248,30 @@ void Parser::pushInt(IntType value)
     _types.push(SymbolType::Integer);
 }
 
+void Parser::pushReal(RealType value)
+{
+    _reals.push(value);
+    _types.push(SymbolType::Real);
+}
+
 void Parser::pushVariable(std::shared_ptr<Symbol> &variable)
 {
     _variables.push(variable);
     _types.push(SymbolType::Variable);
 }
 
-IntType escript::Parser::popInt()
+IntType Parser::popInt()
 {
     IntType lastInt = _integers.top();
     _integers.pop();
+    _types.pop();
+    return lastInt;
+}
+
+IntType Parser::popReal()
+{
+    RealType lastInt = _reals.top();
+    _reals.pop();
     _types.pop();
     return lastInt;
 }
@@ -284,6 +302,7 @@ void Parser::emitUnaryOp(OperationType opType)
     std::shared_ptr<Symbol> symbol;
     // смотря что положили
     IntType lastInt;
+    RealType lastReal;
     switch (_types.top()) {
     case SymbolType::Integer:
         lastInt = popInt();
@@ -296,6 +315,18 @@ void Parser::emitUnaryOp(OperationType opType)
             throw std::domain_error("Invalid unary operation");
         }
         pushInt(lastInt);
+        break;
+    case SymbolType::Real:
+        lastReal = popReal();
+        // не нужно тут никакого кода, сразу выполняем действие
+        switch (opType) {
+        case OperationType::UMinus:
+            lastReal = -lastReal;
+            break;
+        default:
+            throw std::domain_error("Invalid unary operation");
+        }
+        pushReal(lastReal);
         break;
     case SymbolType::Variable: {
         symbol = _variables.top();
@@ -334,7 +365,7 @@ std::pair<SymbolType, OperandRecord> Parser::popStackValue()
         _integers.pop();
         break;
     case SymbolType::Real:
-        rec.second.realValue = _integers.top();
+        rec.second.realValue = _reals.top();
         _reals.pop();
         break;
     default:

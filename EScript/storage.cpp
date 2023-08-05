@@ -20,7 +20,7 @@ Storage::~Storage()
 
 ObjectRecord *Storage::findRecord(Symbol *symbol)
 {
-    for (auto &r : _records) {
+    for (ObjectRecord &r : _records) {
         if (r.symbol == symbol)
             return &r;
     }
