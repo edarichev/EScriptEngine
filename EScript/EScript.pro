@@ -43,6 +43,7 @@ HEADERS += \
     opcode.h \
     parser.h \
     processor.h \
+    pvalue.h \
     stdafx.h \
     storage.h \
     symbol.h \

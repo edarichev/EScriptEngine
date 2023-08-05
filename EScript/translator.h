@@ -9,6 +9,7 @@
 #include "tcode.h"
 #include "unit.h"
 #include "assembler.h"
+#include "pvalue.h"
 
 namespace escript {
 
@@ -20,6 +21,8 @@ class ESCRIPT_EXPORT Translator
 private:
     std::unique_ptr<Assembler> _asm;
     std::shared_ptr<Block> _block;
+    // для конвертации операций
+    static std::map<OperationType, ArithmeticOperation> optypes;
 public:
     /**
      * @brief Создаёт новый экземпляр класса Translator
@@ -74,6 +77,12 @@ private:
      * @param operand значение операнда
      */
     void emit_ldc(SymbolType type, const OperandRecord &operand);
+    /**
+     * @brief Пробует вычислить бинарную операцию, если это возможно.
+     * @param c инструкция
+     * @return true, если удалось сократить код
+     */
+    bool tryCalcBinaryOp(const TCode &c);
 };
 
 } // namespace escript

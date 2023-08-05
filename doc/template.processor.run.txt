@@ -4,8 +4,8 @@ public:
      */
     void run()
     {
-        _p = _memory + _pc;
         while (_pc < _memoryLimit) {
+            _p = _memory + _pc;
             OpCode opCode = (OpCode) *((OpCodeType*)(_p));
             auto shift = Assembler::instructionSize(opCode);
             switch (opCode) {

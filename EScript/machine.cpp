@@ -27,10 +27,21 @@ const Storage &Machine::storage() const
 void Machine::load([[maybe_unused]] std::shared_ptr<Block> block,
                    const std::vector<uint8_t> &objectFile)
 {
-    // нужно скорректировать таблицу символов
-    // пока просто копируем
-    _memory.insert(_memory.end(), objectFile.begin(), objectFile.end());
-    _cpu.setPC(_cpu.PC() + startOffsetOf(objectFile));
+    uint64_t currentPos = _memory.size();
+
+    // первый JMP
+    _memory.insert(_memory.end(), objectFile.begin(), objectFile.begin() + sizeof(OpCodeType));
+    uint64_t jumpTo = *(uint64_t*)(objectFile.data() + sizeof(OpCodeType));
+    uint64_t codeOffset = jumpTo;
+    jumpTo += currentPos;
+    _memory.insert(_memory.end(), (uint8_t*)&jumpTo, (uint8_t*)&jumpTo + sizeof (uint64_t));
+    // скопировать до сегмента кода - это таблица символов с маркерами DATA/CODE
+    _memory.insert(_memory.end(),
+                   objectFile.begin() + (sizeof(OpCodeType) + sizeof (uint64_t)),
+                   objectFile.begin() + codeOffset);
+    // а эту часть нужно обработать, пока просто скопируем
+    // нужно исправить все условные и безусловные переходы
+    _memory.insert(_memory.end(), objectFile.begin() + codeOffset, objectFile.end());
 }
 
 size_t Machine::startOffsetOf(const std::vector<uint8_t> &objectFile)

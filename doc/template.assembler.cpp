@@ -54,9 +54,10 @@ void Assembler::disassemble(const std::vector<ContainerElementType> &objectFile,
 {
     size_t i = 0;
     const uint8_t *p = objectFile.data();
-    // пропустить 4 байта "DATA"
-    uint32_t dataLength = *(uint32_t*)(p + 4);
-    i = 4 + 4 + dataLength + 4; // 4=DATA + dataLength + 4=CODE
+    // пропустить начальный JMP и 4 байта "DATA"
+    uint32_t dataLength = *(uint32_t*)(p + 4 + Assembler::instructionSize(OpCode::JMP_M));
+    i = Assembler::instructionSize(OpCode::JMP_M) +
+            4 + 4 + dataLength + 4; // 4=DATA + dataLength + 4=CODE
     uint32_t codeLength = *(uint32_t*)(p + i);
     i += sizeof (codeLength);
     size_t n = i + codeLength;

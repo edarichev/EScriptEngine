@@ -4,15 +4,26 @@
  */
 #include "stdafx.h"
 #include "translator.h"
+#include "pvalue.h"
 
 using std::cout;
 using std::endl;
 
 namespace escript {
 
+// для конвертации операций
+std::map<OperationType, ArithmeticOperation> Translator::optypes;
+
 Translator::Translator()
 {
-
+    if (optypes.empty()) {
+        optypes = {
+            {OperationType::Add, ArithmeticOperation::Add },
+            {OperationType::Minus, ArithmeticOperation::Sub },
+            {OperationType::Multiply, ArithmeticOperation::Mul },
+            {OperationType::Div, ArithmeticOperation::Div }
+        };
+    }
 }
 
 void Translator::translate(std::shared_ptr<Block> block,
@@ -21,7 +32,10 @@ void Translator::translate(std::shared_ptr<Block> block,
 {
     _block = block;
     _asm = std::make_unique<Assembler>(outBuffer);
+    Assembler &a = as();
+    a.jmp_m(0); // сюда запишем смещение в конце
     writeVariableSection(block, outBuffer);
+
     const char codeHeader[] = {'C', 'O', 'D', 'E'};
     outBuffer.insert(outBuffer.end(),
                      codeHeader, codeHeader + sizeof (codeHeader));
@@ -30,6 +44,7 @@ void Translator::translate(std::shared_ptr<Block> block,
     outBuffer.insert(outBuffer.end(),
                      (uint8_t*)&codeSegmentLength,
                      (uint8_t*)&codeSegmentLength + sizeof (codeSegmentLength));
+    uint64_t startPosition = outBuffer.size();
     for (auto &c : inputBuffer) {
         translateOperation(c);
     }
@@ -39,6 +54,10 @@ void Translator::translate(std::shared_ptr<Block> block,
     std::copy((uint8_t*)&codeSegmentLength,
               (uint8_t*)&codeSegmentLength + sizeof (codeSegmentLength),
               outBuffer.begin() + codeSegmentLengthPosition);
+    // записать адрес перехода в начале объектного файла
+    std::copy((uint8_t*)&startPosition,
+              (uint8_t*)&startPosition + sizeof (startPosition),
+              outBuffer.begin() + sizeof(OpCodeType));
     _asm.reset();   // больше не нужен
     _block.reset(); // тоже не нужен
 }
@@ -100,54 +119,12 @@ PtrIntType Translator::location(Symbol *symbol)
 
 void Translator::binaryOp(const TCode &c)
 {
-    // 1. Два целых операнда: сразу вычисляем
-    // #tmp_1 := 3 операция 2
-    //
-    Assembler &a = as();
-    if (c.operand1Type == SymbolType::Integer && c.operand2Type == SymbolType::Integer) {
-        int64_t result = 0;
-        switch (c.operation) {
-        case OperationType::Add:
-            result = c.operand1.intValue + c.operand2.intValue;
-            break;
-        case OperationType::Minus:
-            result = c.operand1.intValue - c.operand2.intValue;
-            break;
-        case OperationType::Multiply:
-            result = c.operand1.intValue * c.operand2.intValue;
-            break;
-        case OperationType::Div:
-            // TODO: если 0, сделать NaN
-            result = c.operand1.intValue / c.operand2.intValue;
-            break;
-        default:
-            throw std::domain_error("Unsupported binary operation");
-        }
-        a.ldc_int64_data64(result);
-        a.stloc_m(location(c.lvalue)); // смещение переменной
+    if (tryCalcBinaryOp(c))
         return;
-    }
+    Assembler &a = as();
     emit_ldc(c.operand1Type, c.operand1);
     emit_ldc(c.operand2Type, c.operand2);
-/*
-    // 2. Целое и переменная
-    // #tmp_1 := число операция #tmp_2
-    if (c.operand1Type == SymbolType::Integer && c.operand2Type == SymbolType::Variable) {
-        a.ldc_int64_data64(c.operand1.intValue);
-        a.ldloc_m(location(c.operand2.variable));
-    }
-    // 3. переменная и целое
-    // #tmp_1 := #tmp_2 операция число
-    else if (c.operand1Type == SymbolType::Variable && c.operand2Type == SymbolType::Integer) {
-        a.ldloc_m(location(c.operand1.variable));
-        a.ldc_int64_data64(c.operand2.intValue);
-    }
-    // 4. переменная и переменная
-    // #tmp_1 := #tmp_2 операция #tmp_3
-    else if (c.operand1Type == SymbolType::Variable && c.operand2Type == SymbolType::Variable) {
-        a.ldloc_m(location(c.operand1.variable));
-        a.ldloc_m(location(c.operand2.variable));
-    }*/
+
     // действие над элементами
     switch (c.operation) {
     case OperationType::Add:
@@ -221,6 +198,50 @@ void Translator::emit_ldc(SymbolType type, const OperandRecord &operand)
     default:
         throw std::domain_error("Unsupported type");
     }
+}
+
+bool Translator::tryCalcBinaryOp(const TCode &c)
+{
+    Assembler &a = as();
+    // во второй части чаще переменные, поэтому сначала проверим второй операнд
+    PValue value1, value2;
+    switch (c.operand2Type) {
+    case SymbolType::Integer:
+        value2 = c.operand2.intValue;
+        break;
+    case SymbolType::Real:
+        value2 = c.operand2.realValue;
+        break;
+        break;
+    default:
+        return false;
+    }
+    switch (c.operand1Type) {
+    case SymbolType::Integer:
+        value1 = c.operand1.intValue;
+        break;
+    case SymbolType::Real:
+        value1 = c.operand1.realValue;
+        break;
+    default:
+        return false;
+    }
+    // это должно быть гарантировано, если это не так, пусть вылетит
+    ArithmeticOperation op = optypes.find(c.operation)->second;
+    // эта часть почти совпадает с void Processor::binaryStackOp(OpCode opCode)
+    PValue result = PValue::binaryOpValues(value1, value2, op);
+    switch (result.type) {
+    case SymbolType::Integer:
+        a.ldc_int64_data64(result.intValue);
+        break;
+    case SymbolType::Real:
+        a.ldc_double_data64(result.realValue);
+        break;
+    default:
+        break; // уже проверено
+    }
+    a.stloc_m(location(c.lvalue));
+    return true;
 }
 
 } // namespace escript

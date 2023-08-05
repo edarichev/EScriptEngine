@@ -4,8 +4,24 @@
  */
 #include "stdafx.h"
 #include "processor.h"
+#include "pvalue.h"
 
 namespace escript {
+
+// для конвертации операций
+std::map<OpCode, ArithmeticOperation> Processor::optypes;
+
+Processor::Processor()
+{
+    if (optypes.empty()) {
+        optypes = {
+            {OpCode::ADDST, ArithmeticOperation::Add },
+            {OpCode::SUBST, ArithmeticOperation::Sub },
+            {OpCode::MULST, ArithmeticOperation::Mul },
+            {OpCode::DIVST, ArithmeticOperation::Div }
+        };
+    }
+}
 
 void Processor::neg()
 {
@@ -18,96 +34,12 @@ void Processor::neg()
     }
 }
 
-/**
- * @brief Структура для упаковки тип+значение (как variant)
- */
-struct PValue
+void Processor::jmp_m()
 {
-    SymbolType type;
-    union {
-        int64_t intValue;
-        double realValue;
-    };
-    PValue operator=(int64_t rhs)
-    {
-        type = SymbolType::Integer;
-        intValue = rhs;
-        return *this;
-    }
-    PValue operator=(double rhs)
-    {
-        type = SymbolType::Real;
-        realValue = rhs;
-        return *this;
-    }
-    /**
-     * @brief Возвращает значение как uint64_t
-     * @return
-     */
-    uint64_t value() const
-    {
-        switch (type) {
-        case SymbolType::Integer:
-            return bit_cast<uint64_t>(intValue);
-        case SymbolType::Real:
-            return bit_cast<uint64_t>(realValue);
-        default:
-            throw std::domain_error("unsupproted type by PValue");
-        }
-    }
-};
-
-PValue getValue(ObjectRecord *ptr)
-{
-    PValue val;
-    switch (ptr->type) {
-    case SymbolType::Integer:
-        val = bit_cast<int64_t>(ptr->data);
-        break;
-    case SymbolType::Real:
-        val = bit_cast<double>(ptr->data);
-        break;
-    default:
-        throw std::domain_error("Unsupported type: getValue");
-    }
-    return val;
-}
-
-PValue getValue(const std::pair<SymbolType, uint64_t> &item)
-{
-    PValue val;
-    switch (item.first) {
-    // тип переменной
-    case SymbolType::Integer:
-        val = bit_cast<int64_t>(item.second);
-        break;
-    case SymbolType::Real:
-        val = bit_cast<double>(item.second);
-        break;
-    case SymbolType::Variable:
-        return getValue((ObjectRecord*)item.second);
-    default:
-        throw std::domain_error("Unsupported type: getValue(pair)");
-    }
-    return val;
-}
-
-// для строк и неприводимых типов - другая функция
-template<typename T1, typename T2>
-decltype(auto) opValues(T1 v1, T2 v2, OpCode opCode)
-{
-    switch (opCode) {
-    case OpCode::ADDST:
-        return v1 + v2;
-    case OpCode::MULST:
-        return v1 * v2;
-    case OpCode::DIVST:
-        return v1 / v2;
-    case OpCode::SUBST:
-        return v1 - v2;
-    default:
-        throw std::domain_error("Unsupprted bin.op");
-    }
+    next();
+    uint64_t jumpTo = *(uint64_t*)_p;
+    setPC(jumpTo);
+    // не считывать - здесь уже новое значение PC
 }
 
 void Processor::binaryStackOp(OpCode opCode)
@@ -115,38 +47,12 @@ void Processor::binaryStackOp(OpCode opCode)
     next();
     auto item2 = popFromStack();
     auto item1 = popFromStack();
-    PValue value1 = getValue(item1);
-    PValue value2 = getValue(item2);
-    PValue result;
-    switch (value1.type) {
-    case SymbolType::Integer:
-        switch (value2.type) {
-        case SymbolType::Integer:
-            result = opValues(value1.intValue, value2.intValue, opCode);
-            break;
-        case SymbolType::Real:
-            result = opValues(value1.intValue, value2.realValue, opCode);
-            break;
-        default:
-            throw std::domain_error("Unsupported type: binaryStackOp");
-        }
-        break;
-    case SymbolType::Real:
-        switch (value2.type) {
-        case SymbolType::Integer:
-            result = opValues(value1.realValue, value2.intValue, opCode);
-            break;
-        case SymbolType::Real:
-            result = opValues(value1.realValue, value2.realValue, opCode);
-            break;
-        default:
-            throw std::domain_error("Unsupported type: binaryStackOp");
-        }
-        break;
-    default:
-        throw std::domain_error("Unsupported type: binaryStackOp");
-    }
-    pushToStack(result.type, result.value());
+    PValue value1 = PValue::getValue(item1);
+    PValue value2 = PValue::getValue(item2);
+    // это должно быть гарантировано, если это не так, пусть вылетит
+    ArithmeticOperation op = optypes.find(opCode)->second;
+    PValue result = PValue::binaryOpValues(value1, value2, op);
+    pushToStack(result.type, result.value64());
 }
 
 void Processor::addst()
