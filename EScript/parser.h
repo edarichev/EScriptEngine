@@ -28,6 +28,7 @@ private:
     std::unique_ptr<Lexer> _lexer;
     std::shared_ptr<Unit> _unit;
     std::shared_ptr<Block> _rootBlock;
+    std::shared_ptr<Block> _currentBlock;
     // стек для типа обнаруженного символа
     std::stack<SymbolType> _types;
     // стек для обнаруженных переменных в выражениях
@@ -58,7 +59,9 @@ public:
 private:
     void StatementList();
     void Statement();
+    void CompoundStatement();
     void AssignStatement();
+    void AssignExpression();
     void Variable();
     void Expression();
     void SimpleExpression();
@@ -107,6 +110,17 @@ private:
     void pushBack(Token t, std::u32string &&str);
     IntType popInt();
     IntType popReal();
+
+    std::shared_ptr<Block> currentBlock() const;
+    /**
+     * @brief Добавляет дочерний блок и переходит в него
+     * @return
+     */
+    void addAndEntrySubBlock();
+    /**
+     * @brief Выходит из блока в родительский блок
+     */
+    void exitToUpLevelBlock();
     // обработка ошибок
 private:
     void error(const std::string &msg);

@@ -20,6 +20,11 @@ Block::~Block()
 
 }
 
+const std::shared_ptr<Block> &Block::parentBlock() const
+{
+    return _parentBlock;
+}
+
 std::shared_ptr<SymbolTable> Block::symbolTable()
 {
     return _symbolTable;
@@ -50,5 +55,9 @@ std::shared_ptr<Block> Block::addBlock()
     return newBlock;
 }
 
+const std::vector<std::shared_ptr<Block> > &Block::blocks() const
+{
+    return _blocks;
+}
 
 } // namespace escript

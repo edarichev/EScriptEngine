@@ -51,6 +51,8 @@ public:
      * @param offset смещение
      */
     void addOffset(uint64_t offset);
+    const std::vector<std::shared_ptr<Block> > &blocks() const;
+    const std::shared_ptr<Block> &parentBlock() const;
 };
 
 } // namespace escript

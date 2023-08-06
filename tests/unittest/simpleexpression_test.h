@@ -21,6 +21,7 @@ private:
     void test_chTypeBinaryOp1();
     void test_chTypeBinaryOp2();
     void test_sequentialRun();
+    void test_braceSimple();
 };
 
 #endif // SIMPLEEXPRESSION_TEST_H

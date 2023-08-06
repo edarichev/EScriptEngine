@@ -20,6 +20,7 @@ void SimpleExpression_Test::run()
     test_chTypeBinaryOp1();
     test_chTypeBinaryOp2();
     test_sequentialRun();
+    test_braceSimple();
     cleanupTestCase();
 }
 
@@ -221,4 +222,40 @@ void SimpleExpression_Test::test_sequentialRun()
     auto recordZ = engine.getObjectRecord(z);
     assert(recordZ->type == SymbolType::Real);
     assert(equals_double(90+3.3, recordZ->data));
+}
+
+void SimpleExpression_Test::test_braceSimple()
+{
+    EScript engine;
+    const u32string code1 = U"{x = 45;}";
+    engine.eval(code1);
+    // добавим ещё выражение с подблоками и одинаковым именем переменной
+    const u32string code2 = U"{{}{x = 54;}}";
+    engine.eval(code2);
+    auto mainBlock = engine.unit()->block();
+    // это блок модуля
+    auto x = mainBlock->symbolTable()->find(U"x");
+    assert(x == nullptr); // x не должно быть в глобальной области
+    // это - сам блок, полученный из выражения "{x = 45;}"
+    // его таблица символов перемещается в mainBlock
+    auto codeBlock1 = mainBlock->blocks()[0];
+    // а это - подблок, который определяется фигурными скобками
+    // в выражениии {x = 45;}
+    auto subBlock1OfCodeBlock1 = codeBlock1->blocks()[0];
+    // в нём находится локальная переменная x
+    x = subBlock1OfCodeBlock1->symbolTable()->find(U"x");
+    assert(x != nullptr); // он должен быть в первом дочернем блоке
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::Integer);
+    assert(equals_int64(45, record->data));
+    // второй блок - результат исполнения code2
+    auto codeBlock2 = mainBlock->blocks()[1];
+    // пустого блока не должно быть, он пропущен
+    auto subBlock1OfCodeBlock2 = codeBlock2->blocks()[0]->blocks()[0];
+    // в нём находится локальная переменная, тоже с именем x, но == 54
+    x = subBlock1OfCodeBlock2->symbolTable()->find(U"x");
+    assert(x != nullptr);
+    record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::Integer);
+    assert(equals_int64(54, record->data));
 }

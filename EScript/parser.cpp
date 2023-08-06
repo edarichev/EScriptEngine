@@ -13,7 +13,7 @@ namespace escript {
 Parser::Parser(std::shared_ptr<Unit> &unit,
                std::shared_ptr<Block> &block,
                std::vector<TCode> &outBuffer)
-    : _unit(unit), _rootBlock(block)
+    : _unit(unit), _rootBlock(block), _currentBlock(block)
 {
     _emitter = std::make_unique<ICodeEmitter>(outBuffer);
 }
@@ -38,9 +38,10 @@ void Parser::StatementList()
         case Token::Semicolon:
             next();
             continue;
+        case Token::RightBrace:
+            return; // блок закрыт
         default:
             Statement();
-            match(Token::Semicolon);
             break;
         }
     } while (true);
@@ -48,17 +49,43 @@ void Parser::StatementList()
 
 void Parser::Statement()
 {
-    AssignStatement();
-    // после AssignStatement всегда есть что-то, т.к. это выражение,
-    // поэтому вытаскиваем из стека его результат
-    popStackValue();
+    switch (lookahead()) {
+    case Token::LeftBrace:
+        CompoundStatement();
+        break;
+    default:
+        AssignStatement();
+        // после AssignStatement всегда есть что-то, т.к. это выражение,
+        // поэтому вытаскиваем из стека его результат
+        popStackValue();
+        break;
+    }
+}
+
+void Parser::CompoundStatement()
+{
+    match(Token::LeftBrace);
+    if (lookahead() == Token::RightBrace) {
+        match(Token::RightBrace);
+        return; // пустой блок, не создаём подблок
+    }
+    addAndEntrySubBlock();
+    StatementList();
+    exitToUpLevelBlock();
+    match(Token::RightBrace);
 }
 
 void Parser::AssignStatement()
 {
+    AssignExpression();
+    match(Token::Semicolon);
+}
+
+void Parser::AssignExpression()
+{
     Variable();
     auto lvalueSymbol = _variables.top();
-    popStackValue(); // пока всегда SymbolType::Variable
+    popStackValue(); // результат в lvalueSymbol, просто вынем из стека
     match(Token::Assign);
     Expression();
     emitAssign(lvalueSymbol);
@@ -94,7 +121,7 @@ void Parser::Expression()
         if (Lexer::isAssignOp(lookahead())) {
             // перейти в ветку присваивания
             pushBack(token0, std::move(tokenText0));
-            AssignStatement();
+            AssignExpression();
             return;
         }
         // вернуть идентификатор (прямой порядок, это очередь)
@@ -241,7 +268,7 @@ void Parser::pushBack(Token t, std::u32string &&str)
 
 std::shared_ptr<SymbolTable> Parser::currentSymbolTable()
 {
-    return _rootBlock->symbolTable();
+    return _currentBlock->symbolTable();
 }
 
 void Parser::pushInt(IntType value)
@@ -276,6 +303,23 @@ IntType Parser::popReal()
     _reals.pop();
     _types.pop();
     return lastInt;
+}
+
+std::shared_ptr<Block> Parser::currentBlock() const
+{
+    return _currentBlock;
+}
+
+void Parser::addAndEntrySubBlock()
+{
+    _currentBlock = _currentBlock->addBlock();
+}
+
+void Parser::exitToUpLevelBlock()
+{
+    if (!_currentBlock->parentBlock())
+        throw std::domain_error("Can not exit from up-level block");
+    _currentBlock = _currentBlock->parentBlock();
 }
 
 void Parser::emitBinaryOp(OperationType opType)

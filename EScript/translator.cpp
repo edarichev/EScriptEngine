@@ -70,13 +70,29 @@ void Translator::writeVariableSection(std::shared_ptr<Block> block,
     const char dataHeader[] = {'D', 'A', 'T', 'A'};
     outBuffer.insert(outBuffer.end(),
                      dataHeader, dataHeader + sizeof (dataHeader));
-    uint32_t dataHeaderLength = sizeof(PtrIntType) * table->size();
+     // запомнить, куда запишем настоящее значение dataHeaderLength
+    uint64_t startPosition = outBuffer.size();
+    // пока пишем 0
+    uint32_t dataHeaderLength = 0;
     outBuffer.insert(outBuffer.end(),
                      (uint8_t*)&dataHeaderLength,
                      (uint8_t*)&dataHeaderLength + sizeof (dataHeaderLength));
 
+    uint32_t totalRecords = 0;
+    writeAllSymbols(block, outBuffer, totalRecords);
+    dataHeaderLength = sizeof(PtrIntType) * totalRecords;
+    std::copy((uint8_t*)&dataHeaderLength,
+              (uint8_t*)&dataHeaderLength + sizeof (dataHeaderLength),
+              outBuffer.begin() + startPosition);
+}
+
+void Translator::writeAllSymbols(std::shared_ptr<Block> block,
+                                 std::vector<uint8_t> &outBuffer,
+                                 uint32_t &totalRecords)
+{
     PtrIntType empty {};
-    // начинаем с самого верха
+    // начинаем с таблицы символов родительского блока
+    auto table = block->symbolTable();
     for (auto &record : *table) {
         // все записи в этой области представляют собой указатели
         // на объекты в списке объектов
@@ -87,6 +103,11 @@ void Translator::writeVariableSection(std::shared_ptr<Block> block,
         outBuffer.insert(outBuffer.end(),
                          (uint8_t*)&empty,
                          (uint8_t*)&empty + sizeof (empty));
+        totalRecords++;
+    }
+    // теперь таблицы символов дочерних {блоков}
+    for (auto &b : block->blocks()) {
+        writeAllSymbols(b, outBuffer, totalRecords);
     }
 }
 

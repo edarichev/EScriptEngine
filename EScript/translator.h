@@ -55,6 +55,17 @@ private:
     void writeVariableSection(std::shared_ptr<Block> block,
                               std::vector<uint8_t> &outBuffer);
     /**
+     * @brief Записывает все символы из всех таблиц символов этого блока
+     *        и всех его дочерних боков.
+     * @param block транслируемый блок
+     * @param outBuffer выходной буфер
+     * @param totalRecords полное число записей во всех вложенных таблицах
+     *        символов
+     */
+    void writeAllSymbols(std::shared_ptr<Block> block,
+                         std::vector<uint8_t> &outBuffer,
+                         uint32_t &totalRecords);
+    /**
      * @brief Транслирует в машинный код указанную операцию
      * @param c трёхадресная операция
      */
