@@ -214,6 +214,14 @@ void Parser::Factor()
         pushReal(_lexer->lastRealNumber());
         next();
         break;
+    case Token::True:
+        pushBoolean(true);
+        next();
+        break;
+    case Token::False:
+        pushBoolean(false);
+        next();
+        break;
     default: // ошибка, нужен терминал в виде числа, идентификатора и т.п.
         expected(Token::Identifier);
     }
@@ -281,6 +289,12 @@ void Parser::pushReal(RealType value)
 {
     _reals.push(value);
     _types.push(SymbolType::Real);
+}
+
+void Parser::pushBoolean(bool value)
+{
+    _booleans.push(value);
+    _types.push(SymbolType::Boolean);
 }
 
 void Parser::pushVariable(std::shared_ptr<Symbol> &variable)
@@ -413,6 +427,10 @@ std::pair<SymbolType, OperandRecord> Parser::popStackValue()
     case SymbolType::Real:
         rec.second.realValue = _reals.top();
         _reals.pop();
+        break;
+    case SymbolType::Boolean:
+        rec.second.boolValue = _booleans.top();
+        _booleans.pop();
         break;
     default:
         throw std::domain_error("Unsupported SymbolType");

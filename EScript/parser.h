@@ -36,6 +36,7 @@ private:
     // стек для обнаруженных целых чисел в выражениях
     std::stack<IntType> _integers;
     std::stack<RealType> _reals;
+    std::stack<bool> _booleans;
     std::stack<StringType*> _strings;
     std::unique_ptr<ICodeEmitter> _emitter;
     // типы лексем для возврата
@@ -96,6 +97,7 @@ private:
     std::shared_ptr<SymbolTable> currentSymbolTable();
     void pushInt(IntType value);
     void pushReal(RealType value);
+    void pushBoolean(bool value);
     void pushVariable(std::shared_ptr<Symbol> &variable);
     void emitBinaryOp(OperationType opType);
     /**

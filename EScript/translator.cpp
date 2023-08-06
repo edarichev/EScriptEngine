@@ -196,6 +196,9 @@ void Translator::opAssign(const TCode &c)
     case SymbolType::Variable:
         a.ldloc_m(location(c.operand1.variable));
         break;
+    case SymbolType::Boolean:
+        a.ldc_bool_data8(c.operand1.boolValue);
+        break;
     default:
         throw std::domain_error("Unsupported operand type for assign operation");
     }
@@ -211,6 +214,9 @@ void Translator::emit_ldc(SymbolType type, const OperandRecord &operand)
         break;
     case SymbolType::Real:
         a.ldc_double_data64(operand.realValue);
+        break;
+    case SymbolType::Boolean:
+        a.ldc_bool_data8(operand.boolValue ? 1 : 0);
         break;
     case SymbolType::Variable:
         a.ldloc_m(location(operand.variable));
@@ -232,6 +238,8 @@ bool Translator::tryCalcBinaryOp(const TCode &c)
     case SymbolType::Real:
         value2 = c.operand2.realValue;
         break;
+    case SymbolType::Boolean:
+        value2 = c.operand2.boolValue;
         break;
     default:
         return false;
@@ -242,6 +250,9 @@ bool Translator::tryCalcBinaryOp(const TCode &c)
         break;
     case SymbolType::Real:
         value1 = c.operand1.realValue;
+        break;
+    case SymbolType::Boolean:
+        value1 = c.operand1.boolValue;
         break;
     default:
         return false;
@@ -256,6 +267,9 @@ bool Translator::tryCalcBinaryOp(const TCode &c)
         break;
     case SymbolType::Real:
         a.ldc_double_data64(result.realValue);
+        break;
+    case SymbolType::Boolean:
+        a.ldc_bool_data8(result.boolValue);
         break;
     default:
         break; // уже проверено

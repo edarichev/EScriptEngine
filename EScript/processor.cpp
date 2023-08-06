@@ -42,6 +42,14 @@ void Processor::jmp_m()
     // не считывать - здесь уже новое значение PC
 }
 
+void Processor::ldc_bool_data8()
+{
+    next();
+    PValue result((bool)((*_p) ? true : false));
+    pushToStack(result.type, result.value64());
+    next(sizeof (uint8_t));
+}
+
 void Processor::binaryStackOp(OpCode opCode)
 {
     next();
@@ -148,6 +156,12 @@ void Processor::setValue(ObjectRecord *ptr, double value)
     memcpy(&ptr->data, &value, sizeof(value));
 }
 
+void Processor::setValue(ObjectRecord *ptr, bool value)
+{
+    ptr->type = SymbolType::Boolean;
+    ptr->data = value ? 1 : 0;
+}
+
 int64_t Processor::getIntValue(ObjectRecord *ptr)
 { // можно bit_cast, но оставим как второй вариант, без лишнего вызова.
     int64_t v;
@@ -190,6 +204,7 @@ void Processor::stloc_m()
     Symbol *symbol = nullptr;
     int64_t iValue = 0;
     double dValue = 0;
+    bool bValue = false;
     ptrLValue = readRecord(symbol);
     if (!ptrLValue) { // это lvalue, его нужно установить, если его ещё нет
         ptrLValue = installRecord(symbol);
@@ -208,6 +223,10 @@ void Processor::stloc_m()
         // в операнде находится указатель на запись в таблице символов
         setValue(ptrLValue, bit_cast<double>(item.second));
         break;
+    case SymbolType::Boolean:
+        // в операнде находится указатель на запись в таблице символов
+        setValue(ptrLValue, item.second ? true : false);
+        break;
     case SymbolType::Variable:
         // здесь находится указатель на запись в таблице объектов
         // в зависимости от типа, мы либо меняем ссылку, либо присваиваем по значению
@@ -221,6 +240,10 @@ void Processor::stloc_m()
         case SymbolType::Real:
             dValue = bit_cast<double>(ptrRValue->data);
             setValue(ptrLValue, dValue);
+            break;
+        case SymbolType::Boolean:
+            bValue = ptrRValue->data ? true : false;
+            setValue(ptrLValue, bValue);
             break;
         default:
             throw std::domain_error("Unsupported type of variable :" + std::to_string((uint8_t)item.first));

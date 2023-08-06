@@ -27,6 +27,7 @@ union OperandRecord
 {
     IntType intValue;
     RealType realValue;
+    bool boolValue;
     Symbol *variable;
 };
 
@@ -43,10 +44,7 @@ public:
     OperandRecord operand1 {};
     OperandRecord operand2 {};
     std::string toString() const;
-    void setOperand1(SymbolType operandType, void *value);
-    void setOperand2(SymbolType operandType, void *value);
 private:
-    void setOperand(SymbolType &operandType, OperandRecord &op, SymbolType newOperandType, void *value);
     std::string operandToString(SymbolType operandType, OperandRecord op) const;
 };
 

@@ -6,6 +6,7 @@
 #include "opcode_test.h"
 #include "assembler_test.h"
 #include "automation_test.h"
+#include "boolean_test.h"
 
 using namespace std;
 
@@ -18,6 +19,7 @@ int main()
     OpCode_Test().run();
     Assembler_Test().run();
     Automation_Test().run();
+    Boolean_Test().run();
     cout << "Tests OK" << endl;
     return 0;
 }

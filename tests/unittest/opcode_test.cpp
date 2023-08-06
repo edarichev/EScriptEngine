@@ -35,12 +35,4 @@ void OpCode_Test::test_opCodeWork()
     assert(code1.operand1Type == SymbolType::Integer);
     assert(code1.operand2.realValue == 16);
     assert(code1.operand2Type == SymbolType::Real);
-    IntType i1 = 5678;
-    IntType i2 = 654123;
-    code1.setOperand1(SymbolType::Integer, &i1);
-    code1.setOperand2(SymbolType::Integer, &i2);
-    assert(code1.operand1.intValue == i1);
-    assert(code1.operand1Type == SymbolType::Integer);
-    assert(code1.operand2.intValue == i2);
-    assert(code1.operand2Type == SymbolType::Integer);
 }

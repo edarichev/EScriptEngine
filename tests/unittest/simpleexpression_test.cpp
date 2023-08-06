@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "simpleexpression_test.h"
 #include "escript.h"
+#include "compare.h"
 
 using namespace escript;
 using namespace std;
@@ -106,21 +107,7 @@ void SimpleExpression_Test::test_integerExpressions1()
     assert((int64_t)record->data == 1 - 2 + 3*4 - 5 / 2 + 6);
 }
 
-bool equals_int64(int64_t d1, uint64_t raw)
-{
-    return d1 == bit_cast<int64_t>(raw);
-}
 
-bool equals_double(double d1, double d2)
-{
-    return abs(d1 - d2) <= numeric_limits<double>::epsilon();
-}
-
-bool equals_double(double d1, uint64_t doubleAsUInt64)
-{
-    double d2 = bit_cast<double>(doubleAsUInt64);
-    return abs(d1 - d2) <= numeric_limits<double>::epsilon();
-}
 
 void SimpleExpression_Test::test_realAssign1()
 {
@@ -129,7 +116,7 @@ void SimpleExpression_Test::test_realAssign1()
     engine1.eval(code1);
     auto x = engine1.unit()->block()->symbolTable()->find(U"x");
     auto record = engine1.getObjectRecord(x);
-    assert(equals_double(1.5, record->data));
+    assert(Compare::equals_double(1.5, record->data));
 
 }
 
@@ -141,7 +128,7 @@ void SimpleExpression_Test::test_realAssignChangeTypeToReal()
     auto x = engine1.unit()->block()->symbolTable()->find(U"x");
     auto record = engine1.getObjectRecord(x);
     assert(record->type == SymbolType::Real);
-    assert(equals_double(4.7, record->data));
+    assert(Compare::equals_double(4.7, record->data));
 }
 
 void SimpleExpression_Test::test_realAssignChangeTypeToInt()
@@ -152,7 +139,7 @@ void SimpleExpression_Test::test_realAssignChangeTypeToInt()
     auto x = engine1.unit()->block()->symbolTable()->find(U"x");
     auto record = engine1.getObjectRecord(x);
     assert(record->type == SymbolType::Integer);
-    assert(equals_int64(7, record->data));
+    assert(Compare::equals_int64(7, record->data));
 }
 
 void SimpleExpression_Test::test_realAssignChangeTypeToRealVar()
@@ -163,7 +150,7 @@ void SimpleExpression_Test::test_realAssignChangeTypeToRealVar()
     auto x = engine1.unit()->block()->symbolTable()->find(U"x");
     auto record = engine1.getObjectRecord(x);
     assert(record->type == SymbolType::Real);
-    assert(equals_double(4.7, record->data));
+    assert(Compare::equals_double(4.7, record->data));
 }
 
 void SimpleExpression_Test::test_realAssignChangeTypeToIntVar()
@@ -174,7 +161,7 @@ void SimpleExpression_Test::test_realAssignChangeTypeToIntVar()
     auto x = engine1.unit()->block()->symbolTable()->find(U"x");
     auto record = engine1.getObjectRecord(x);
     assert(record->type == SymbolType::Integer);
-    assert(equals_int64(7, record->data));
+    assert(Compare::equals_int64(7, record->data));
 }
 
 void SimpleExpression_Test::test_chTypeBinaryOp1()
@@ -185,7 +172,7 @@ void SimpleExpression_Test::test_chTypeBinaryOp1()
     auto x = engine1.unit()->block()->symbolTable()->find(U"x");
     auto record = engine1.getObjectRecord(x);
     assert(record->type == SymbolType::Real);
-    assert(equals_double(11+2.3, record->data));
+    assert(Compare::equals_double(11+2.3, record->data));
 }
 
 void SimpleExpression_Test::test_chTypeBinaryOp2()
@@ -196,7 +183,7 @@ void SimpleExpression_Test::test_chTypeBinaryOp2()
     auto x = engine1.unit()->block()->symbolTable()->find(U"x");
     auto record = engine1.getObjectRecord(x);
     assert(record->type == SymbolType::Real);
-    assert(equals_double(2.7+17, record->data));
+    assert(Compare::equals_double(2.7+17, record->data));
 }
 
 void SimpleExpression_Test::test_sequentialRun()
@@ -207,21 +194,21 @@ void SimpleExpression_Test::test_sequentialRun()
     auto x = engine.unit()->block()->symbolTable()->find(U"x");
     auto record = engine.getObjectRecord(x);
     assert(record->type == SymbolType::Integer);
-    assert(equals_int64(45, record->data));
+    assert(Compare::equals_int64(45, record->data));
     // добавим второй блок
     const u32string code2 = U"y = x + 45;";
     engine.eval(code2);
     auto y = engine.unit()->block()->symbolTable()->find(U"y");
     auto recordY = engine.getObjectRecord(y);
     assert(recordY->type == SymbolType::Integer);
-    assert(equals_int64(90, recordY->data));
+    assert(Compare::equals_int64(90, recordY->data));
     // добавим второй блок, сменим тип
     const u32string code3 = U"z = y + 3.3;";
     engine.eval(code3);
     auto z = engine.unit()->block()->symbolTable()->find(U"z");
     auto recordZ = engine.getObjectRecord(z);
     assert(recordZ->type == SymbolType::Real);
-    assert(equals_double(90+3.3, recordZ->data));
+    assert(Compare::equals_double(90+3.3, recordZ->data));
 }
 
 void SimpleExpression_Test::test_braceSimple()
@@ -247,7 +234,7 @@ void SimpleExpression_Test::test_braceSimple()
     assert(x != nullptr); // он должен быть в первом дочернем блоке
     auto record = engine.getObjectRecord(x);
     assert(record->type == SymbolType::Integer);
-    assert(equals_int64(45, record->data));
+    assert(Compare::equals_int64(45, record->data));
     // второй блок - результат исполнения code2
     auto codeBlock2 = mainBlock->blocks()[1];
     // пустого блока не должно быть, он пропущен
@@ -257,5 +244,5 @@ void SimpleExpression_Test::test_braceSimple()
     assert(x != nullptr);
     record = engine.getObjectRecord(x);
     assert(record->type == SymbolType::Integer);
-    assert(equals_int64(54, record->data));
+    assert(Compare::equals_int64(54, record->data));
 }

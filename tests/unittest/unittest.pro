@@ -7,8 +7,10 @@ CONFIG += PRECOMPILE_HEADER
 SOURCES += \
         assembler_test.cpp \
         automation_test.cpp \
+        boolean_test.cpp \
         codegen_test.cpp \
         codeunit_test.cpp \
+        compare.cpp \
         lexer_test.cpp \
         main.cpp \
         opcode_test.cpp \
@@ -18,8 +20,10 @@ SOURCES += \
 HEADERS += \
     assembler_test.h \
     automation_test.h \
+    boolean_test.h \
     codegen_test.h \
     codeunit_test.h \
+    compare.h \
     lexer_test.h \
     opcode_test.h \
     simpleexpression_test.h \

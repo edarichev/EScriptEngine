@@ -39,9 +39,9 @@ void Assembler_Test::test_byteSequence()
     uint64_t uint64_t_value = 0;
     int64_t int64_t_value = 0;
     double double_value = 0;
-    //uint64_t value32 = 0;
-    //uint64_t value16 = 0;
-    //uint64_t value8 = 0;
+    //uint32_t uint32_t_value32 = 0;
+    //uint16_t uint16_t_value = 0;
+    uint8_t uint8_t_value = 0;
 
     // указатели для чтения
     uint8_t *p = nullptr;

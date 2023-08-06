@@ -27,6 +27,7 @@ enum class Token
     Enum,               // enum
     Export,             // export
     Extends,            // extends
+    False,              // false
     Finally,            // finally
     For,                // for
     Function,           // function
@@ -38,6 +39,7 @@ enum class Token
     Interface,          // interface
     Let,                // let
     New,                // new
+    Null,               // null
     Package,            // package
     Private,            // private
     Protected,          // protected
@@ -49,7 +51,9 @@ enum class Token
     This,               // this
     Throw,              // throw
     Try,                // try
+    True,               // true
     Typeof,             // typeof
+    Undefined,          // undefined
     Var,                // var
     Void,               // void
     While,              // while

@@ -66,35 +66,6 @@ std::string TCode::toString() const
     return result;
 }
 
-void TCode::setOperand1(SymbolType operandType, void *value)
-{
-    setOperand(operand1Type, operand1, operandType, value);
-}
-
-void TCode::setOperand2(SymbolType operandType, void *value)
-{
-    setOperand(operand2Type, operand2, operandType, value);
-}
-
-void TCode::setOperand(SymbolType &operandType, OperandRecord &op,
-                        SymbolType newOperandType, void *value)
-{
-    operandType = newOperandType;
-    switch (operandType) {
-    case SymbolType::Integer:
-        op.intValue = *(IntType*)value;
-        break;
-    case SymbolType::Real:
-        op.realValue = *(RealType*)value;
-        break;
-    case SymbolType::Variable:
-        op.variable = (Symbol*)value;
-        break;
-    default:
-        throw std::domain_error("Unsupported SymbolType");
-    }
-}
-
 std::string TCode::operandToString(SymbolType operandType, OperandRecord op) const
 {
     std::string opStr;
@@ -107,6 +78,9 @@ std::string TCode::operandToString(SymbolType operandType, OperandRecord op) con
         break;
     case SymbolType::Variable:
         opStr = op.variable->utf8Name();
+        break;
+    case SymbolType::Boolean:
+        opStr = op.boolValue ? "true" : "false";
         break;
     default:
         throw std::domain_error("Unsupported SymbolType");
