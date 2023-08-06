@@ -50,6 +50,11 @@ void Processor::ldc_bool_data8()
     next(sizeof (uint8_t));
 }
 
+void Processor::brfalse_m()
+{
+
+}
+
 void Processor::binaryStackOp(OpCode opCode)
 {
     next();
