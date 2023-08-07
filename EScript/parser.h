@@ -66,6 +66,7 @@ private:
     void AssignStatement();
     void IfElseStatement();
     void WhileStatement();
+    void ForStatement();
     void AssignExpression();
     void Variable();
     void Expression();

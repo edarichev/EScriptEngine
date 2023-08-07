@@ -10,6 +10,7 @@
 #include "boolean_test.h"
 #include "ifelsestatement_test.h"
 #include "whilestatement_test.h"
+#include "forstatement_test.h"
 
 
 using namespace std;
@@ -27,6 +28,7 @@ int main()
     Boolean_Test().run();
     IfElseStatement_Test().run();
     WhileStatement_Test().run();
+    ForStatement_Test().run();
     cout << "Tests OK" << endl;
     return 0;
 }

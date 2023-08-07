@@ -11,7 +11,7 @@ using std::endl;
 namespace escript {
 
 ICodeEmitter::ICodeEmitter(std::vector<TCode> &buffer)
-    : _buffer(buffer)
+    : _mainBuffer(&buffer), _buffer(&buffer)
 {
 
 }
@@ -44,7 +44,7 @@ void ICodeEmitter::binaryOp(OperationType operationType,
     code.operand2Type = operand2Type;
     code.operand2 = operand2;
     code.operation = operationType;
-    _buffer.push_back(code);
+    _buffer->push_back(code);
 }
 
 void ICodeEmitter::assign(Symbol *lvalue, SymbolType rvalueType,
@@ -55,7 +55,7 @@ void ICodeEmitter::assign(Symbol *lvalue, SymbolType rvalueType,
     code.operation = OperationType::Assign;
     code.operand1Type = rvalueType;
     code.operand1 = operand1;
-    _buffer.push_back(code);
+    _buffer->push_back(code);
 }
 
 void ICodeEmitter::unaryOp(OperationType operationType, Symbol *resultVariable,
@@ -72,7 +72,7 @@ void ICodeEmitter::unaryOp(OperationType operationType, Symbol *resultVariable,
     code.operand1Type = operand1Type;
     code.operand1 = operand1;
     code.operation = operationType;
-    _buffer.push_back(code);
+    _buffer->push_back(code);
 }
 
 void ICodeEmitter::iffalse(Symbol *variableToTest, int exitOrFalseLabelId)
@@ -84,7 +84,7 @@ void ICodeEmitter::iffalse(Symbol *variableToTest, int exitOrFalseLabelId)
     // номер метки:
     code.operand2Type = SymbolType::Integer;
     code.operand2.intValue = exitOrFalseLabelId;
-    _buffer.push_back(code);
+    _buffer->push_back(code);
 }
 
 void ICodeEmitter::goToLabel(int labelId)
@@ -93,7 +93,7 @@ void ICodeEmitter::goToLabel(int labelId)
     code.operation = OperationType::Goto;
     code.operand1Type = SymbolType::Integer;
     code.operand1.intValue = labelId;
-    _buffer.push_back(code);
+    _buffer->push_back(code);
 }
 
 void ICodeEmitter::label(int labelId)
@@ -102,7 +102,23 @@ void ICodeEmitter::label(int labelId)
     code.operation = OperationType::Label;
     code.operand1Type = SymbolType::Integer;
     code.operand1.intValue = labelId;
-    _buffer.push_back(code);
+    _buffer->push_back(code);
+}
+
+void ICodeEmitter::switchToTempBuffer()
+{
+    _buffer = &_tmpBuffer;
+}
+
+void ICodeEmitter::switchToMainBuffer()
+{
+    _buffer = _mainBuffer;
+}
+
+void ICodeEmitter::writeTempBuffer()
+{
+    _buffer->insert(_buffer->end(), _tmpBuffer.begin(), _tmpBuffer.end());
+    _tmpBuffer.clear();
 }
 
 } // namespace escript

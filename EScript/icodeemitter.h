@@ -19,7 +19,9 @@ namespace escript {
 class ESCRIPT_EXPORT ICodeEmitter
 {
 private:
-    std::vector<TCode> &_buffer;
+    std::vector<TCode> *_mainBuffer;
+    std::vector<TCode> *_buffer;
+    std::vector<TCode> _tmpBuffer;
 public:
     ICodeEmitter(std::vector<TCode> &buffer);
     void binaryOp(OperationType operationType,
@@ -34,6 +36,9 @@ public:
     void iffalse(Symbol *variableToTest, int exitOrFalseLabelId);
     void goToLabel(int labelId);
     void label(int labelId);
+    void switchToTempBuffer();
+    void switchToMainBuffer();
+    void writeTempBuffer();
 };
 
 } // namespace escript

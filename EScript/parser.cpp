@@ -59,6 +59,9 @@ void Parser::Statement()
     case Token::While:
         WhileStatement();
         break;
+    case Token::For:
+        ForStatement();
+        break;
     default:
         AssignStatement();
         // после AssignStatement всегда есть что-то, т.к. это выражение,
@@ -119,6 +122,30 @@ void Parser::WhileStatement()
     emitIfFalseHeader(exitLabel); // аналогично заголовку в if-else
     match(Token::RightParenth);
     Statement();                  // тело цикла
+    emitGoto(startLabel);         // возврат к условию
+    emitLabel(exitLabel);         // выход
+}
+
+void Parser::ForStatement()
+{
+    match(Token::For);
+    match(Token::LeftParenth);
+    Expression();                 // TODO: expr1, тут нужен список выражений
+    popStackValue();              // убрать, значение не нужно
+    match(Token::Semicolon);
+    int startLabel = nextLabel(); // метка возврата в начало цикла
+    emitLabel(startLabel);
+    Expression();                 // expr2, логическое условие
+    int exitLabel = nextLabel();  // метка выхода
+    emitIfFalseHeader(exitLabel); // аналогично заголовку в if-else
+    match(Token::Semicolon);
+    _emitter->switchToTempBuffer();
+    // тут тоже нужен список выражений
+    Expression();                 // expr3, её вывести в конец
+    _emitter->switchToMainBuffer();
+    match(Token::RightParenth);
+    Statement();
+    _emitter->writeTempBuffer();  // вывести expr3
     emitGoto(startLabel);         // возврат к условию
     emitLabel(exitLabel);         // выход
 }
