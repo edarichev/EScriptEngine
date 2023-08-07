@@ -28,6 +28,7 @@ void ICodeEmitter::binaryOp(OperationType operationType,
     case OperationType::Add:
     case OperationType::Div:
     case OperationType::Minus:
+    case OperationType::Less:
         break;
     default:
         throw std::domain_error("Invalid binary operation");

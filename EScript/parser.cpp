@@ -152,7 +152,7 @@ void Parser::Expression()
         pushBack(token0, std::move(tokenText0));
         // перейти в SimpleExpression
     }
-    SimpleExpression();
+    LogicalOrNCOExpression();
 }
 
 void Parser::SimpleExpression()
@@ -175,6 +175,60 @@ void Parser::SimpleExpression()
         }
         break;
     } while (true);
+}
+
+void Parser::SimpleOrShiftExpression()
+{
+    SimpleExpression();
+}
+
+void Parser::ShiftOrRelationExpression()
+{
+    SimpleOrShiftExpression();
+}
+
+void Parser::RelationOrEqualityExpression()
+{
+    ShiftOrRelationExpression();
+    switch (lookahead()) {
+    case Token::Less:
+        next();
+        ShiftOrRelationExpression();
+        emitBinaryOp(OperationType::Less);
+        return;
+    default:
+        break;
+    }
+}
+
+void Parser::BitwiseAndOrEqualityExpression()
+{
+    RelationOrEqualityExpression();
+}
+
+void Parser::BitwiseXOROrAndExpression()
+{
+    BitwiseAndOrEqualityExpression();
+}
+
+void Parser::BitwiseOROrXORExpression()
+{
+    BitwiseXOROrAndExpression();
+}
+
+void Parser::LogicalAndOrBitORExpression()
+{
+    BitwiseOROrXORExpression();
+}
+
+void Parser::LogicalOrOrAndExpression()
+{
+    LogicalAndOrBitORExpression();
+}
+
+void Parser::LogicalOrNCOExpression()
+{
+    LogicalOrOrAndExpression();
 }
 
 void Parser::Term()
@@ -326,7 +380,8 @@ void Parser::emitBinaryOp(OperationType opType)
     case OperationType::Add:
     case OperationType::Div:
     case OperationType::Minus:
-    case OperationType::Multiply: {
+    case OperationType::Multiply:
+    case OperationType::Less:{
         auto opRecord2 = popStackValue();
         auto opRecord1 = popStackValue();
         std::shared_ptr<Symbol> tmp = currentSymbolTable()->addTemp();

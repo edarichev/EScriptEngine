@@ -20,10 +20,13 @@ enum class ArithmeticOperation : uint8_t
     Add = 0,
     Sub = 1,
     Mul = 2,
-    Div = 3
+    Div = 3,
+    BoolLess = 4,
 };
 
 struct PValue;
+
+bool operator<(const PValue &v1, const PValue &v2);
 
 // для строк и неприводимых типов - другая функция
 template<typename T1, typename T2>
@@ -38,6 +41,8 @@ decltype(auto) calcValues(T1 v1, T2 v2, ArithmeticOperation op)
         return PValue(v1 / v2);
     case ArithmeticOperation::Sub:
         return PValue(v1 - v2);
+    case ArithmeticOperation::BoolLess:
+        return PValue(PValue(v1) < PValue(v2));
     default:
         throw std::domain_error("Unsupported bin.op");
     }
@@ -54,20 +59,55 @@ struct PValue
         double realValue;
         bool boolValue;
     };
-    PValue() = default;
+    PValue()
+    {
+
+    }
+    PValue(const PValue &rhs)
+    {
+        operator=(rhs);
+    }
     explicit PValue(int64_t rhs)
+    {
+        operator=(rhs);
+    }
+    explicit PValue(int rhs)
     {
         operator=(rhs);
     }
     explicit PValue(bool rhs)
     {
-        operator=(rhs);
+        operator=((bool)rhs);
     }
     explicit PValue(double rhs)
     {
         operator=(rhs);
     }
+    PValue &operator=(const PValue &rhs)
+    {
+        type = rhs.type;
+        switch (type) {
+        case SymbolType::Boolean:
+            boolValue = rhs.boolValue;
+            break;
+        case SymbolType::Integer:
+            intValue = rhs.intValue;
+            break;
+        case SymbolType::Real:
+            realValue = rhs.realValue;
+            break;
+        default:
+            break;
+        }
+        return *this;
+    }
     PValue &operator=(int64_t rhs)
+    {
+        type = SymbolType::Integer;
+        intValue = rhs;
+        return *this;
+    }
+    PValue &operator=(int rhs)
     {
         type = SymbolType::Integer;
         intValue = rhs;
@@ -85,6 +125,7 @@ struct PValue
         realValue = rhs;
         return *this;
     }
+
     /**
      * @brief Если значение не false, не null, не undefined или другое пустое,
      *        то вернёт true.
@@ -209,6 +250,8 @@ struct PValue
         }
         throw std::domain_error("Unsupported type");
     }
+
+    friend bool operator<(const PValue &v1, const PValue &v2);
 };
 
 } // namespace escript

@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "pvalue_test.h"
 #include "lexer_test.h"
 #include "simpleexpression_test.h"
 #include "codeunit_test.h"
@@ -9,10 +10,12 @@
 #include "boolean_test.h"
 #include "ifelsestatement_test.h"
 
+
 using namespace std;
 
 int main()
 {
+    PValue_Test().run();
     Lexer_Test().run();
     SimpleExpression_Test().run();
     CodeUnit_Test().run();

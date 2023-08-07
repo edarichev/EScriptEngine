@@ -21,6 +21,7 @@ SOURCES += \
     machine.cpp \
     parser.cpp \
     processor.cpp \
+    pvalue.cpp \
     stdafx.cpp \
     storage.cpp \
     symbol.cpp \

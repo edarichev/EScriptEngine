@@ -18,7 +18,8 @@ Processor::Processor()
             {OpCode::ADDST, ArithmeticOperation::Add },
             {OpCode::SUBST, ArithmeticOperation::Sub },
             {OpCode::MULST, ArithmeticOperation::Mul },
-            {OpCode::DIVST, ArithmeticOperation::Div }
+            {OpCode::DIVST, ArithmeticOperation::Div },
+            {OpCode::STLESS, ArithmeticOperation::BoolLess }
         };
     }
 }
@@ -63,6 +64,11 @@ void Processor::iffalse_m()
         return;
     }
     next(sizeof (uint64_t));
+}
+
+void Processor::stless()
+{
+    binaryStackOp(OpCode::STLESS);
 }
 
 void Processor::binaryStackOp(OpCode opCode)

@@ -10,6 +10,10 @@ https://www.epaperpress.com/lexandyacc/if.html
 %token RealNumber
 %token Assign
 %token Equal
+%token While
+%token LShift RelOp EqualityOp And Or
+%token NCO // ?? Nullish coalescing operator
+
 %nonassoc If
 %nonassoc Else
 %%
@@ -24,6 +28,7 @@ StatementList : Statement
 Statement : AssignStatement
           | CompoundStatement
           | IfElseStatement
+          | WhileStatement
           ;
 
 AssignStatement : AssignExpression ';'
@@ -36,15 +41,55 @@ IfElseStatement : If '(' Expression ')' Statement %prec If
                 | If '(' Expression ')' Statement Else Statement
                 ;
 
+WhileStatement : While '(' Expression ')' Statement
+               ;
+
 AssignExpression : Variable Assign Expression
                  ;
 
 Variable : Identifier
          ;
 
-Expression : SimpleExpression
+Expression : LogicalOrNCOExpression
            | AssignExpression
            ;
+
+// Nullish coalescing operator
+LogicalOrNCOExpression : LogicalOrOrAndExpression
+                       | NCO LogicalOrOrAndExpression
+                       ;
+
+LogicalOrOrAndExpression : LogicalAndOrBitORExpression
+                         | Or LogicalAndOrBitORExpression
+                         ;
+
+LogicalAndOrBitORExpression : BitwiseOROrXORExpression
+                            | And BitwiseOROrXORExpression
+                            ;
+
+BitwiseOROrXORExpression : BitwiseXOROrAndExpression
+                         | '|' BitwiseXOROrAndExpression
+                         ;
+
+BitwiseXOROrAndExpression : BitwiseAndOrEqualityExpression
+                          | '^' BitwiseAndOrEqualityExpression
+                          ;
+
+BitwiseAndOrEqualityExpression : RelationOrEqualityExpression
+                               | '&' RelationOrEqualityExpression
+                               ;
+
+RelationOrEqualityExpression : ShiftOrRelationExpression
+                             | EqualityOp
+                             ;
+
+ShiftOrRelationExpression : SimpleOrShiftExpression
+                          | RelOp SimpleOrShiftExpression
+                          ;
+
+SimpleOrShiftExpression : SimpleExpression
+                        | LShift SimpleExpression
+                        ;
 
 SimpleExpression : Term
                  | SimpleExpression '+' Term

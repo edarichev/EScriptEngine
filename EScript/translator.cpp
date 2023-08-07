@@ -21,7 +21,8 @@ Translator::Translator()
             {OperationType::Add, ArithmeticOperation::Add },
             {OperationType::Minus, ArithmeticOperation::Sub },
             {OperationType::Multiply, ArithmeticOperation::Mul },
-            {OperationType::Div, ArithmeticOperation::Div }
+            {OperationType::Div, ArithmeticOperation::Div },
+            {OperationType::Less, ArithmeticOperation::BoolLess }
         };
     }
 }
@@ -120,6 +121,7 @@ void Translator::translateOperation(const TCode &c)
     case OperationType::Multiply:
     case OperationType::Div:
     case OperationType::Minus:
+    case OperationType::Less:
         binaryOp(c);
         break;
     case OperationType::Assign:
@@ -200,6 +202,9 @@ void Translator::binaryOp(const TCode &c)
         break;
     case OperationType::Div:
         a.divst();
+        break;
+    case OperationType::Less:
+        a.stless();
         break;
     default:
         throw std::domain_error("Unsupported binary operation");

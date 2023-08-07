@@ -59,6 +59,10 @@ std::string TCode::toString() const
         numberOfOperands = 2;
         opSign = "IFFALSE";
         break;
+    case OperationType::Less:
+        numberOfOperands = 2;
+        opSign = "LESS";
+        break;
     }
     std::string result;
     if (lvalue)

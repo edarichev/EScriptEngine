@@ -69,6 +69,15 @@ private:
     void Variable();
     void Expression();
     void SimpleExpression();
+    void SimpleOrShiftExpression();
+    void ShiftOrRelationExpression();
+    void RelationOrEqualityExpression();
+    void BitwiseAndOrEqualityExpression();
+    void BitwiseXOROrAndExpression();
+    void BitwiseOROrXORExpression();
+    void LogicalAndOrBitORExpression();
+    void LogicalOrOrAndExpression();
+    void LogicalOrNCOExpression();
     void Term();
     void Factor();
     // перемещение по потоку

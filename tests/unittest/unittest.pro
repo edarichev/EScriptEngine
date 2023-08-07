@@ -15,6 +15,7 @@ SOURCES += \
         lexer_test.cpp \
         main.cpp \
         opcode_test.cpp \
+        pvalue_test.cpp \
         simpleexpression_test.cpp \
         stdafx.cpp
 
@@ -28,6 +29,7 @@ HEADERS += \
     ifelsestatement_test.h \
     lexer_test.h \
     opcode_test.h \
+    pvalue_test.h \
     simpleexpression_test.h \
     stdafx.h
 

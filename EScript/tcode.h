@@ -24,6 +24,7 @@ enum class OperationType
     IfFalse,        // iffalse op1 метка op2.intValue
     Goto,           // Goto op1.intValue
     Label,          // op1.intValue
+    Less,           // op1<op2
 };
 
 union OperandRecord
