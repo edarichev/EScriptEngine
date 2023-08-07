@@ -9,6 +9,7 @@
 #include "automation_test.h"
 #include "boolean_test.h"
 #include "ifelsestatement_test.h"
+#include "whilestatement_test.h"
 
 
 using namespace std;
@@ -25,6 +26,7 @@ int main()
     Automation_Test().run();
     Boolean_Test().run();
     IfElseStatement_Test().run();
+    WhileStatement_Test().run();
     cout << "Tests OK" << endl;
     return 0;
 }

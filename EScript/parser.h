@@ -65,6 +65,7 @@ private:
     void CompoundStatement();
     void AssignStatement();
     void IfElseStatement();
+    void WhileStatement();
     void AssignExpression();
     void Variable();
     void Expression();
@@ -114,7 +115,7 @@ private:
      * @param exitOrFalseLabelId метка для ветки false или выхода,
      *        в зависимости то того, есть ли далее блок "else"
      */
-    void emitIfHeader(int exitOrFalseLabelId);
+    void emitIfFalseHeader(int exitOrFalseLabelId);
     void emitGoto(int labelId);
     void emitLabel(int labelId);
     void emitBinaryOp(OperationType opType);

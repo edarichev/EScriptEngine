@@ -17,7 +17,8 @@ SOURCES += \
         opcode_test.cpp \
         pvalue_test.cpp \
         simpleexpression_test.cpp \
-        stdafx.cpp
+        stdafx.cpp \
+        whilestatement_test.cpp
 
 HEADERS += \
     assembler_test.h \
@@ -31,7 +32,8 @@ HEADERS += \
     opcode_test.h \
     pvalue_test.h \
     simpleexpression_test.h \
-    stdafx.h
+    stdafx.h \
+    whilestatement_test.h
 
 PRECOMPILED_HEADER = stdafx.h
 

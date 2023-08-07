@@ -47,4 +47,26 @@ bool operator<(const PValue &lhs, const PValue &rhs)
     }
     return false;
 }
+
+bool operator<=(const PValue &lhs, const PValue &rhs)
+{
+    return !(operator<(rhs, lhs));
+}
+
+bool operator==(const PValue &lhs, const PValue &rhs)
+{
+    return !((lhs < rhs) && !(rhs < lhs));
+}
+
+bool operator>(const PValue &lhs, const PValue &rhs)
+{
+    return rhs < lhs;
+}
+
+bool operator>=(const PValue &lhs, const PValue &rhs)
+{
+    return !(lhs < rhs);
+}
+
+
 } // namespace escript

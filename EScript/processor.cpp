@@ -19,7 +19,11 @@ Processor::Processor()
             {OpCode::SUBST, ArithmeticOperation::Sub },
             {OpCode::MULST, ArithmeticOperation::Mul },
             {OpCode::DIVST, ArithmeticOperation::Div },
-            {OpCode::STLESS, ArithmeticOperation::BoolLess }
+            {OpCode::STLESS, ArithmeticOperation::BoolLess },
+            {OpCode::STLESS_EQ, ArithmeticOperation::BoolLessOrEqual },
+            {OpCode::STGT, ArithmeticOperation::BoolGreater },
+            {OpCode::STGT_EQ, ArithmeticOperation::BoolGreaterOrEqual },
+            {OpCode::STEQ, ArithmeticOperation::BoolEqual },
         };
     }
 }
@@ -69,6 +73,26 @@ void Processor::iffalse_m()
 void Processor::stless()
 {
     binaryStackOp(OpCode::STLESS);
+}
+
+void Processor::stless_eq()
+{
+    binaryStackOp(OpCode::STLESS_EQ);
+}
+
+void Processor::stgt()
+{
+    binaryStackOp(OpCode::STGT);
+}
+
+void Processor::stgt_eq()
+{
+    binaryStackOp(OpCode::STGT_EQ);
+}
+
+void Processor::steq()
+{
+    binaryStackOp(OpCode::STEQ);
 }
 
 void Processor::binaryStackOp(OpCode opCode)

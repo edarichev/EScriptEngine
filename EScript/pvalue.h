@@ -22,11 +22,19 @@ enum class ArithmeticOperation : uint8_t
     Mul = 2,
     Div = 3,
     BoolLess = 4,
+    BoolLessOrEqual = 5,
+    BoolGreater = 6,
+    BoolGreaterOrEqual = 7,
+    BoolEqual = 8,
 };
 
 struct PValue;
 
 bool operator<(const PValue &v1, const PValue &v2);
+bool operator<=(const PValue &v1, const PValue &v2);
+bool operator>(const PValue &v1, const PValue &v2);
+bool operator>=(const PValue &v1, const PValue &v2);
+bool operator==(const PValue &v1, const PValue &v2);
 
 // для строк и неприводимых типов - другая функция
 template<typename T1, typename T2>
@@ -43,6 +51,14 @@ decltype(auto) calcValues(T1 v1, T2 v2, ArithmeticOperation op)
         return PValue(v1 - v2);
     case ArithmeticOperation::BoolLess:
         return PValue(PValue(v1) < PValue(v2));
+    case ArithmeticOperation::BoolLessOrEqual:
+        return PValue(PValue(v1) <= PValue(v2));
+    case ArithmeticOperation::BoolGreater:
+        return PValue(PValue(v1) > PValue(v2));
+    case ArithmeticOperation::BoolGreaterOrEqual:
+        return PValue(PValue(v1) >= PValue(v2));
+    case ArithmeticOperation::BoolEqual:
+        return PValue(PValue(v1) == PValue(v2));
     default:
         throw std::domain_error("Unsupported bin.op");
     }

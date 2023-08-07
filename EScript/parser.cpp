@@ -56,6 +56,9 @@ void Parser::Statement()
     case Token::If:
         IfElseStatement();
         break;
+    case Token::While:
+        WhileStatement();
+        break;
     default:
         AssignStatement();
         // после AssignStatement всегда есть что-то, т.к. это выражение,
@@ -91,7 +94,7 @@ void Parser::IfElseStatement()
     Expression(); // теперь в стеке что-то есть
     match(Token::RightParenth);
     int falseLabel = nextLabel();
-    emitIfHeader(falseLabel); // if_false tmp_var метка_false
+    emitIfFalseHeader(falseLabel); // if_false tmp_var метка_false
     Statement(); // ветка true
     if (lookahead() == Token::Else) {
         next();
@@ -103,6 +106,21 @@ void Parser::IfElseStatement()
     } else {
         emitLabel(falseLabel);
     }
+}
+
+void Parser::WhileStatement()
+{
+    match(Token::While);
+    match(Token::LeftParenth);
+    int startLabel = nextLabel(); // метка возврата в начало цикла
+    emitLabel(startLabel);
+    Expression();                 // теперь в стеке что-то есть
+    int exitLabel = nextLabel();  // метка выхода
+    emitIfFalseHeader(exitLabel); // аналогично заголовку в if-else
+    match(Token::RightParenth);
+    Statement();                  // тело цикла
+    emitGoto(startLabel);         // возврат к условию
+    emitLabel(exitLabel);         // выход
 }
 
 void Parser::AssignExpression()
@@ -195,6 +213,26 @@ void Parser::RelationOrEqualityExpression()
         next();
         ShiftOrRelationExpression();
         emitBinaryOp(OperationType::Less);
+        return;
+    case Token::LessEqual:
+        next();
+        ShiftOrRelationExpression();
+        emitBinaryOp(OperationType::LessOrEqual);
+        return;
+    case Token::Greater:
+        next();
+        ShiftOrRelationExpression();
+        emitBinaryOp(OperationType::Greater);
+        return;
+    case Token::GreaterEqual:
+        next();
+        ShiftOrRelationExpression();
+        emitBinaryOp(OperationType::GreaterOrEqual);
+        return;
+    case Token::Equal:
+        next();
+        ShiftOrRelationExpression();
+        emitBinaryOp(OperationType::Equal);
         return;
     default:
         break;
@@ -342,7 +380,7 @@ const u32string &Parser::tokenText() const
 
 ////////////////////////// emitter //////////////////////////////////////////
 
-void Parser::emitIfHeader(int exitOrFalseLabelId)
+void Parser::emitIfFalseHeader(int exitOrFalseLabelId)
 {
     auto valueType = _types.top();
     // зависит от того, что тут есть
@@ -381,7 +419,12 @@ void Parser::emitBinaryOp(OperationType opType)
     case OperationType::Div:
     case OperationType::Minus:
     case OperationType::Multiply:
-    case OperationType::Less:{
+    case OperationType::Less:
+    case OperationType::LessOrEqual:
+    case OperationType::Greater:
+    case OperationType::GreaterOrEqual:
+    case OperationType::Equal:
+    {
         auto opRecord2 = popStackValue();
         auto opRecord1 = popStackValue();
         std::shared_ptr<Symbol> tmp = currentSymbolTable()->addTemp();

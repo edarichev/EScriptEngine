@@ -61,7 +61,23 @@ std::string TCode::toString() const
         break;
     case OperationType::Less:
         numberOfOperands = 2;
-        opSign = "LESS";
+        opSign = "<";
+        break;
+    case OperationType::LessOrEqual:
+        numberOfOperands = 2;
+        opSign = "<=";
+        break;
+    case OperationType::Greater:
+        numberOfOperands = 2;
+        opSign = ">";
+        break;
+    case OperationType::GreaterOrEqual:
+        numberOfOperands = 2;
+        opSign = ">=";
+        break;
+    case OperationType::Equal:
+        numberOfOperands = 2;
+        opSign = "==";
         break;
     }
     std::string result;

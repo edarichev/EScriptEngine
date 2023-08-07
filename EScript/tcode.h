@@ -25,6 +25,10 @@ enum class OperationType
     Goto,           // Goto op1.intValue
     Label,          // op1.intValue
     Less,           // op1<op2
+    LessOrEqual,    // op1<=op2
+    Greater,        // op1>op2
+    GreaterOrEqual, // op1>=op2
+    Equal,          // op1==op2
 };
 
 union OperandRecord

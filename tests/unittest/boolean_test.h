@@ -10,7 +10,11 @@ private:
     void initTestCase();
     void cleanupTestCase();
     void test_trueFalse();
-    void test_lessThan();
+    void test_less();
+    void test_lessOrEqual();
+    void test_greater();
+    void test_greaterOrEqual();
+    void test_equal();
 };
 
 #endif // BOOLEAN_TEST_H
