@@ -11,6 +11,7 @@ SOURCES += \
         codegen_test.cpp \
         codeunit_test.cpp \
         compare.cpp \
+        ifelsestatement_test.cpp \
         lexer_test.cpp \
         main.cpp \
         opcode_test.cpp \
@@ -24,6 +25,7 @@ HEADERS += \
     codegen_test.h \
     codeunit_test.h \
     compare.h \
+    ifelsestatement_test.h \
     lexer_test.h \
     opcode_test.h \
     simpleexpression_test.h \

@@ -7,6 +7,7 @@
 #include "assembler_test.h"
 #include "automation_test.h"
 #include "boolean_test.h"
+#include "ifelsestatement_test.h"
 
 using namespace std;
 
@@ -20,6 +21,7 @@ int main()
     Assembler_Test().run();
     Automation_Test().run();
     Boolean_Test().run();
+    IfElseStatement_Test().run();
     cout << "Tests OK" << endl;
     return 0;
 }

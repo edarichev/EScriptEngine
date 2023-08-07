@@ -23,6 +23,18 @@ private:
     std::shared_ptr<Block> _block;
     // для конвертации операций
     static std::map<OperationType, ArithmeticOperation> optypes;
+    // key=номер метки, value=адрес
+    // когда делаем goto/iffalse, заносим метку, когда в коде обнаруживаем метку,
+    // заменяем её адрес
+    std::map<int, uint64_t> _labels;
+    static const constexpr uint64_t INVALID_LABEL_ADDRESS = (uint64_t)-1;
+    // адреса в коде программы, где стоят ссылки на метки
+    // во всех переходах стоит номер метки
+    // чтобы не проходить по всему коду, сохраняем адреса в коде,
+    // следующие сразу после команд типа iffalse, jmp и т.п.
+    // key=номер метки, value=адреса в коде, где она используется
+    // попробовать оба варианта, см. replaceLabelsToAddresses()
+    std::multimap<int, uint64_t> _labelReferences;
 public:
     /**
      * @brief Создаёт новый экземпляр класса Translator
@@ -76,12 +88,23 @@ private:
      * @return
      */
     PtrIntType location(Symbol *symbol);
+    /**
+     * @brief Заменяет все номера меток в командах перехода на их адреса
+     *        относительно начала объектного файла.
+     * @param outBuffer
+     * @param startPosition позиция первой команды в блоке CODE
+     */
+    void replaceLabelsToAddresses(std::vector<uint8_t> &outBuffer,
+                                  uint64_t startPosition);
 private:
     void binaryOp(const TCode &c);
     void opAdd(const TCode &c);
     void opMul(const TCode &c);
     void opUMinus(const TCode &c);
     void opAssign(const TCode &c);
+    void opGoto(const TCode &c);
+    void opLabel(const TCode &c);
+    void opIfFalse(const TCode &c);
     /**
      * @brief Генерирует вывод команды ldc_*** в зависимотси от типа
      * @param type тип аргумента

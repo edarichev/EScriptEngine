@@ -31,6 +31,9 @@ public:
     void unaryOp(OperationType operationType,
                  Symbol *resultVariable,
                  SymbolType operand1Type, const OperandRecord &operand1);
+    void iffalse(Symbol *variableToTest, int exitOrFalseLabelId);
+    void goToLabel(int labelId);
+    void label(int labelId);
 };
 
 } // namespace escript

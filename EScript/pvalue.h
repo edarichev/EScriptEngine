@@ -86,6 +86,24 @@ struct PValue
         return *this;
     }
     /**
+     * @brief Если значение не false, не null, не undefined или другое пустое,
+     *        то вернёт true.
+     * @return
+     */
+    bool asBoolean() const
+    {
+        switch (type) {
+        case SymbolType::Boolean:
+            return boolValue;
+        case SymbolType::Integer:
+            return (bool)intValue;
+        case SymbolType::Real:
+            return (bool)realValue;
+        default:
+            return false;
+        }
+    }
+    /**
      * @brief Возвращает значение как uint64_t
      * @return
      */

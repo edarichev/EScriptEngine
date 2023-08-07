@@ -53,6 +53,9 @@ void Parser::Statement()
     case Token::LeftBrace:
         CompoundStatement();
         break;
+    case Token::If:
+        IfElseStatement();
+        break;
     default:
         AssignStatement();
         // после AssignStatement всегда есть что-то, т.к. это выражение,
@@ -79,6 +82,27 @@ void Parser::AssignStatement()
 {
     AssignExpression();
     match(Token::Semicolon);
+}
+
+void Parser::IfElseStatement()
+{
+    match(Token::If);
+    match(Token::LeftParenth);
+    Expression(); // теперь в стеке что-то есть
+    match(Token::RightParenth);
+    int falseLabel = nextLabel();
+    emitIfHeader(falseLabel); // if_false tmp_var метка_false
+    Statement(); // ветка true
+    if (lookahead() == Token::Else) {
+        next();
+        int exitLabel = nextLabel();
+        emitGoto(exitLabel);
+        emitLabel(falseLabel);
+        Statement(); // ветка false
+        emitLabel(exitLabel);
+    } else {
+        emitLabel(falseLabel);
+    }
 }
 
 void Parser::AssignExpression()
@@ -227,7 +251,7 @@ void Parser::Factor()
     }
 }
 
-//////////////////////// работа с символами  /////////////////////////////
+//////////////////////// перемещение по потоку  /////////////////////////////
 
 void Parser::match(Token t)
 {
@@ -261,6 +285,115 @@ const u32string &Parser::tokenText() const
     }
     return _lexer->tokenText();
 }
+
+////////////////////////// emitter //////////////////////////////////////////
+
+void Parser::emitIfHeader(int exitOrFalseLabelId)
+{
+    auto valueType = _types.top();
+    // зависит от того, что тут есть
+    // если значение можно вычислить сейчас, то ветку false/true
+    // можно выбросить и обойтись без ветвления
+    // пока мы засунем во временную переменную
+    Symbol *ptrValue = nullptr;
+    if (valueType != SymbolType::Variable) {
+        std::shared_ptr<Symbol> tmp;
+        tmp = currentSymbolTable()->addTemp();
+        emitAssign(tmp);
+        ptrValue = tmp.get();
+        pushVariable(tmp);
+    } else {
+        ptrValue = _variables.top().get();
+    }
+    // здесь должна быть только переменная в стеке
+    // иначе должна быть оптимизация, и сюда мы не доходим
+    _emitter->iffalse(ptrValue, exitOrFalseLabelId);
+}
+
+void Parser::emitGoto(int labelId)
+{
+    _emitter->goToLabel(labelId);
+}
+
+void Parser::emitLabel(int labelId)
+{
+    _emitter->label(labelId);
+}
+
+void Parser::emitBinaryOp(OperationType opType)
+{
+    switch (opType) {
+    case OperationType::Add:
+    case OperationType::Div:
+    case OperationType::Minus:
+    case OperationType::Multiply: {
+        auto opRecord2 = popStackValue();
+        auto opRecord1 = popStackValue();
+        std::shared_ptr<Symbol> tmp = currentSymbolTable()->addTemp();
+        _emitter->binaryOp(opType, tmp.get(),
+                           opRecord1.first, opRecord1.second,
+                           opRecord2.first, opRecord2.second);
+        pushVariable(tmp);
+        break;
+    }
+    default:
+        throw std::domain_error("Invalid binary operation");
+    }
+}
+
+void Parser::emitUnaryOp(OperationType opType)
+{
+    std::shared_ptr<Symbol> symbol;
+    // смотря что положили
+    IntType lastInt;
+    RealType lastReal;
+    switch (_types.top()) {
+    case SymbolType::Integer:
+        lastInt = popInt();
+        // не нужно тут никакого кода, сразу выполняем действие
+        switch (opType) {
+        case OperationType::UMinus:
+            lastInt = -lastInt;
+            break;
+        default:
+            throw std::domain_error("Invalid unary operation");
+        }
+        pushInt(lastInt);
+        break;
+    case SymbolType::Real:
+        lastReal = popReal();
+        // не нужно тут никакого кода, сразу выполняем действие
+        switch (opType) {
+        case OperationType::UMinus:
+            lastReal = -lastReal;
+            break;
+        default:
+            throw std::domain_error("Invalid unary operation");
+        }
+        pushReal(lastReal);
+        break;
+    case SymbolType::Variable: {
+        symbol = _variables.top();
+        auto opRecord1 = popStackValue();
+        _emitter->unaryOp(opType, opRecord1.second.variable,
+                           opRecord1.first, opRecord1.second);
+        pushVariable(symbol); // ту же самую
+        break;
+    }
+    default:
+        error("Unsupported SymbolType/Factor");
+    }
+
+}
+
+void Parser::emitAssign(std::shared_ptr<Symbol> &lvalue)
+{
+    // после Expression всегда что-то есть в стеке
+    auto rec = popStackValue();
+    _emitter->assign(lvalue.get(), rec.first, rec.second);
+}
+
+////////////////////// работа с символами ///////////////////////////////////
 
 void Parser::pushBack(Token t, const std::u32string &str)
 {
@@ -336,78 +469,11 @@ void Parser::exitToUpLevelBlock()
     _currentBlock = _currentBlock->parentBlock();
 }
 
-void Parser::emitBinaryOp(OperationType opType)
+int Parser::nextLabel()
 {
-    switch (opType) {
-    case OperationType::Add:
-    case OperationType::Div:
-    case OperationType::Minus:
-    case OperationType::Multiply: {
-        auto opRecord2 = popStackValue();
-        auto opRecord1 = popStackValue();
-        std::shared_ptr<Symbol> tmp = currentSymbolTable()->addTemp();
-        _emitter->binaryOp(opType, tmp.get(),
-                           opRecord1.first, opRecord1.second,
-                           opRecord2.first, opRecord2.second);
-        pushVariable(tmp);
-        break;
-    }
-    default:
-        throw std::domain_error("Invalid binary operation");
-    }
+    return _lableCounter++;
 }
 
-void Parser::emitUnaryOp(OperationType opType)
-{
-    std::shared_ptr<Symbol> symbol;
-    // смотря что положили
-    IntType lastInt;
-    RealType lastReal;
-    switch (_types.top()) {
-    case SymbolType::Integer:
-        lastInt = popInt();
-        // не нужно тут никакого кода, сразу выполняем действие
-        switch (opType) {
-        case OperationType::UMinus:
-            lastInt = -lastInt;
-            break;
-        default:
-            throw std::domain_error("Invalid unary operation");
-        }
-        pushInt(lastInt);
-        break;
-    case SymbolType::Real:
-        lastReal = popReal();
-        // не нужно тут никакого кода, сразу выполняем действие
-        switch (opType) {
-        case OperationType::UMinus:
-            lastReal = -lastReal;
-            break;
-        default:
-            throw std::domain_error("Invalid unary operation");
-        }
-        pushReal(lastReal);
-        break;
-    case SymbolType::Variable: {
-        symbol = _variables.top();
-        auto opRecord1 = popStackValue();
-        _emitter->unaryOp(opType, opRecord1.second.variable,
-                           opRecord1.first, opRecord1.second);
-        pushVariable(symbol); // ту же самую
-        break;
-    }
-    default:
-        error("Unsupported SymbolType/Factor");
-    }
-
-}
-
-void Parser::emitAssign(std::shared_ptr<Symbol> &lvalue)
-{
-    // после Expression всегда что-то есть в стеке
-    auto rec = popStackValue();
-    _emitter->assign(lvalue.get(), rec.first, rec.second);
-}
 
 std::pair<SymbolType, OperandRecord> Parser::popStackValue()
 {

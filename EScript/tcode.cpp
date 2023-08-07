@@ -47,12 +47,26 @@ std::string TCode::toString() const
         numberOfOperands = 1;
         opSign = assign + " UNIMUS";
         break;
+    case OperationType::Goto:
+        numberOfOperands = 1;
+        opSign = "GOTO";
+        break;
+    case OperationType::Label:
+        numberOfOperands = 1;
+        opSign = "LABEL";
+        break;
+    case OperationType::IfFalse:
+        numberOfOperands = 2;
+        opSign = "IFFALSE";
+        break;
     }
     std::string result;
     if (lvalue)
         result.append(lvalue->utf8Name());
     if (opSign.length()) {
-        result.append(" ").append(opSign).append(" ");
+        if (result.length())
+            result.append(" ");
+        result.append(opSign).append(" ");
     }
     if (numberOfOperands > 0) {
         result.append(operandToString(operand1Type, operand1));

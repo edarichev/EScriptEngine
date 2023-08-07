@@ -44,6 +44,10 @@ public:
     {
         initOpCodesMap();
     }
+    /**
+     * @brief Возвращает текущую позицию, куда записывается следующая команда.
+     */
+    uint64_t currentPos() const { return _buffer.size(); }
     // Доступ  командам и мнемоникам
 public:
     /**

@@ -47,6 +47,12 @@ public:
     void run();
 private:
     size_t startOffsetOf(const std::vector<uint8_t> &objectFile);
+    /**
+     * @brief Добавляет смещения к операндам всех команд перехода.
+     * @param startPosition стартовая позиция кода в сегменте CODE.
+     * @param offset смещение
+     */
+    void replaceJMPAddresses(uint64_t startPosition, uint64_t offset);
 };
 
 } // namespace escript

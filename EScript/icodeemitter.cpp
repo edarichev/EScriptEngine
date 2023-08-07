@@ -70,5 +70,35 @@ void ICodeEmitter::unaryOp(OperationType operationType, Symbol *resultVariable,
     _buffer.push_back(code);
 }
 
+void ICodeEmitter::iffalse(Symbol *variableToTest, int exitOrFalseLabelId)
+{
+    TCode code;
+    code.operation = OperationType::IfFalse;
+    code.operand1Type = SymbolType::Variable;
+    code.operand1.variable = variableToTest;
+    // номер метки:
+    code.operand2Type = SymbolType::Integer;
+    code.operand2.intValue = exitOrFalseLabelId;
+    _buffer.push_back(code);
+}
+
+void ICodeEmitter::goToLabel(int labelId)
+{
+    TCode code;
+    code.operation = OperationType::Goto;
+    code.operand1Type = SymbolType::Integer;
+    code.operand1.intValue = labelId;
+    _buffer.push_back(code);
+}
+
+void ICodeEmitter::label(int labelId)
+{
+    TCode code;
+    code.operation = OperationType::Label;
+    code.operand1Type = SymbolType::Integer;
+    code.operand1.intValue = labelId;
+    _buffer.push_back(code);
+}
+
 } // namespace escript
 

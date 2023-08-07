@@ -57,6 +57,8 @@ void Translator::translate(std::shared_ptr<Block> block,
     std::copy((uint8_t*)&startPosition,
               (uint8_t*)&startPosition + sizeof (startPosition),
               outBuffer.begin() + sizeof(OpCodeType));
+    // замена всех меток
+    replaceLabelsToAddresses(outBuffer, startPosition);
     _asm.reset();   // больше не нужен
     _block.reset(); // тоже не нужен
 }
@@ -126,6 +128,15 @@ void Translator::translateOperation(const TCode &c)
     case OperationType::UMinus:
         opUMinus(c);
         break;
+    case OperationType::Goto:
+        opGoto(c);
+        break;
+    case OperationType::Label:
+        opLabel(c);
+        break;
+    case OperationType::IfFalse:
+        opIfFalse(c);
+        break;
     default:
         throw std::domain_error("Can not translate operation: " + c.toString());
     }
@@ -135,6 +146,37 @@ void Translator::translateOperation(const TCode &c)
 PtrIntType Translator::location(Symbol *symbol)
 {
     return (PtrIntType)symbol;
+}
+
+void Translator::replaceLabelsToAddresses(std::vector<uint8_t> &outBuffer,
+                                          uint64_t startPosition)
+{
+    // это версия с проходом по всему тексту
+    // если быстрее будет через multimap - попробовать её
+    uint64_t c = startPosition;
+    uint64_t addr = 0;
+    uint64_t labelId = 0;
+    while (c < outBuffer.size()) {
+        uint8_t *p = outBuffer.data() + c;
+        OpCode opCode = (OpCode) *((OpCodeType*)p);
+        auto shift = Assembler::instructionSize(opCode);
+        switch (opCode) {
+        case OpCode::IFFALSE_M:
+        case OpCode::JMP_M:
+            c += sizeof (OpCodeType); // размер кода команды
+            p += sizeof (OpCodeType);
+            labelId = *(uint64_t*)p;
+            addr = _labels[labelId];
+            std::copy((uint8_t*)&addr,
+                      (uint8_t*)&addr + sizeof (addr),
+                      outBuffer.begin() + c);
+            c += sizeof (addr);
+            break;
+        default:
+            c += shift;
+            break;
+        }
+    }
 }
 
 void Translator::binaryOp(const TCode &c)
@@ -203,6 +245,32 @@ void Translator::opAssign(const TCode &c)
         throw std::domain_error("Unsupported operand type for assign operation");
     }
     a.stloc_m(location(c.lvalue));
+}
+
+void Translator::opGoto(const TCode &c)
+{
+    Assembler &a = as();
+    // все переходы изначально идут на метки, во втором проходе мы заменяем их
+    // на реальные адреса
+    a.jmp_m(c.operand1.intValue);// тут номер метки
+    _labelReferences.insert({c.operand1.intValue, a.currentPos()});
+}
+
+void Translator::opLabel(const TCode &c)
+{
+    Assembler &a = as();
+    // ничего не выводит
+    int labelId = c.operand1.intValue;
+    _labels[labelId] = a.currentPos();
+}
+
+void Translator::opIfFalse(const TCode &c)
+{
+    Assembler &a = as();
+    // пусть ругается - остальные типы оптимизировать
+    assert(c.operand1Type == SymbolType::Variable);
+    emit_ldc(c.operand1Type, c.operand1);
+    a.iffalse_m(c.operand2.intValue); // номер метки
 }
 
 void Translator::emit_ldc(SymbolType type, const OperandRecord &operand)

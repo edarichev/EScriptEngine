@@ -48,7 +48,39 @@ void Machine::load([[maybe_unused]] std::shared_ptr<Block> block,
                    objectFile.begin() + codeOffset);
     // а эту часть нужно обработать, пока просто скопируем
     // нужно исправить все условные и безусловные переходы
+    uint64_t fromPos = _memory.size();
     _memory.insert(_memory.end(), objectFile.begin() + codeOffset, objectFile.end());
+    uint64_t offset = currentPos;
+    replaceJMPAddresses(fromPos, offset);
+}
+
+void Machine::replaceJMPAddresses(uint64_t startPosition, uint64_t offset)
+{
+    // это версия с проходом по всему тексту
+    // если быстрее будет через multimap - попробовать её
+    uint64_t c = startPosition;
+    uint64_t addr = 0;
+    while (c < _memory.size()) {
+        uint8_t *p = _memory.data() + c;
+        OpCode opCode = (OpCode) *((OpCodeType*)p);
+        auto shift = Assembler::instructionSize(opCode);
+        switch (opCode) {
+        case OpCode::IFFALSE_M:
+        case OpCode::JMP_M:
+            c += sizeof (OpCodeType); // размер кода команды
+            p += sizeof (OpCodeType);
+            addr = *(uint16_t*)p;
+            addr += offset;
+            std::copy((uint8_t*)&addr,
+                      (uint8_t*)&addr + sizeof (addr),
+                      _memory.begin() + c);
+            c += sizeof (addr);
+            break;
+        default:
+            c += shift;
+            break;
+        }
+    }
 }
 
 size_t Machine::startOffsetOf(const std::vector<uint8_t> &objectFile)

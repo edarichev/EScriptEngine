@@ -21,6 +21,9 @@ enum class OperationType
     Div,            // op1/op2
     Minus,          // op1-op2
     UMinus,         // -op1
+    IfFalse,        // iffalse op1 метка op2.intValue
+    Goto,           // Goto op1.intValue
+    Label,          // op1.intValue
 };
 
 union OperandRecord

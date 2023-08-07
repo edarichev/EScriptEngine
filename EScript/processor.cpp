@@ -50,9 +50,19 @@ void Processor::ldc_bool_data8()
     next(sizeof (uint8_t));
 }
 
-void Processor::brfalse_m()
+void Processor::iffalse_m()
 {
-
+    next();
+    // в стеке что-то есть
+    auto item = popFromStack();
+    PValue value = PValue::getValue(item);
+    if (!value.asBoolean()) {
+        uint64_t jumpTo = *(uint64_t*)_p;
+        setPC(jumpTo);
+        // сразу выйти - здесь уже новое значение PC
+        return;
+    }
+    next(sizeof (uint64_t));
 }
 
 void Processor::binaryStackOp(OpCode opCode)

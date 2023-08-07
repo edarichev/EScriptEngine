@@ -43,6 +43,8 @@ private:
     std::deque<Token> _tokensQueue;
     // тексты лексем для возврата
     std::deque<std::u32string> _tokenTextsQueue;
+    // счётчик меток
+    int _lableCounter = 0;
 public:
     /**
      * @brief Создаёт новый экземпляр класса Parser
@@ -62,6 +64,7 @@ private:
     void Statement();
     void CompoundStatement();
     void AssignStatement();
+    void IfElseStatement();
     void AssignExpression();
     void Variable();
     void Expression();
@@ -89,6 +92,30 @@ private:
      * @brief Возвращает текущий токен
      */
     const std::u32string &tokenText() const;
+    // emitter
+private:
+    /**
+     * @brief Возвращает id следующей метки.
+     * @return
+     */
+    int nextLabel();
+    /**
+     * @brief Выводит инструкцию для if с меткой.
+     *        Применяется к переменной, находящейся наверху стека.
+     * @param exitOrFalseLabelId метка для ветки false или выхода,
+     *        в зависимости то того, есть ли далее блок "else"
+     */
+    void emitIfHeader(int exitOrFalseLabelId);
+    void emitGoto(int labelId);
+    void emitLabel(int labelId);
+    void emitBinaryOp(OperationType opType);
+    /**
+     * @brief Унарная операция. Применяется к переменной, находящейся наверху
+     *        стека.
+     * @param opType тип операции
+     */
+    void emitUnaryOp(OperationType opType);
+    void emitAssign(std::shared_ptr<Symbol> &lvalue);
     // работа с символами
 private:
     /**
@@ -99,14 +126,6 @@ private:
     void pushReal(RealType value);
     void pushBoolean(bool value);
     void pushVariable(std::shared_ptr<Symbol> &variable);
-    void emitBinaryOp(OperationType opType);
-    /**
-     * @brief Унарная операция. Применяется к переменной, находящейся наверху
-     *        стека.
-     * @param opType тип операции
-     */
-    void emitUnaryOp(OperationType opType);
-    void emitAssign(std::shared_ptr<Symbol> &lvalue);
     std::pair<SymbolType, OperandRecord> popStackValue();
     void pushBack(Token t, const std::u32string &str);
     void pushBack(Token t, std::u32string &&str);
