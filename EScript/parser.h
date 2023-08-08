@@ -45,6 +45,9 @@ private:
     std::deque<std::u32string> _tokenTextsQueue;
     // счётчик меток
     int _lableCounter = 0;
+    // стеки меток для поддержки break/continue
+    std::stack<int> _startLabels;
+    std::stack<int> _exitLabels;
 public:
     /**
      * @brief Создаёт новый экземпляр класса Parser
@@ -66,7 +69,13 @@ private:
     void AssignStatement();
     void IfElseStatement();
     void WhileStatement();
+    void DoWhileStattement();
     void ForStatement();
+    void OptionalStatement();
+    void BreakStatement();
+    void ContinueStatement();
+    void OptionalExpressionList();
+    void ExpressionList();
     void AssignExpression();
     void Variable();
     void Expression();
@@ -110,6 +119,8 @@ private:
      * @return
      */
     int nextLabel();
+    void pushJumpLabels(int startLabelId, int exitLabelId);
+    void popJumpLabels();
     /**
      * @brief Выводит инструкцию для if с меткой.
      *        Применяется к переменной, находящейся наверху стека.
@@ -120,6 +131,8 @@ private:
     void emitGoto(int labelId);
     void emitLabel(int labelId);
     void emitBinaryOp(OperationType opType);
+    void emitBreak();
+    void emitContinue();
     /**
      * @brief Унарная операция. Применяется к переменной, находящейся наверху
      *        стека.

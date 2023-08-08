@@ -53,4 +53,11 @@ void IfElseStatement_Test::test_ifOnly()
     record = engine.getObjectRecord(i);
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(7, record->data));
+    // пустые инструкции
+    const u32string code5 = U"i = 9; if (i == 9); else;";
+    engine.eval(code5);
+    i = mainTable->find(U"i");
+    record = engine.getObjectRecord(i);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(9, record->data));
 }

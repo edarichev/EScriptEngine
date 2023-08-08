@@ -11,6 +11,7 @@ SOURCES += \
         codegen_test.cpp \
         codeunit_test.cpp \
         compare.cpp \
+        dowhilestatement_test.cpp \
         forstatement_test.cpp \
         ifelsestatement_test.cpp \
         lexer_test.cpp \
@@ -28,6 +29,7 @@ HEADERS += \
     codegen_test.h \
     codeunit_test.h \
     compare.h \
+    dowhilestatement_test.h \
     forstatement_test.h \
     ifelsestatement_test.h \
     lexer_test.h \

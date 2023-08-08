@@ -11,6 +11,7 @@
 #include "ifelsestatement_test.h"
 #include "whilestatement_test.h"
 #include "forstatement_test.h"
+#include "dowhilestatement_test.h"
 
 
 using namespace std;

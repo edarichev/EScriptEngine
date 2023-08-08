@@ -10,7 +10,7 @@ https://www.epaperpress.com/lexandyacc/if.html
 %token RealNumber
 %token Assign
 %token Equal
-%token While
+%token While Do For Break Continue
 %token LShift RelOp EqualityOp And Or
 %token NCO // ?? Nullish coalescing operator
 
@@ -29,6 +29,10 @@ Statement : AssignStatement
           | CompoundStatement
           | IfElseStatement
           | WhileStatement
+          | ForStatement
+          | DoWhileStatement
+          | BreakStatement
+          | ContinueStatement
           ;
 
 AssignStatement : AssignExpression ';'
@@ -41,8 +45,33 @@ IfElseStatement : If '(' Expression ')' Statement %prec If
                 | If '(' Expression ')' Statement Else Statement
                 ;
 
-WhileStatement : While '(' Expression ')' Statement
+WhileStatement : While '(' Expression ')' OptionalStatement
                ;
+
+ForStatement : For '(' OptionalExpressionList ';' Expression ';' OptionalExpressionList ')' OptionalStatement
+             ;
+
+OptionalStatement : Statement
+                  | ';' // требуем для закрытия цикла
+                  ;
+
+OptionalExpressionList : ExpressionList
+                       |
+                       ;
+
+ExpressionList : Expression
+               | Expression ',' ExpressionList
+               ;
+
+DoWhileStatement : Do '{' Statement '}' While '(' Expression ')'
+                 | Do '{' '}' While '(' Expression ')'
+                 ;
+
+BreakStatement : Break ';'
+               ;
+
+ContinueStatement : Continue ';'
+                  ;
 
 AssignExpression : Variable Assign Expression
                  ;

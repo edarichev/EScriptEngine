@@ -62,6 +62,15 @@ void Parser::Statement()
     case Token::For:
         ForStatement();
         break;
+    case Token::Do:
+        DoWhileStattement();
+        break;
+    case Token::Break:
+        BreakStatement();
+        break;
+    case Token::Continue:
+        ContinueStatement();
+        break;
     default:
         AssignStatement();
         // после AssignStatement всегда есть что-то, т.к. это выражение,
@@ -98,13 +107,13 @@ void Parser::IfElseStatement()
     match(Token::RightParenth);
     int falseLabel = nextLabel();
     emitIfFalseHeader(falseLabel); // if_false tmp_var метка_false
-    Statement(); // ветка true
+    OptionalStatement(); // ветка true
     if (lookahead() == Token::Else) {
         next();
         int exitLabel = nextLabel();
         emitGoto(exitLabel);
         emitLabel(falseLabel);
-        Statement(); // ветка false
+        OptionalStatement(); // ветка false
         emitLabel(exitLabel);
     } else {
         emitLabel(falseLabel);
@@ -113,41 +122,128 @@ void Parser::IfElseStatement()
 
 void Parser::WhileStatement()
 {
-    match(Token::While);
-    match(Token::LeftParenth);
+    match(Token::While);          // while
+    match(Token::LeftParenth);    // (
     int startLabel = nextLabel(); // метка возврата в начало цикла
+    int exitLabel = nextLabel();  // метка выхода
+    pushJumpLabels(startLabel, exitLabel); // для break/continue
     emitLabel(startLabel);
     Expression();                 // теперь в стеке что-то есть
-    int exitLabel = nextLabel();  // метка выхода
     emitIfFalseHeader(exitLabel); // аналогично заголовку в if-else
-    match(Token::RightParenth);
-    Statement();                  // тело цикла
+    match(Token::RightParenth);   // )
+    OptionalStatement();          // тело цикла
     emitGoto(startLabel);         // возврат к условию
     emitLabel(exitLabel);         // выход
+    popJumpLabels();             // убрать верхние метки
+}
+
+void Parser::DoWhileStattement()
+{
+    match(Token::Do);             // do
+    match(Token::LeftBrace);      // {
+    int startLabel = nextLabel(); // метка возврата в начало цикла
+    int exitLabel = nextLabel();  // метка выхода
+    pushJumpLabels(startLabel, exitLabel); // для break/continue
+    emitLabel(startLabel);
+    Statement();                  // тело цикла
+    match(Token::RightBrace);     // }
+    match(Token::While);          // while
+    match(Token::LeftParenth);    // (
+    Expression();                 // в стеке - условие продолжения
+    match(Token::RightParenth);   // )
+    emitIfFalseHeader(exitLabel); // аналогично заголовку в if-else
+    emitGoto(startLabel);         // возврат к условию
+    emitLabel(exitLabel);         // выход
+    popJumpLabels();             // убрать верхние метки
 }
 
 void Parser::ForStatement()
 {
     match(Token::For);
     match(Token::LeftParenth);
-    Expression();                 // TODO: expr1, тут нужен список выражений
-    popStackValue();              // убрать, значение не нужно
+    OptionalExpressionList();     // expr1
     match(Token::Semicolon);
     int startLabel = nextLabel(); // метка возврата в начало цикла
-    emitLabel(startLabel);
-    Expression();                 // expr2, логическое условие
     int exitLabel = nextLabel();  // метка выхода
+    pushJumpLabels(startLabel, exitLabel); // для break/continue
+    emitLabel(startLabel);
+    if (lookahead() != Token::Semicolon) // условия может и не быть
+        Expression();                    // expr2, логическое условие
+    else { // иначе это эквивалентно while (true), поэтому
+        pushBoolean(true);               // помещаем в стек true
+    }
     emitIfFalseHeader(exitLabel); // аналогично заголовку в if-else
     match(Token::Semicolon);
     _emitter->switchToTempBuffer();
-    // тут тоже нужен список выражений
-    Expression();                 // expr3, её вывести в конец
+    OptionalExpressionList();     // expr3, её вывести в конец
     _emitter->switchToMainBuffer();
     match(Token::RightParenth);
-    Statement();
+    OptionalStatement();
     _emitter->writeTempBuffer();  // вывести expr3
     emitGoto(startLabel);         // возврат к условию
     emitLabel(exitLabel);         // выход
+    popJumpLabels();             // убрать верхние метки
+}
+
+void Parser::OptionalStatement()
+{
+    switch (lookahead()) {
+    case Token::Semicolon:
+        next();
+        return;
+    default:
+        break;
+    }
+    Statement();
+}
+
+void Parser::BreakStatement()
+{
+    match(Token::Break);
+    match(Token::Semicolon);
+    if (_exitLabels.empty())
+        error("[break] must be inside of do/while/for/switch statement");
+    emitBreak();
+}
+
+void Parser::ContinueStatement()
+{
+    match(Token::Continue);
+    match(Token::Semicolon);
+    if (_startLabels.empty())
+        error("[continue] must be inside of do/while/for statement");
+    emitContinue();
+}
+
+void Parser::OptionalExpressionList()
+{
+    switch (lookahead()) {
+    case Token::Semicolon:
+    case Token::RightParenth:
+        return;
+    default:
+        break;
+    }
+    ExpressionList();
+}
+
+void Parser::ExpressionList()
+{
+    do {
+        Expression();
+        popStackValue(); // убрать всё, т.к. присвоить результат невозможно
+        switch (lookahead()) {
+        case Token::Comma:
+            next();
+            continue;
+        // все разделители:
+        case Token::Semicolon:
+        case Token::RightParenth:
+            return;
+        default:
+            break;
+        }
+    } while (lookahead() != Token::Eof);
 }
 
 void Parser::AssignExpression()
@@ -466,6 +562,16 @@ void Parser::emitBinaryOp(OperationType opType)
     }
 }
 
+void Parser::emitBreak()
+{
+    emitGoto(_exitLabels.top());
+}
+
+void Parser::emitContinue()
+{
+    emitGoto(_startLabels.top());
+}
+
 void Parser::emitUnaryOp(OperationType opType)
 {
     std::shared_ptr<Symbol> symbol;
@@ -597,6 +703,18 @@ void Parser::exitToUpLevelBlock()
 int Parser::nextLabel()
 {
     return _lableCounter++;
+}
+
+void Parser::pushJumpLabels(int startLabelId, int exitLabelId)
+{
+    _startLabels.push(startLabelId);
+    _exitLabels.push(exitLabelId);
+}
+
+void Parser::popJumpLabels()
+{
+    _startLabels.pop();
+    _exitLabels.pop();
 }
 
 
