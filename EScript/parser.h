@@ -74,7 +74,10 @@ private:
     void OptionalStatement();
     void BreakStatement();
     void ContinueStatement();
+    void FunctionDeclStatement();
+    void OptionalParameterDeclList();
     void OptionalExpressionList();
+    void ParameterDeclList();
     void ExpressionList();
     void AssignExpression();
     void Variable();

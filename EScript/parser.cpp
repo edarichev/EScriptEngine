@@ -71,6 +71,9 @@ void Parser::Statement()
     case Token::Continue:
         ContinueStatement();
         break;
+    case Token::Function:
+        FunctionDeclStatement();
+        break;
     default:
         AssignStatement();
         // после AssignStatement всегда есть что-то, т.к. это выражение,
@@ -140,13 +143,11 @@ void Parser::WhileStatement()
 void Parser::DoWhileStattement()
 {
     match(Token::Do);             // do
-    match(Token::LeftBrace);      // {
     int startLabel = nextLabel(); // метка возврата в начало цикла
     int exitLabel = nextLabel();  // метка выхода
     pushJumpLabels(startLabel, exitLabel); // для break/continue
     emitLabel(startLabel);
-    Statement();                  // тело цикла
-    match(Token::RightBrace);     // }
+    CompoundStatement();          // { тело цикла }
     match(Token::While);          // while
     match(Token::LeftParenth);    // (
     Expression();                 // в стеке - условие продолжения
@@ -154,35 +155,39 @@ void Parser::DoWhileStattement()
     emitIfFalseHeader(exitLabel); // аналогично заголовку в if-else
     emitGoto(startLabel);         // возврат к условию
     emitLabel(exitLabel);         // выход
-    popJumpLabels();             // убрать верхние метки
+    popJumpLabels();              // убрать верхние метки
 }
 
 void Parser::ForStatement()
 {
     match(Token::For);
     match(Token::LeftParenth);
-    OptionalExpressionList();     // expr1
+    OptionalExpressionList();      // expr1
     match(Token::Semicolon);
-    int startLabel = nextLabel(); // метка возврата в начало цикла
-    int exitLabel = nextLabel();  // метка выхода
-    pushJumpLabels(startLabel, exitLabel); // для break/continue
+    int startLabel = nextLabel();  // метка возврата в начало цикла
+    int exitLabel = nextLabel();   // метка выхода
+    // в этом цикле expr3 находится в конце, поэтому переход
+    // по continue должен идти не назад, а вперёд до expr3
+    int nextIterationLabel = nextLabel();
+    pushJumpLabels(nextIterationLabel, exitLabel); // для break/continue
     emitLabel(startLabel);
     if (lookahead() != Token::Semicolon) // условия может и не быть
         Expression();                    // expr2, логическое условие
     else { // иначе это эквивалентно while (true), поэтому
         pushBoolean(true);               // помещаем в стек true
     }
-    emitIfFalseHeader(exitLabel); // аналогично заголовку в if-else
+    emitIfFalseHeader(exitLabel);  // аналогично заголовку в if-else
     match(Token::Semicolon);
     _emitter->switchToTempBuffer();
-    OptionalExpressionList();     // expr3, её вывести в конец
+    OptionalExpressionList();      // expr3, её вывести в конец
     _emitter->switchToMainBuffer();
     match(Token::RightParenth);
     OptionalStatement();
-    _emitter->writeTempBuffer();  // вывести expr3
-    emitGoto(startLabel);         // возврат к условию
-    emitLabel(exitLabel);         // выход
-    popJumpLabels();             // убрать верхние метки
+    emitLabel(nextIterationLabel); // expr3
+    _emitter->writeTempBuffer();   // вывести expr3
+    emitGoto(startLabel);          // возврат к условию
+    emitLabel(exitLabel);          // выход
+    popJumpLabels();               // убрать верхние метки
 }
 
 void Parser::OptionalStatement()
@@ -213,6 +218,41 @@ void Parser::ContinueStatement()
     if (_startLabels.empty())
         error("[continue] must be inside of do/while/for statement");
     emitContinue();
+}
+
+void Parser::FunctionDeclStatement()
+{
+    match(Token::Function);
+    match(Token::Identifier);
+    match(Token::LeftParenth);
+    OptionalParameterDeclList();
+    match(Token::RightParenth);
+    CompoundStatement();
+}
+
+void Parser::OptionalParameterDeclList()
+{
+    if (lookahead() == Token::RightParenth)
+        return;
+    ParameterDeclList();
+}
+
+void Parser::ParameterDeclList()
+{
+    do {
+        switch (lookahead()) {
+        case Token::Comma:
+            next();
+            continue;
+        case Token::RightParenth:
+            return;
+        case Token::Identifier: // имя параметра
+            next();
+            break;
+        default:
+            expected(Token::Identifier);
+        }
+    } while (lookahead() != Token::Eof);
 }
 
 void Parser::OptionalExpressionList()

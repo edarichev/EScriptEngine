@@ -13,6 +13,7 @@ SOURCES += \
         compare.cpp \
         dowhilestatement_test.cpp \
         forstatement_test.cpp \
+        functiondeclstatement_test.cpp \
         ifelsestatement_test.cpp \
         lexer_test.cpp \
         main.cpp \
@@ -31,6 +32,7 @@ HEADERS += \
     compare.h \
     dowhilestatement_test.h \
     forstatement_test.h \
+    functiondeclstatement_test.h \
     ifelsestatement_test.h \
     lexer_test.h \
     opcode_test.h \

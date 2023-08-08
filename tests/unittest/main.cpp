@@ -12,6 +12,7 @@
 #include "whilestatement_test.h"
 #include "forstatement_test.h"
 #include "dowhilestatement_test.h"
+#include "functiondeclstatement_test.h"
 
 
 using namespace std;
@@ -30,6 +31,7 @@ int main()
     IfElseStatement_Test().run();
     WhileStatement_Test().run();
     ForStatement_Test().run();
+    FunctionDeclStatement_Test().run();
     cout << "Tests OK" << endl;
     return 0;
 }

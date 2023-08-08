@@ -11,6 +11,7 @@ https://www.epaperpress.com/lexandyacc/if.html
 %token Assign
 %token Equal
 %token While Do For Break Continue
+%token Function
 %token LShift RelOp EqualityOp And Or
 %token NCO // ?? Nullish coalescing operator
 
@@ -33,12 +34,14 @@ Statement : AssignStatement
           | DoWhileStatement
           | BreakStatement
           | ContinueStatement
+          | FunctionDeclStatement
           ;
 
 AssignStatement : AssignExpression ';'
                 ;
 
 CompoundStatement : '{' StatementList '}'
+                  | '{' '}'
                   ;
 
 IfElseStatement : If '(' Expression ')' Statement %prec If
@@ -63,14 +66,24 @@ ExpressionList : Expression
                | Expression ',' ExpressionList
                ;
 
-DoWhileStatement : Do '{' Statement '}' While '(' Expression ')'
-                 | Do '{' '}' While '(' Expression ')'
+DoWhileStatement : Do CompoundStatement While '(' Expression ')'
                  ;
 
 BreakStatement : Break ';'
                ;
 
 ContinueStatement : Continue ';'
+                  ;
+
+FunctionDeclStatement : Function Identifier '(' OptionalParameterDeclList ')' CompoundStatement
+                      ;
+
+OptionalParameterDeclList : ParameterDeclList
+                          |
+                          ;
+
+ParameterDeclList : Identifier
+                  | Identifier ',' ParameterDeclList
                   ;
 
 AssignExpression : Variable Assign Expression
