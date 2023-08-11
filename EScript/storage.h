@@ -32,7 +32,7 @@ struct ObjectRecord
      */
     PtrIntType data = 0;
     /**
-     * @brief Обратная ссылка на запись в таблице символов.
+     * @brief Необязательно: Обратная ссылка на запись в таблице символов.
      */
     Symbol *symbol = nullptr;
     ObjectRecord() = default;
@@ -64,8 +64,7 @@ public:
      */
     ObjectRecord *installRecord(Symbol *s)
     {
-        _records.emplace_front(s);
-        return &_records.front();
+        return &_records.emplace_front(s);
     }
     ObjectRecord *findRecord(Symbol *symbol);
 };

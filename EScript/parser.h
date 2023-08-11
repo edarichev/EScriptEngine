@@ -54,6 +54,8 @@ private:
     std::stack<PValue> _valueStack;
     // для подсчёта аргументов в ArgumentsList
     std::stack<int> _argumentsCountStack;
+    // для return - функции, return - к ближайшей функции
+    std::stack<std::shared_ptr<Symbol> > _returnStack;
 public:
     /**
      * @brief Создаёт новый экземпляр класса Parser
@@ -103,6 +105,7 @@ private:
     void FunctionCallExpression();
     void ArgumentList();
     void AnyStatement();
+    void ReturnStatement();
     // перемещение по потоку
 private:
     /**
@@ -171,7 +174,8 @@ private:
     void emitPush(); // для return
     void emitRet(); // для return
     void emitEmptyReturn(std::shared_ptr<Symbol> &func);
-    void emitCall(std::shared_ptr<Symbol> &func, int nArgs);
+    void emitReturn(std::shared_ptr<Symbol> &func);
+    void emitCall(std::shared_ptr<Symbol> &func, int nArgs, std::shared_ptr<Symbol> &resultVariable);
     void emitFnEnd();
     // работа с символами
 private:

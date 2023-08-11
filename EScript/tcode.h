@@ -38,6 +38,7 @@ enum class OperationType
     FunctionCode,   // начало блока кода (стартовая точка запуска) функции
     LoadArguments,  // загрузка аргументов из стека на входе в функцию
     Push,           // push op1
+    Pop,            // pop op1
     Ret,            // возврат из функции
     Call,           // вызов функции, addr==op1.intValue
     FunctionEnd,    // конец функции

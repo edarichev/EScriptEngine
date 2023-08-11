@@ -61,13 +61,26 @@ void Assembler::disassemble(const std::vector<ContainerElementType> &objectFile,
     uint32_t codeLength = *(uint32_t*)(p + i);
     i += sizeof (codeLength);
     size_t n = i + codeLength;
+    const char *fnMarker = "FUNC";
     while (i < n) {
         // читаем команду
         OpCodeType opCodeType = *(OpCodeType*)(p + i);
         OpCode opCode = (OpCode)opCodeType;
-        uint8_t instrSize = instructionSize(opCode);
-        i += instrSize;
-        out << mnemonics(opCode) << std::endl;
+        try {
+            uint8_t instrSize = instructionSize(opCode);
+            i += instrSize;
+            out << mnemonics(opCode) << std::endl;
+        } catch (const std::out_of_range &e) {
+            if (*(p + i) == 'F') {
+                if (strncmp((char*)p + i, fnMarker, 4) == 0) {
+                    i += 4;
+                    int32_t dataLen = *(int32_t*)(p + i);
+                    i += dataLen;
+                    continue;
+                }
+            }
+            throw;
+        }
     }
     assert (n == i);
 }

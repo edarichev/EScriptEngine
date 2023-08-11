@@ -179,6 +179,9 @@ void Translator::translateOperation(const TCode &c)
                     c.operand1.block->parentBlock().get() :
                     _block.get();
         break;
+    case OperationType::Pop:
+        opPop(c);
+        break;
     default:
         throw std::domain_error("Can not translate operation: " + c.toString());
     }
@@ -434,6 +437,12 @@ void Translator::opIfFalse(const TCode &c)
 void Translator::opPush(const TCode &c)
 {
     emit_ldc(c.operand1Type, c.operand1);
+}
+
+void Translator::opPop(const TCode &c)
+{
+    Assembler &a = as();
+    a.stloc_m(location(c.lvalue));
 }
 
 void Translator::opFunctionStart([[maybe_unused]]const TCode &c)

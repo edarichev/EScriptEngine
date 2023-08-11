@@ -148,11 +148,14 @@ void ICodeEmitter::fnArg(std::shared_ptr<Symbol> &argument)
     _buffer->push_back(code);
 }
 
-void ICodeEmitter::ret()
+void ICodeEmitter::ret(std::shared_ptr<Symbol> &func)
 {
     TCode code;
     code.operation = OperationType::Ret;
-    code.operand1Type = SymbolType::Undefined;
+    code.operand1Type = SymbolType::Function;
+    code.operand1.function = func.get();
+    code.operand2Type = SymbolType::Integer;
+    code.operand2.intValue = 1; // 1 возвращаемых значений в стеке
     _buffer->push_back(code);
 }
 
@@ -168,7 +171,8 @@ void ICodeEmitter::emptyReturn(std::shared_ptr<Symbol> &func)
     _buffer->push_back(code);
 }
 
-void ICodeEmitter::call(std::shared_ptr<Symbol> &func, int nArgs)
+void ICodeEmitter::call(std::shared_ptr<Symbol> &func, int nArgs,
+                        std::shared_ptr<Symbol> &resultVariable)
 {
     // TODO: нужна вторая версия для вызова из функции
     // для сохранения записи активации.
@@ -183,6 +187,8 @@ void ICodeEmitter::call(std::shared_ptr<Symbol> &func, int nArgs)
     codeFunc.operand1Type = SymbolType::Function;
     codeFunc.operand1.function = func.get();
     _buffer->push_back(codeFunc);
+    // извлечение результата:
+    pop(resultVariable);
 }
 
 void ICodeEmitter::startBlock(std::shared_ptr<Block> &block)
@@ -207,6 +213,23 @@ void ICodeEmitter::push(std::pair<SymbolType, OperandRecord> &value)
     code.operation = OperationType::Push;
     code.operand1Type = value.first;
     code.operand1 = value.second;
+    _buffer->push_back(code);
+}
+
+void ICodeEmitter::push(int64_t intValue)
+{
+    TCode code;
+    code.operation = OperationType::Push;
+    code.operand1Type = SymbolType::Integer;
+    code.operand1.intValue = intValue;
+    _buffer->push_back(code);
+}
+
+void ICodeEmitter::pop(std::shared_ptr<Symbol> &resultVariable)
+{
+    TCode code;
+    code.operation = OperationType::Pop;
+    code.lvalue = resultVariable.get();
     _buffer->push_back(code);
 }
 

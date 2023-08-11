@@ -74,6 +74,9 @@ void Parser::Statement()
     case Token::Function:
         FunctionDeclStatement();
         break;
+    case Token::Return:
+        ReturnStatement();
+        break;
     default:
         AnyStatement();
         break;
@@ -296,6 +299,7 @@ void Parser::FunctionDeclExpression()
     match(Token::Function);
     // временная переменная для функции
     std::shared_ptr<Symbol> func = currentSymbolTable()->add(tokenText());
+    _returnStack.push(func);
     addAndEntrySubBlock();
     emitFnStart(func);
     match(Token::Identifier);
@@ -311,6 +315,7 @@ void Parser::FunctionDeclExpression()
     emitFnEnd();
     exitToUpLevelBlock();
     emitLabel(labelEnd);
+    _returnStack.pop();
 }
 
 void Parser::Variable()
@@ -551,7 +556,10 @@ void Parser::FunctionCallExpression()
         _argumentsCountStack.pop();
     }
     match(Token::RightParenth);
-    emitCall(func, nArgs);
+    auto resultVariable = currentSymbolTable()->addTemp();
+    emitCall(func, nArgs, resultVariable);
+    // TODO: что поместить в стек?
+    pushVariable(resultVariable);
 }
 
 void Parser::ArgumentList()
@@ -561,6 +569,7 @@ void Parser::ArgumentList()
         Expression();
         _argumentsCountStack.top()++;
         emitPush();
+        popStackValue(); // не нужно больше
         switch (lookahead()) {
         case Token::Comma:
             next();
@@ -580,6 +589,19 @@ void Parser::AnyStatement()
     // после Expression всегда есть что-то, т.к. это выражение,
     // поэтому вытаскиваем из стека его результат
     popStackValue();
+}
+
+void Parser::ReturnStatement()
+{
+    if (_returnStack.empty())
+        error("return allowed only inside of function");
+    match(Token::Return);
+    if (lookahead() == Token::Semicolon) {
+        emitEmptyReturn(_returnStack.top());
+        return;
+    }
+    Expression();
+    emitReturn(_returnStack.top());
 }
 
 //////////////////////// перемещение по потоку  /////////////////////////////
@@ -773,12 +795,22 @@ void Parser::emitPush()
 
 void Parser::emitEmptyReturn(std::shared_ptr<Symbol> &func)
 {
-    _emitter->emptyReturn(func);
+    pushInt(0);
+    emitReturn(func);
 }
 
-void Parser::emitCall(std::shared_ptr<Symbol> &func, int nArgs)
+void Parser::emitReturn(std::shared_ptr<Symbol> &func)
 {
-    _emitter->call(func, nArgs);
+    // в стеке должен быть результат
+    auto top = popStackValue();
+    _emitter->push(top);
+    _emitter->ret(_returnStack.top());
+}
+
+void Parser::emitCall(std::shared_ptr<Symbol> &func, int nArgs,
+                      std::shared_ptr<Symbol> &resultVariable)
+{
+    _emitter->call(func, nArgs, resultVariable);
 }
 
 void Parser::emitFnEnd()

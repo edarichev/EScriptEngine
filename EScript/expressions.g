@@ -10,7 +10,7 @@ https://www.epaperpress.com/lexandyacc/if.html
 %token RealNumber
 %token Assign
 %token Equal
-%token While Do For Break Continue
+%token While Do For Break Continue Return
 %token Function
 %token LShift RelOp EqualityOp And Or
 %token NCO // ?? Nullish coalescing operator
@@ -35,7 +35,12 @@ Statement : CompoundStatement
           | ContinueStatement
           | FunctionDeclStatement
           | AnyStatement
+          | ReturnStatement ';'
           ;
+
+ReturnStatement : Return
+                | Return Expression
+                ;
 
 AnyStatement : Expression ';'
              ;

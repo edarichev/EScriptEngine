@@ -99,6 +99,10 @@ std::string TCode::toString() const
         numberOfOperands = 1;
         opSign = "PUSH";
         break;
+    case OperationType::Pop:           // pop op1
+        numberOfOperands = 1;
+        opSign = "POP";
+        break;
     case OperationType::Ret:            // возврат из функции
         numberOfOperands = 2;
         opSign = "RET";
@@ -158,6 +162,9 @@ std::string TCode::operandToString(SymbolType operandType, OperandRecord op) con
         break;
     case SymbolType::Function:
         opStr = "function";
+        break;
+    case SymbolType::Undefined:
+        opStr = "undefined";
         break;
     default:
         throw std::domain_error("Unsupported SymbolType");
