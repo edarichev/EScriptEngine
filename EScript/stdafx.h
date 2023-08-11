@@ -13,6 +13,7 @@
 #include <codecvt>
 #include <exception>
 #include <cassert>
-#include <variant>
+#include <stack>
+#include <set>
 
 #endif // STDAFX_H

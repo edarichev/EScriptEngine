@@ -22,7 +22,14 @@ void FunctionDeclStatement_Test::cleanupTestCase()
 
 void FunctionDeclStatement_Test::test_functionDeclOnly()
 {
-    const u32string code1 = U"function myFunc(x) { x = 0; y = x*x; }";
+    const u32string code1 = U"y = 0; function myFunc(x) { y = x*x; }; myFunc(12);";
     EScript engine;
     engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto y = mainTable->find(U"y");
+    assert(y != nullptr);
+    auto record = engine.getObjectRecord(y);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(12*12, record->data));
 }

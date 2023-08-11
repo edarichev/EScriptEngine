@@ -79,6 +79,46 @@ std::string TCode::toString() const
         numberOfOperands = 2;
         opSign = "==";
         break;
+    case OperationType::FunctionStart:  // FNSTART - начало блока функции, op1==Symbol*
+        numberOfOperands = 1;
+        opSign = "FNSTART";
+        break;
+    case OperationType::FunctionArgument: // аргумент функции+Symbol*
+        numberOfOperands = 1;
+        opSign = "FNARG";
+        break;
+    case OperationType::FunctionCode:   // начало блока кода (стартовая точка запуска) функции
+        numberOfOperands = 0;
+        opSign = "FNCODE";
+        break;
+    case OperationType::LoadArguments:  // загрузка аргументов из стека на входе в функцию
+        numberOfOperands = 0;
+        opSign = "LDARGS";
+        break;
+    case OperationType::Push:           // push op1
+        numberOfOperands = 1;
+        opSign = "PUSH";
+        break;
+    case OperationType::Ret:            // возврат из функции
+        numberOfOperands = 2;
+        opSign = "RET";
+        break;
+    case OperationType::Call:           // вызов функции, addr==op1.intValue
+        numberOfOperands = 1;
+        opSign = "CALL";
+        break;
+    case OperationType::FunctionEnd:    // конец функции
+        numberOfOperands = 0;
+        opSign = "FNEND";
+        break;
+    case OperationType::BlockStart:
+        numberOfOperands = 0;
+        opSign = "BLOCK START";
+        break;
+    case OperationType::BlockEnd:
+        numberOfOperands = 0;
+        opSign = "BLOCK END";
+        break;
     }
     std::string result;
     if (lvalue)
@@ -115,6 +155,9 @@ std::string TCode::operandToString(SymbolType operandType, OperandRecord op) con
         break;
     case SymbolType::Boolean:
         opStr = op.boolValue ? "true" : "false";
+        break;
+    case SymbolType::Function:
+        opStr = "function";
         break;
     default:
         throw std::domain_error("Unsupported SymbolType");

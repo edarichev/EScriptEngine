@@ -7,6 +7,16 @@
 
 namespace escript {
 
+BlockType Block::type() const
+{
+    return _type;
+}
+
+void Block::setType(BlockType newType)
+{
+    _type = newType;
+}
+
 Block::Block(std::shared_ptr<Unit> unit, std::shared_ptr<Block> parent)
     : _unit(unit), _parentBlock(parent)
 {

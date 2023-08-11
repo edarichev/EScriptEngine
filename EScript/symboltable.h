@@ -8,6 +8,7 @@
 #include "EScript_global.h"
 #include "symbol.h"
 #include <map>
+#include <vector>
 
 namespace escript {
 
@@ -21,7 +22,13 @@ class ESCRIPT_EXPORT SymbolTable
 private:
     std::shared_ptr<Unit> _unit;
     std::shared_ptr<SymbolTable> _parentTable;
+    // для быстрого поиска
     std::map<std::u32string, std::shared_ptr<Symbol> > _symbols;
+    // вставленные по порядку
+    // это нужно для сохранения переменных при генерации кода в порядке их
+    // появления, тогда, например, можно вычислить их позиции,
+    // не используя дополнительные средства
+    std::vector<std::shared_ptr<Symbol>> _orderedSymbols;
     // счётчик для имён временных переменных
     static long _tmpVariableCounter;
 public:
@@ -33,17 +40,17 @@ public:
      * @brief Освобождает связанные с этим экземпляром ресурсы
      */
     virtual ~SymbolTable();
-    std::map<std::u32string, std::shared_ptr<Symbol> >::iterator begin()
+    std::vector<std::shared_ptr<Symbol>>::iterator begin()
     {
-        return _symbols.begin();
+        return _orderedSymbols.begin();
     }
-    std::map<std::u32string, std::shared_ptr<Symbol> >::iterator end()
+    std::vector<std::shared_ptr<Symbol>>::iterator end()
     {
-        return _symbols.end();
+        return _orderedSymbols.end();
     }
     size_t size()
     {
-        return _symbols.size();
+        return _orderedSymbols.size();
     }
     /**
      * @brief Добавляет новый символ в таблицу

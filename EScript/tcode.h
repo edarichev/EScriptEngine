@@ -11,7 +11,11 @@
 namespace escript {
 
 class Symbol;
+class Block;
 
+/**
+ * @brief Тип трёхадресной операции
+ */
 enum class OperationType
 {
     None,
@@ -29,6 +33,16 @@ enum class OperationType
     Greater,        // op1>op2
     GreaterOrEqual, // op1>=op2
     Equal,          // op1==op2
+    FunctionStart,  // FNSTART - начало блока функции, op1==Symbol*
+    FunctionArgument, // аргумент функции+Symbol*
+    FunctionCode,   // начало блока кода (стартовая точка запуска) функции
+    LoadArguments,  // загрузка аргументов из стека на входе в функцию
+    Push,           // push op1
+    Ret,            // возврат из функции
+    Call,           // вызов функции, addr==op1.intValue
+    FunctionEnd,    // конец функции
+    BlockStart,     // op1==Block*
+    BlockEnd,       // op1==Block*
 };
 
 union OperandRecord
@@ -37,6 +51,8 @@ union OperandRecord
     RealType realValue;
     bool boolValue;
     Symbol *variable;
+    Symbol *function;
+    Block *block;
 };
 
 /**

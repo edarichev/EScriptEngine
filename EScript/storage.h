@@ -25,9 +25,9 @@ struct ObjectRecord
     /**
      * @brief Тип хранимых данных
      */
-    SymbolType type = SymbolType::Null;
+    SymbolType type = SymbolType::Undefined;
     /**
-     * @brief Если тип простой, это это сами данные. Если строка или объект -
+     * @brief Если тип простой, то это сами данные. Если строка или объект -
      *        указатель на объект в куче.
      */
     PtrIntType data = 0;
@@ -36,7 +36,10 @@ struct ObjectRecord
      */
     Symbol *symbol = nullptr;
     ObjectRecord() = default;
+    ObjectRecord(const ObjectRecord &rhs) = default;
+    ObjectRecord(ObjectRecord &&rhs);
     ObjectRecord(Symbol *s) : symbol(s) {}
+    virtual ~ObjectRecord();
 };
 
 
@@ -57,16 +60,11 @@ public:
      */
     virtual ~Storage();
     /**
-     * @brief installIntValue
-     * @param value
-     */
-    void installIntValue(int64_t value);
-    /**
      * @brief Добавить пустую запись
      */
     ObjectRecord *installRecord(Symbol *s)
     {
-        _records.push_front({s});
+        _records.emplace_front(s);
         return &_records.front();
     }
     ObjectRecord *findRecord(Symbol *symbol);

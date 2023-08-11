@@ -14,6 +14,7 @@ SOURCES += \
     assembler.cpp \
     block.cpp \
     escript.cpp \
+    function.cpp \
     icodeemitter.cpp \
     instruction.cpp \
     keyword.cpp \
@@ -36,6 +37,7 @@ HEADERS += \
     assembler.h \
     block.h \
     escript.h \
+    function.h \
     icodeemitter.h \
     instruction.h \
     keyword.h \

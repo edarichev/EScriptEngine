@@ -60,13 +60,30 @@ void Machine::replaceJMPAddresses(uint64_t startPosition, uint64_t offset)
     // если быстрее будет через multimap - попробовать её
     uint64_t c = startPosition;
     uint64_t addr = 0;
+    const char *fnMarker = "FUNC";
     while (c < _memory.size()) {
         uint8_t *p = _memory.data() + c;
         OpCode opCode = (OpCode) *((OpCodeType*)p);
-        auto shift = Assembler::instructionSize(opCode);
+        auto shift = 0;
+        try {
+            shift = Assembler::instructionSize(opCode);
+        } catch (const std::out_of_range &e) {
+            if (*p == 'F') {
+                if (strncmp((char*)p, fnMarker, 4) == 0) {
+                    p += 4;
+                    c += 4;
+                    int32_t dataLen = *(int32_t*)p;
+                    p += dataLen;
+                    c += dataLen;
+                    continue;
+                }
+            }
+            throw;
+        }
         switch (opCode) {
         case OpCode::IFFALSE_M:
         case OpCode::JMP_M:
+        case OpCode::CALL:
             c += sizeof (OpCodeType); // размер кода команды
             p += sizeof (OpCodeType);
             addr = *(uint16_t*)p;

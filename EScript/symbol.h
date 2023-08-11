@@ -19,7 +19,6 @@ class Unit;
 class ESCRIPT_EXPORT Symbol
 {
 private:
-    std::shared_ptr<Unit> _unit;
     const std::u32string _name;
     // тип данных
     SymbolType _type { SymbolType::Undefined };
@@ -30,8 +29,7 @@ public:
     /**
      * @brief Создаёт новый экземпляр класса Symbol
      */
-    Symbol(std::shared_ptr<Unit> unit,
-           const std::u32string &id,
+    Symbol(const std::u32string &id,
            SymbolType dataType = SymbolType::Undefined);
     /**
      * @brief Освобождает связанные с этим экземпляром ресурсы

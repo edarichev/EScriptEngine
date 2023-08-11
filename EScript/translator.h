@@ -35,6 +35,8 @@ private:
     // key=номер метки, value=адреса в коде, где она используется
     // попробовать оба варианта, см. replaceLabelsToAddresses()
     std::multimap<int, uint64_t> _labelReferences;
+    // блок, извлекаемый из TCode::type == block
+    Block *_tcodeBlock = nullptr;
 public:
     /**
      * @brief Создаёт новый экземпляр класса Translator
@@ -74,7 +76,7 @@ private:
      * @param totalRecords полное число записей во всех вложенных таблицах
      *        символов
      */
-    void writeAllSymbols(std::shared_ptr<Block> block,
+    void writeAllSymbols(Block *block,
                          std::vector<uint8_t> &outBuffer,
                          uint32_t &totalRecords);
     /**
@@ -82,6 +84,12 @@ private:
      * @param c трёхадресная операция
      */
     void translateOperation(const TCode &c);
+    void translateFunctionBlock(std::vector<TCode>::const_iterator &it,
+                                const std::vector<TCode> &inputBuffer,
+                                std::vector<uint8_t> &outBuffer);
+    void translateSelectedOperation(std::vector<TCode>::const_iterator &it,
+                                    const std::vector<TCode> &inputBuffer,
+                                    std::vector<uint8_t> &outBuffer);
     /**
      * @brief Абстракция для извлечения адреса
      * @param symbol
@@ -105,6 +113,12 @@ private:
     void opGoto(const TCode &c);
     void opLabel(const TCode &c);
     void opIfFalse(const TCode &c);
+    void opPush(const TCode &c);
+    void opFunctionStart(const TCode &c);
+    void opFunctionArgument(const TCode &c);
+    void opLdArgs(const TCode &c);
+    void opRet(const TCode &c);
+    void opCall(const TCode &c);
     /**
      * @brief Генерирует вывод команды ldc_*** в зависимотси от типа
      * @param type тип аргумента

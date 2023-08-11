@@ -142,6 +142,10 @@ struct PValue
         return *this;
     }
 
+    PValue(PValue &&rhs) = default;
+
+    PValue &operator=(PValue &&rhs) = default;
+
     /**
      * @brief Если значение не false, не null, не undefined или другое пустое,
      *        то вернёт true.

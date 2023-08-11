@@ -12,6 +12,8 @@
 
 namespace escript {
 
+class Block;
+
 /**
  * @brief Генератор промежуточного кода
  * @details (I == intermediate), не интерфейс.
@@ -36,6 +38,17 @@ public:
     void iffalse(Symbol *variableToTest, int exitOrFalseLabelId);
     void goToLabel(int labelId);
     void label(int labelId);
+    void fnStart(std::shared_ptr<Symbol> &func);
+    void fnCode(std::shared_ptr<Symbol> &func);
+    void fnLoadArgs();
+    void fnEnd();
+    void fnArg(std::shared_ptr<Symbol> &argument);
+    void ret();
+    void emptyReturn(std::shared_ptr<Symbol> &func);
+    void call(std::shared_ptr<Symbol> &func, int nArgs);
+    void startBlock(std::shared_ptr<Block> &block);
+    void endBlock(std::shared_ptr<Block> &block);
+    void push(std::pair<SymbolType, OperandRecord> &value);
     void switchToTempBuffer();
     void switchToMainBuffer();
     void writeTempBuffer();

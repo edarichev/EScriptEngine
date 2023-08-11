@@ -49,8 +49,9 @@ void Translator::translate(std::shared_ptr<Block> block,
                      (uint8_t*)&codeSegmentLength,
                      (uint8_t*)&codeSegmentLength + sizeof (codeSegmentLength));
     uint64_t startPosition = outBuffer.size();
-    for (auto &c : inputBuffer) {
-        translateOperation(c);
+
+    for (auto it = inputBuffer.begin(); it != inputBuffer.end();) {
+        translateSelectedOperation(it, inputBuffer, outBuffer);
     }
     as().halt();
     // записать длину сегмента кода
@@ -86,25 +87,24 @@ void Translator::writeVariableSection(std::shared_ptr<Block> block,
                      (uint8_t*)&dataHeaderLength + sizeof (dataHeaderLength));
 
     uint32_t totalRecords = 0;
-    writeAllSymbols(block, outBuffer, totalRecords);
+    writeAllSymbols(block.get(), outBuffer, totalRecords);
     dataHeaderLength = sizeof(PtrIntType) * totalRecords;
     std::copy((uint8_t*)&dataHeaderLength,
               (uint8_t*)&dataHeaderLength + sizeof (dataHeaderLength),
               outBuffer.begin() + startPosition);
 }
 
-void Translator::writeAllSymbols(std::shared_ptr<Block> block,
+void Translator::writeAllSymbols(Block *block,
                                  std::vector<uint8_t> &outBuffer,
                                  uint32_t &totalRecords)
 {
     PtrIntType empty {};
     // начинаем с таблицы символов родительского блока
     auto table = block->symbolTable();
-    for (auto &record : *table) {
+    for (auto &symbol : *table) {
         // все записи в этой области представляют собой указатели
         // на объекты в списке объектов
         // забиваем здесь место под размеры этих указателей
-        auto symbol = record.second;
         // записать смещение
         symbol->setLocation(outBuffer.size());
         outBuffer.insert(outBuffer.end(),
@@ -114,7 +114,9 @@ void Translator::writeAllSymbols(std::shared_ptr<Block> block,
     }
     // теперь таблицы символов дочерних {блоков}
     for (auto &b : block->blocks()) {
-        writeAllSymbols(b, outBuffer, totalRecords);
+        // только обычные блоки, в функциях свои переменные
+        if (b->type() == BlockType::Regular)
+            writeAllSymbols(b.get(), outBuffer, totalRecords);
     }
 }
 
@@ -147,10 +149,125 @@ void Translator::translateOperation(const TCode &c)
     case OperationType::IfFalse:
         opIfFalse(c);
         break;
+    case OperationType::FunctionStart:  // FNSTART - начало блока функции, op1==Symbol*
+        opFunctionStart(c);
+        break; // просто как метка
+    case OperationType::FunctionArgument: // аргумент функции+Symbol*
+        opFunctionArgument(c);
+        break;
+    case OperationType::FunctionCode:   // начало блока кода (стартовая точка запуска) функции
+        break;
+    case OperationType::LoadArguments:  // загрузка аргументов из стека на входе в функцию
+        opLdArgs(c);
+        break;
+    case OperationType::Push:           // push op1
+        opPush(c);
+        break;
+    case OperationType::Ret:            // возврат из функции
+        opRet(c);
+        break;
+    case OperationType::Call:           // вызов функции, addr==op1.intValue
+        opCall(c);
+        break;
+    case OperationType::FunctionEnd:    // конец функции
+        break;
+    case OperationType::BlockStart:
+        _tcodeBlock = c.operand1.block;
+        break;
+    case OperationType::BlockEnd:
+        _tcodeBlock = c.operand1.block->parentBlock() ?
+                    c.operand1.block->parentBlock().get() :
+                    _block.get();
+        break;
     default:
         throw std::domain_error("Can not translate operation: " + c.toString());
     }
     cout << c.toString() << endl;
+}
+
+void Translator::translateFunctionBlock(std::vector<TCode>::const_iterator &it,
+                                        const std::vector<TCode> &inputBuffer,
+                                        std::vector<uint8_t> &outBuffer)
+{
+    //fnstart
+    assert((*it).operation == OperationType::FunctionStart);
+    translateOperation(*it);
+    // заголовок 4 == FUNC, 4 - длина секции переменных, 4 - общая длина
+    const char marker[] = {'F', 'U', 'N', 'C'};
+    uint32_t dataLength = 0;
+    uint32_t totalLength = 0;
+    Symbol *func = (*it).operand1.function;
+    ++it;
+    std::vector<Symbol*> parameters;
+    // теперь должны идти аргументы, сохраним их по порядку:
+    // всегда один элемент - это arguments, он первый
+    while (it != inputBuffer.end()) {
+        if ((*it).operation != OperationType::FunctionArgument)
+            break;
+        parameters.push_back((*it).operand1.variable);
+        ++it;
+    }
+    size_t startOfFunction = outBuffer.size();
+    // записываем заголовок функции:
+    outBuffer.insert(outBuffer.end(), marker, marker + sizeof (marker)); // FUNC
+    // забить место:
+    size_t dataLenOffset = outBuffer.size();
+    outBuffer.insert(outBuffer.end(), (uint8_t*)&dataLength,
+                     ((uint8_t*)&dataLength) + sizeof (dataLength));
+    size_t totalLengthOffset = outBuffer.size();
+    outBuffer.insert(outBuffer.end(), (uint8_t*)&totalLength,
+                     ((uint8_t*)&totalLength) + sizeof (totalLength));
+    size_t startPointOfData = outBuffer.size();
+    // здесь таблица символов
+    // сохраняем только символы из блоков кода. Если есть вложенные функции,
+    // то эти таблицы символов должны быть исключены
+    // это проверяется в writeAllSymbols
+    uint32_t totalRecords = 0;
+    writeAllSymbols(_tcodeBlock, outBuffer, totalRecords);
+    // число параметров
+    int64_t numOfParams = parameters.size();
+    outBuffer.insert(outBuffer.end(), (uint8_t*)&numOfParams,
+                     ((uint8_t*)&numOfParams) + sizeof (numOfParams));
+    // всего переменных
+    int64_t numOfVars = totalRecords;
+    outBuffer.insert(outBuffer.end(), (uint8_t*)&numOfVars,
+                     ((uint8_t*)&numOfVars) + sizeof (numOfVars));
+    dataLength = outBuffer.size() - startPointOfData;
+    // стартовая точка функции
+    func->setLocation(outBuffer.size());
+
+    // остальная часть
+    while (it < inputBuffer.end()) {
+        if ((*it).operation == OperationType::FunctionEnd) {
+            translateOperation(*it);
+            ++it;
+            break;
+        }
+        translateSelectedOperation(it, inputBuffer, outBuffer);
+    }
+    // вернуться в начало функции и записать размеры
+    totalLength = outBuffer.size() - startOfFunction;
+    std::copy((uint8_t*)&dataLength,
+              ((uint8_t*)&dataLength) + sizeof (dataLength),
+              outBuffer.begin() + dataLenOffset);
+    std::copy((uint8_t*)&totalLength,
+              ((uint8_t*)&totalLength) + sizeof (totalLength),
+              outBuffer.begin() + totalLengthOffset);
+}
+
+void Translator::translateSelectedOperation(std::vector<TCode>::const_iterator &it,
+                                            const std::vector<TCode> &inputBuffer,
+                                            std::vector<uint8_t> &outBuffer)
+{
+    switch ((*it).operation) {
+    case OperationType::FunctionStart:
+        translateFunctionBlock(it, inputBuffer, outBuffer);
+        break;
+    default:
+        translateOperation(*it);
+        ++it;
+        break;
+    }
 }
 
 PtrIntType Translator::location(Symbol *symbol)
@@ -166,10 +283,26 @@ void Translator::replaceLabelsToAddresses(std::vector<uint8_t> &outBuffer,
     uint64_t c = startPosition;
     uint64_t addr = 0;
     uint64_t labelId = 0;
+    const char *fnMarker = "FUNC";
     while (c < outBuffer.size()) {
         uint8_t *p = outBuffer.data() + c;
         OpCode opCode = (OpCode) *((OpCodeType*)p);
-        auto shift = Assembler::instructionSize(opCode);
+        auto shift = 0;
+        try {
+            shift = Assembler::instructionSize(opCode);
+        } catch (const std::out_of_range &e) {
+            if (*p == 'F') {
+                if (strncmp((char*)p, fnMarker, 4) == 0) {
+                    p += 4;
+                    c += 4;
+                    int32_t dataLen = *(int32_t*)p;
+                    p += dataLen;
+                    c += dataLen;
+                    continue;
+                }
+            }
+            throw;
+        }
         switch (opCode) {
         case OpCode::IFFALSE_M:
         case OpCode::JMP_M:
@@ -296,6 +429,39 @@ void Translator::opIfFalse(const TCode &c)
     assert(c.operand1Type == SymbolType::Variable);
     emit_ldc(c.operand1Type, c.operand1);
     a.iffalse_m(c.operand2.intValue); // номер метки
+}
+
+void Translator::opPush(const TCode &c)
+{
+    emit_ldc(c.operand1Type, c.operand1);
+}
+
+void Translator::opFunctionStart([[maybe_unused]]const TCode &c)
+{
+
+}
+
+void Translator::opFunctionArgument([[maybe_unused]]const TCode &c)
+{
+
+}
+
+void Translator::opLdArgs([[maybe_unused]]const TCode &c)
+{
+    Assembler &a = as();
+    a.ldargs();
+}
+
+void Translator::opRet([[maybe_unused]]const TCode &c)
+{
+    Assembler &a = as();
+    a.ret();
+}
+
+void Translator::opCall(const TCode &c)
+{
+    Assembler &a = as();
+    a.call(c.operand1.function->location());
 }
 
 void Translator::emit_ldc(SymbolType type, const OperandRecord &operand)

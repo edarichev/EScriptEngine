@@ -105,6 +105,111 @@ void ICodeEmitter::label(int labelId)
     _buffer->push_back(code);
 }
 
+void ICodeEmitter::fnStart(std::shared_ptr<Symbol> &func)
+{
+    TCode code;
+    code.operation = OperationType::FunctionStart;
+    code.operand1Type = SymbolType::Function;
+    code.operand1.function = func.get();
+    _buffer->push_back(code);
+}
+
+void ICodeEmitter::fnCode(std::shared_ptr<Symbol> &func)
+{
+    TCode code;
+    code.operation = OperationType::FunctionCode;
+    code.operand1Type = SymbolType::Function;
+    code.operand1.function = func.get();
+    _buffer->push_back(code);
+}
+
+void ICodeEmitter::fnLoadArgs()
+{
+    TCode code;
+    code.operation = OperationType::LoadArguments;
+    code.operand1Type = SymbolType::Undefined;
+    _buffer->push_back(code);
+}
+
+void ICodeEmitter::fnEnd()
+{
+    TCode code;
+    code.operation = OperationType::FunctionEnd;
+    code.operand1Type = SymbolType::Undefined;
+    _buffer->push_back(code);
+}
+
+void ICodeEmitter::fnArg(std::shared_ptr<Symbol> &argument)
+{
+    TCode code;
+    code.operation = OperationType::FunctionArgument;
+    code.operand1Type = SymbolType::Variable;
+    code.operand1.variable = argument.get();
+    _buffer->push_back(code);
+}
+
+void ICodeEmitter::ret()
+{
+    TCode code;
+    code.operation = OperationType::Ret;
+    code.operand1Type = SymbolType::Undefined;
+    _buffer->push_back(code);
+}
+
+void ICodeEmitter::emptyReturn(std::shared_ptr<Symbol> &func)
+{
+    TCode code;
+    code.operation = OperationType::Ret;
+    code.operand1Type = SymbolType::Function;
+    code.operand1.function = func.get();
+    code.operand2Type = SymbolType::Integer;
+    code.operand2.intValue = 0; // 0 возвращаемых значений в стеке
+
+    _buffer->push_back(code);
+}
+
+void ICodeEmitter::call(std::shared_ptr<Symbol> &func, int nArgs)
+{
+    // TODO: нужна вторая версия для вызова из функции
+    // для сохранения записи активации.
+    TCode codeArgs;
+    codeArgs.operation = OperationType::Push;
+    codeArgs.operand1Type = SymbolType::Integer;
+    codeArgs.operand1.intValue = nArgs;
+    _buffer->push_back(codeArgs);
+
+    TCode codeFunc;
+    codeFunc.operation = OperationType::Call;
+    codeFunc.operand1Type = SymbolType::Function;
+    codeFunc.operand1.function = func.get();
+    _buffer->push_back(codeFunc);
+}
+
+void ICodeEmitter::startBlock(std::shared_ptr<Block> &block)
+{
+    TCode code;
+    code.operation = OperationType::BlockStart;
+    code.operand1.block = block.get();
+    _buffer->push_back(code);
+}
+
+void ICodeEmitter::endBlock(std::shared_ptr<Block> &block)
+{
+    TCode code;
+    code.operation = OperationType::BlockEnd;
+    code.operand1.block = block.get();
+    _buffer->push_back(code);
+}
+
+void ICodeEmitter::push(std::pair<SymbolType, OperandRecord> &value)
+{
+    TCode code;
+    code.operation = OperationType::Push;
+    code.operand1Type = value.first;
+    code.operand1 = value.second;
+    _buffer->push_back(code);
+}
+
 void ICodeEmitter::switchToTempBuffer()
 {
     _buffer = &_tmpBuffer;

@@ -12,6 +12,12 @@
 
 namespace escript {
 
+enum class BlockType
+{
+    Regular,
+    Function,
+};
+
 /**
  * @brief Блок кода.
  */
@@ -22,6 +28,7 @@ private:
     std::vector<std::shared_ptr<Block> > _blocks;
     std::shared_ptr<Block> _parentBlock;
     std::shared_ptr<SymbolTable> _symbolTable;
+    BlockType _type { BlockType::Regular };
 public:
     /**
      * @brief Создаёт новый экземпляр класса Block
@@ -53,6 +60,8 @@ public:
     void addOffset(uint64_t offset);
     const std::vector<std::shared_ptr<Block> > &blocks() const;
     const std::shared_ptr<Block> &parentBlock() const;
+    BlockType type() const;
+    void setType(BlockType newType);
 };
 
 } // namespace escript

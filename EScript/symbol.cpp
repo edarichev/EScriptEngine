@@ -23,10 +23,9 @@ void Symbol::addOffset(uint64_t offset)
     _location += offset;
 }
 
-Symbol::Symbol(std::shared_ptr<Unit> unit,
-               const std::u32string &id,
+Symbol::Symbol(const std::u32string &id,
                SymbolType dataType)
-    : _unit(unit), _name(id), _type(dataType)
+    : _name(id), _type(dataType)
 {
 
 }

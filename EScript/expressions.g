@@ -26,8 +26,7 @@ StatementList : Statement
               | Statement StatementList
               ;
 
-Statement : AssignStatement
-          | CompoundStatement
+Statement : CompoundStatement
           | IfElseStatement
           | WhileStatement
           | ForStatement
@@ -35,10 +34,11 @@ Statement : AssignStatement
           | BreakStatement
           | ContinueStatement
           | FunctionDeclStatement
+          | AnyStatement
           ;
 
-AssignStatement : AssignExpression ';'
-                ;
+AnyStatement : Expression ';'
+             ;
 
 CompoundStatement : '{' StatementList '}'
                   | '{' '}'
@@ -75,7 +75,10 @@ BreakStatement : Break ';'
 ContinueStatement : Continue ';'
                   ;
 
-FunctionDeclStatement : Function Identifier '(' OptionalParameterDeclList ')' CompoundStatement
+FunctionDeclExpression : Function Identifier '(' OptionalParameterDeclList ')' CompoundStatement
+                       ;
+
+FunctionDeclStatement : FunctionDeclExpression
                       ;
 
 OptionalParameterDeclList : ParameterDeclList
@@ -94,6 +97,7 @@ Variable : Identifier
 
 Expression : LogicalOrNCOExpression
            | AssignExpression
+           | FunctionDeclExpression
            ;
 
 // Nullish coalescing operator
@@ -144,9 +148,17 @@ Term : Factor
      ;
 
 Factor : Identifier
+       | FunctionCallExpression
        | IntegerNumber
        | RealNumber
        | '-' Factor
        | '+' Factor
        ;
 
+FunctionCallExpression : Identifier '(' ArgumentList ')'
+                       | Identifier '(' ')'
+                       ;
+
+ArgumentList : Expression
+             | Expression ',' ArgumentList
+             ;

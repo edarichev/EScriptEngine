@@ -11,6 +11,7 @@
 #include <stack>
 #include <deque>
 #include "tcode.h"
+#include "pvalue.h"
 
 namespace escript {
 
@@ -33,6 +34,7 @@ private:
     std::stack<SymbolType> _types;
     // стек для обнаруженных переменных в выражениях
     std::stack<std::shared_ptr<Symbol> > _variables;
+    std::stack<std::shared_ptr<Symbol> > _functions;
     // стек для обнаруженных целых чисел в выражениях
     std::stack<IntType> _integers;
     std::stack<RealType> _reals;
@@ -48,6 +50,10 @@ private:
     // стеки меток для поддержки break/continue
     std::stack<int> _startLabels;
     std::stack<int> _exitLabels;
+    // стек для значений
+    std::stack<PValue> _valueStack;
+    // для подсчёта аргументов в ArgumentsList
+    std::stack<int> _argumentsCountStack;
 public:
     /**
      * @brief Создаёт новый экземпляр класса Parser
@@ -66,7 +72,6 @@ private:
     void StatementList();
     void Statement();
     void CompoundStatement();
-    void AssignStatement();
     void IfElseStatement();
     void WhileStatement();
     void DoWhileStattement();
@@ -80,6 +85,7 @@ private:
     void ParameterDeclList();
     void ExpressionList();
     void AssignExpression();
+    void FunctionDeclExpression();
     void Variable();
     void Expression();
     void SimpleExpression();
@@ -94,6 +100,9 @@ private:
     void LogicalOrNCOExpression();
     void Term();
     void Factor();
+    void FunctionCallExpression();
+    void ArgumentList();
+    void AnyStatement();
     // перемещение по потоку
 private:
     /**
@@ -143,6 +152,27 @@ private:
      */
     void emitUnaryOp(OperationType opType);
     void emitAssign(std::shared_ptr<Symbol> &lvalue);
+    /**
+     * @brief Записывает начало функции.
+     * Текст текущего токена - имя функции в сигнатуре.
+     */
+    void emitFnStart(std::shared_ptr<Symbol> &func);
+    /**
+     * @brief Текст текущего токена - имя параметра функции в сигнатуре.
+     */
+    void emitFnArg();
+    /**
+     * @brief При генерации кода будет использован адрес записи в таблице
+     *        симоволов для связи объект Function и стартового адреса.
+     * @param func
+     */
+    void emitFnCode(std::shared_ptr<Symbol> &func);
+    void emitLoadFnArgs();
+    void emitPush(); // для return
+    void emitRet(); // для return
+    void emitEmptyReturn(std::shared_ptr<Symbol> &func);
+    void emitCall(std::shared_ptr<Symbol> &func, int nArgs);
+    void emitFnEnd();
     // работа с символами
 private:
     /**
@@ -153,7 +183,9 @@ private:
     void pushReal(RealType value);
     void pushBoolean(bool value);
     void pushVariable(std::shared_ptr<Symbol> &variable);
+    void pushFunction(std::shared_ptr<Symbol> &func);
     std::pair<SymbolType, OperandRecord> popStackValue();
+    std::pair<SymbolType, OperandRecord> stackValue();
     void pushBack(Token t, const std::u32string &str);
     void pushBack(Token t, std::u32string &&str);
     IntType popInt();

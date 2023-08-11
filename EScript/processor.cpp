@@ -95,6 +95,76 @@ void Processor::steq()
     binaryStackOp(OpCode::STEQ);
 }
 
+void Processor::ldargs()
+{
+    // это первая команда в функции, переменные расположена сразу перед ней.
+    // двигаемся по 8 байт назад, пока == 0 (там нули везде)
+    PtrIntType *ptr = (PtrIntType*)_p;
+    ptr --;
+    // последним записано число всех переменных, оно не менее 1, т.к. параметры
+    // тоже являются локальными переменными
+    int64_t numOfVariables = *ptr;
+    ptr --;
+    // предпоследним - число параметров в функции
+    int64_t numOfParameters = *ptr;
+    PtrIntType *pend = ptr;
+    while (numOfVariables > 0) {
+        ptr--;
+        numOfVariables--;
+    }
+    // по идее, эту область теперь надо занулить, т.к. при каждом вызове
+    // будет всё с чистого листа
+    memset(ptr, 0, (pend - ptr) * sizeof (PtrIntType));
+    // теперь мы на переменной arguments, оставим её пока
+    ptr++;
+    numOfParameters--;
+    // теперь в каждую запись нужно вставить либо указатель на ObjectRecord,
+    // если это объект, либо сдлеать "по значению": создать ещё одну
+    // запись в ObjectRecord
+
+    // здесь первым идёт число аргументов
+    auto item = popFromStack();
+    assert(item.first == SymbolType::Integer);
+    int nArgs = item.second;
+    while (nArgs > 0) {
+        auto arg = popFromStack();
+        // если тут Variable, то в стеке - ObjectRecord, и сюда заносим
+        // это значение
+        // иначе - просто число/float/bool
+        ObjectRecord *rec = nullptr;
+        auto argumentType = arg.first;
+        switch (argumentType) {
+        case SymbolType::Integer:
+            rec = _storage->installRecord(nullptr);
+            rec->type = SymbolType::Integer;
+            rec->data = bit_cast<int64_t>(arg.second);
+            *ptr = bit_cast<uint64_t>(rec);
+            break;
+        default:
+            throw std::domain_error("type not impl.");
+        }
+        nArgs--;
+        ptr++;
+    }
+    next();
+}
+
+void Processor::ret()
+{
+    next();
+    setPC(_pcStack.top());
+    _pcStack.pop();
+}
+
+void Processor::call()
+{
+    next();
+    PtrIntType addr = *(PtrIntType*)_p;
+    next(sizeof (uint64_t)); // сначала сдвинуть
+    _pcStack.push(_pc);      // теперь сохранить адрес возврата
+    setPC(addr);             // перейти к функции
+}
+
 void Processor::binaryStackOp(OpCode opCode)
 {
     next();

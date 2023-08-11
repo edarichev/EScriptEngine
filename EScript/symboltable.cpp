@@ -25,15 +25,19 @@ SymbolTable::~SymbolTable()
 std::shared_ptr<Symbol> SymbolTable::add(const std::u32string &identifier,
                                          SymbolType type)
 {
-    std::shared_ptr<Symbol> symbol = std::make_shared<Symbol>(_unit, identifier, type);
+    std::shared_ptr<Symbol> symbol = std::make_shared<Symbol>(identifier, type);
     if (_symbols.find(identifier) != _symbols.end())
         throw std::domain_error("duplicate identifier");
     _symbols[identifier] = symbol;
+    _orderedSymbols.push_back(symbol);
     return symbol;
 }
 
 void SymbolTable::addRange(std::shared_ptr<SymbolTable> &&otherTable)
 {
+    for (auto &c : *otherTable) {
+        _orderedSymbols.push_back(c);
+    }
     _symbols.merge(std::move(otherTable->_symbols));
 }
 

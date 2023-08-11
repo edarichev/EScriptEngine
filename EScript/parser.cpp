@@ -75,10 +75,7 @@ void Parser::Statement()
         FunctionDeclStatement();
         break;
     default:
-        AssignStatement();
-        // после AssignStatement всегда есть что-то, т.к. это выражение,
-        // поэтому вытаскиваем из стека его результат
-        popStackValue();
+        AnyStatement();
         break;
     }
 }
@@ -94,12 +91,6 @@ void Parser::CompoundStatement()
     StatementList();
     exitToUpLevelBlock();
     match(Token::RightBrace);
-}
-
-void Parser::AssignStatement()
-{
-    AssignExpression();
-    match(Token::Semicolon);
 }
 
 void Parser::IfElseStatement()
@@ -222,12 +213,8 @@ void Parser::ContinueStatement()
 
 void Parser::FunctionDeclStatement()
 {
-    match(Token::Function);
-    match(Token::Identifier);
-    match(Token::LeftParenth);
-    OptionalParameterDeclList();
-    match(Token::RightParenth);
-    CompoundStatement();
+    FunctionDeclExpression();
+    popStackValue();
 }
 
 void Parser::OptionalParameterDeclList()
@@ -247,6 +234,7 @@ void Parser::ParameterDeclList()
         case Token::RightParenth:
             return;
         case Token::Identifier: // имя параметра
+            emitFnArg();
             next();
             break;
         default:
@@ -299,6 +287,32 @@ void Parser::AssignExpression()
     pushVariable(lvalueSymbol);
 }
 
+void Parser::FunctionDeclExpression()
+{
+    // метка для прыжка через функцию, если
+    // идёт последовательное выполнение кода
+    int labelEnd = nextLabel();
+    emitGoto(labelEnd);
+    match(Token::Function);
+    // временная переменная для функции
+    std::shared_ptr<Symbol> func = currentSymbolTable()->add(tokenText());
+    addAndEntrySubBlock();
+    emitFnStart(func);
+    match(Token::Identifier);
+    match(Token::LeftParenth);
+    OptionalParameterDeclList();
+    match(Token::RightParenth);
+    emitFnCode(func);
+    emitLoadFnArgs();
+    CompoundStatement();
+    // явный выход, если не было return;
+    // здесь мы заносим в стек 0 аргументов
+    emitEmptyReturn(func);
+    emitFnEnd();
+    exitToUpLevelBlock();
+    emitLabel(labelEnd);
+}
+
 void Parser::Variable()
 { // это правило исключительно для l-value
     if (lookahead() == Token::Identifier) {
@@ -317,7 +331,8 @@ void Parser::Variable()
 
 void Parser::Expression()
 {
-    if (lookahead() == Token::Identifier) {
+    switch (lookahead()) {
+    case Token::Identifier: {
         // проверяем наличие идентификатора
         auto tokenText0 = tokenText();
         auto token0 = lookahead();
@@ -332,6 +347,13 @@ void Parser::Expression()
         // вернуть идентификатор (прямой порядок, это очередь)
         pushBack(token0, std::move(tokenText0));
         // перейти в SimpleExpression
+        break;
+    }
+    case Token::Function:
+        FunctionDeclExpression();
+        break;
+    default:
+        break;
     }
     LogicalOrNCOExpression();
 }
@@ -477,14 +499,22 @@ void Parser::Factor()
         Factor();
         emitUnaryOp(OperationType::UMinus);
         return;
-    case Token::Identifier:
+    case Token::Identifier: {
         // это правая часть, здесь - только ранее объявленный id
-        symbol = currentSymbolTable()->find(tokenText());
+        auto idText = tokenText();
+        next();
+        if (lookahead() == Token::LeftParenth) {
+            // это вызов функции
+            pushBack(Token::Identifier, idText);
+            FunctionCallExpression();
+            return;
+        }
+        symbol = currentSymbolTable()->find(idText);
         if (!symbol)
             undeclaredIdentifier();
         pushVariable(symbol);
-        next();
         break;
+    }
     case Token::IntegerNumber:
         pushInt(_lexer->lastIntegerNumber());
         next();
@@ -504,6 +534,52 @@ void Parser::Factor()
     default: // ошибка, нужен терминал в виде числа, идентификатора и т.п.
         expected(Token::Identifier);
     }
+}
+
+void Parser::FunctionCallExpression()
+{
+    auto func = currentSymbolTable()->find(tokenText());
+    if (!func)
+        undeclaredIdentifier();
+    match(Token::Identifier);
+    match(Token::LeftParenth);
+    int nArgs = 0;
+    if (lookahead() != Token::RightParenth) {
+        _argumentsCountStack.push(0);
+        ArgumentList();
+        nArgs = _argumentsCountStack.top();
+        _argumentsCountStack.pop();
+    }
+    match(Token::RightParenth);
+    emitCall(func, nArgs);
+}
+
+void Parser::ArgumentList()
+{
+    do {
+        // выражение вставляет в стек аргумент
+        Expression();
+        _argumentsCountStack.top()++;
+        emitPush();
+        switch (lookahead()) {
+        case Token::Comma:
+            next();
+            continue;
+        case Token::RightParenth:
+            return;
+        default:
+            expected(Token::RightParenth);
+        }
+    } while (true);
+}
+
+void Parser::AnyStatement()
+{
+    Expression();
+    match(Token::Semicolon);
+    // после Expression всегда есть что-то, т.к. это выражение,
+    // поэтому вытаскиваем из стека его результат
+    popStackValue();
 }
 
 //////////////////////// перемещение по потоку  /////////////////////////////
@@ -664,6 +740,53 @@ void Parser::emitAssign(std::shared_ptr<Symbol> &lvalue)
     _emitter->assign(lvalue.get(), rec.first, rec.second);
 }
 
+void Parser::emitFnStart(std::shared_ptr<Symbol> &func)
+{
+    _emitter->fnStart(func);
+    pushFunction(func);
+    // переменнная arguments
+    std::shared_ptr<Symbol> arg = currentSymbolTable()->add(U"arguments");
+    _emitter->fnArg(arg);
+}
+
+void Parser::emitFnArg()
+{
+    std::shared_ptr<Symbol> arg = currentSymbolTable()->add(tokenText());
+    _emitter->fnArg(arg);
+}
+
+void Parser::emitFnCode(std::shared_ptr<Symbol> &func)
+{
+    _emitter->fnCode(func);
+}
+
+void Parser::emitLoadFnArgs()
+{
+    _emitter->fnLoadArgs();
+}
+
+void Parser::emitPush()
+{
+    auto top = stackValue();
+    _emitter->push(top);
+}
+
+void Parser::emitEmptyReturn(std::shared_ptr<Symbol> &func)
+{
+    _emitter->emptyReturn(func);
+}
+
+void Parser::emitCall(std::shared_ptr<Symbol> &func, int nArgs)
+{
+    _emitter->call(func, nArgs);
+}
+
+void Parser::emitFnEnd()
+{
+    _emitter->fnEnd();
+}
+
+
 ////////////////////// работа с символами ///////////////////////////////////
 
 void Parser::pushBack(Token t, const std::u32string &str)
@@ -707,6 +830,12 @@ void Parser::pushVariable(std::shared_ptr<Symbol> &variable)
     _types.push(SymbolType::Variable);
 }
 
+void Parser::pushFunction(std::shared_ptr<Symbol> &func)
+{
+    _functions.push(func);
+    _types.push(SymbolType::Function);
+}
+
 IntType Parser::popInt()
 {
     IntType lastInt = _integers.top();
@@ -731,12 +860,14 @@ std::shared_ptr<Block> Parser::currentBlock() const
 void Parser::addAndEntrySubBlock()
 {
     _currentBlock = _currentBlock->addBlock();
+    _emitter->startBlock(_currentBlock);
 }
 
 void Parser::exitToUpLevelBlock()
 {
     if (!_currentBlock->parentBlock())
         throw std::domain_error("Can not exit from up-level block");
+    _emitter->endBlock(_currentBlock);
     _currentBlock = _currentBlock->parentBlock();
 }
 
@@ -780,6 +911,37 @@ std::pair<SymbolType, OperandRecord> Parser::popStackValue()
     case SymbolType::Boolean:
         rec.second.boolValue = _booleans.top();
         _booleans.pop();
+        break;
+    case SymbolType::Function:
+        rec.second.function = _functions.top().get();
+        _functions.pop();
+        break;
+    default:
+        throw std::domain_error("Unsupported SymbolType");
+    }
+    return rec;
+}
+
+std::pair<SymbolType, OperandRecord> Parser::stackValue()
+{
+    std::pair<SymbolType, OperandRecord> rec;
+    auto valueType = _types.top();
+    rec.first = valueType;
+    switch (valueType) {
+    case SymbolType::Variable:
+        rec.second.variable = _variables.top().get();
+        break;
+    case SymbolType::Integer:
+        rec.second.intValue = _integers.top();
+        break;
+    case SymbolType::Real:
+        rec.second.realValue = _reals.top();
+        break;
+    case SymbolType::Boolean:
+        rec.second.boolValue = _booleans.top();
+        break;
+    case SymbolType::Function:
+        rec.second.function = _functions.top().get();
         break;
     default:
         throw std::domain_error("Unsupported SymbolType");
