@@ -16,10 +16,10 @@ SOURCES += \
     escript.cpp \
     function.cpp \
     icodeemitter.cpp \
-    instruction.cpp \
     keyword.cpp \
     lexer.cpp \
     machine.cpp \
+    objectrecord.cpp \
     parser.cpp \
     processor.cpp \
     pvalue.cpp \
@@ -39,10 +39,10 @@ HEADERS += \
     escript.h \
     function.h \
     icodeemitter.h \
-    instruction.h \
     keyword.h \
     lexer.h \
     machine.h \
+    objectrecord.h \
     opcode.h \
     parser.h \
     processor.h \

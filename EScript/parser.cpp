@@ -123,7 +123,7 @@ void Parser::WhileStatement()
     match(Token::LeftParenth);    // (
     int startLabel = nextLabel(); // метка возврата в начало цикла
     int exitLabel = nextLabel();  // метка выхода
-    pushJumpLabels(startLabel, exitLabel); // для break/continue
+    pushJumpLabels(startLabel, exitLabel); // сохранить метки для break/continue
     emitLabel(startLabel);
     Expression();                 // теперь в стеке что-то есть
     emitIfFalseHeader(exitLabel); // аналогично заголовку в if-else
@@ -131,7 +131,7 @@ void Parser::WhileStatement()
     OptionalStatement();          // тело цикла
     emitGoto(startLabel);         // возврат к условию
     emitLabel(exitLabel);         // выход
-    popJumpLabels();             // убрать верхние метки
+    popJumpLabels();              // убрать вышеуказанные метки
 }
 
 void Parser::DoWhileStattement()
@@ -139,7 +139,7 @@ void Parser::DoWhileStattement()
     match(Token::Do);             // do
     int startLabel = nextLabel(); // метка возврата в начало цикла
     int exitLabel = nextLabel();  // метка выхода
-    pushJumpLabels(startLabel, exitLabel); // для break/continue
+    pushJumpLabels(startLabel, exitLabel); // сохранить метки для break/continue
     emitLabel(startLabel);
     CompoundStatement();          // { тело цикла }
     match(Token::While);          // while
@@ -149,7 +149,7 @@ void Parser::DoWhileStattement()
     emitIfFalseHeader(exitLabel); // аналогично заголовку в if-else
     emitGoto(startLabel);         // возврат к условию
     emitLabel(exitLabel);         // выход
-    popJumpLabels();              // убрать верхние метки
+    popJumpLabels();              // убрать вышеуказанные метки
 }
 
 void Parser::ForStatement()
@@ -263,6 +263,7 @@ void Parser::ExpressionList()
     do {
         Expression();
         popStackValue(); // убрать всё, т.к. присвоить результат невозможно
+                         // или оставить результат последнего выражения?
         switch (lookahead()) {
         case Token::Comma:
             next();
@@ -310,8 +311,7 @@ void Parser::FunctionDeclExpression()
     emitLoadFnArgs();
     CompoundStatement();
     // явный выход, если не было return;
-    // здесь мы заносим в стек 0 аргументов
-    emitEmptyReturn(func);
+    emitEmptyReturn();
     emitFnEnd();
     exitToUpLevelBlock();
     emitLabel(labelEnd);
@@ -398,35 +398,29 @@ void Parser::ShiftOrRelationExpression()
 void Parser::RelationOrEqualityExpression()
 {
     ShiftOrRelationExpression();
+    OperationType opType;
     switch (lookahead()) {
     case Token::Less:
-        next();
-        ShiftOrRelationExpression();
-        emitBinaryOp(OperationType::Less);
-        return;
-    case Token::LessEqual:
-        next();
-        ShiftOrRelationExpression();
-        emitBinaryOp(OperationType::LessOrEqual);
-        return;
-    case Token::Greater:
-        next();
-        ShiftOrRelationExpression();
-        emitBinaryOp(OperationType::Greater);
-        return;
-    case Token::GreaterEqual:
-        next();
-        ShiftOrRelationExpression();
-        emitBinaryOp(OperationType::GreaterOrEqual);
-        return;
-    case Token::Equal:
-        next();
-        ShiftOrRelationExpression();
-        emitBinaryOp(OperationType::Equal);
-        return;
-    default:
+        opType = OperationType::Less;
         break;
+    case Token::LessEqual:
+        opType = OperationType::LessOrEqual;
+        break;
+    case Token::Greater:
+        opType = OperationType::Greater;
+        break;
+    case Token::GreaterEqual:
+        opType = OperationType::GreaterOrEqual;
+        break;
+    case Token::Equal:
+        opType = OperationType::Equal;
+        break;
+    default:
+        return;
     }
+    next();
+    ShiftOrRelationExpression();
+    emitBinaryOp(opType);
 }
 
 void Parser::BitwiseAndOrEqualityExpression()
@@ -558,7 +552,6 @@ void Parser::FunctionCallExpression()
     match(Token::RightParenth);
     auto resultVariable = currentSymbolTable()->addTemp();
     emitCall(func, nArgs, resultVariable);
-    // TODO: что поместить в стек?
     pushVariable(resultVariable);
 }
 
@@ -597,11 +590,11 @@ void Parser::ReturnStatement()
         error("return allowed only inside of function");
     match(Token::Return);
     if (lookahead() == Token::Semicolon) {
-        emitEmptyReturn(_returnStack.top());
+        emitEmptyReturn();
         return;
     }
     Expression();
-    emitReturn(_returnStack.top());
+    emitReturn();
 }
 
 //////////////////////// перемещение по потоку  /////////////////////////////
@@ -793,13 +786,15 @@ void Parser::emitPush()
     _emitter->push(top);
 }
 
-void Parser::emitEmptyReturn(std::shared_ptr<Symbol> &func)
+void Parser::emitEmptyReturn()
 {
+    // поскольку функция может вернуть что угодно, возвращаемое значение
+    // всегда должно быть, по умолчанию пусть будет 0.
     pushInt(0);
-    emitReturn(func);
+    emitReturn();
 }
 
-void Parser::emitReturn(std::shared_ptr<Symbol> &func)
+void Parser::emitReturn()
 {
     // в стеке должен быть результат
     auto top = popStackValue();

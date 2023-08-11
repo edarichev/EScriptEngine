@@ -46,11 +46,10 @@ void Machine::load([[maybe_unused]] std::shared_ptr<Block> block,
     _memory.insert(_memory.end(),
                    objectFile.begin() + (sizeof(OpCodeType) + sizeof (uint64_t)),
                    objectFile.begin() + codeOffset);
-    // а эту часть нужно обработать, пока просто скопируем
-    // нужно исправить все условные и безусловные переходы
     uint64_t fromPos = _memory.size();
     _memory.insert(_memory.end(), objectFile.begin() + codeOffset, objectFile.end());
     uint64_t offset = currentPos;
+    // нужно исправить все условные и безусловные переходы
     replaceJMPAddresses(fromPos, offset);
 }
 
@@ -65,21 +64,16 @@ void Machine::replaceJMPAddresses(uint64_t startPosition, uint64_t offset)
         uint8_t *p = _memory.data() + c;
         OpCode opCode = (OpCode) *((OpCodeType*)p);
         auto shift = 0;
-        try {
-            shift = Assembler::instructionSize(opCode);
-        } catch (const std::out_of_range &e) {
-            if (*p == 'F') {
-                if (strncmp((char*)p, fnMarker, 4) == 0) {
-                    p += 4;
-                    c += 4;
-                    int32_t dataLen = *(int32_t*)p;
-                    p += dataLen;
-                    c += dataLen;
-                    continue;
-                }
+        if (*p == 'F') { // TODO: код повторяется
+            if (strncmp((char*)p, fnMarker, 4) == 0) {
+                p += 4;
+                c += 4;
+                int32_t dataLen = *(int32_t*)p;
+                c += dataLen;
+                continue;
             }
-            throw;
         }
+        shift = Assembler::instructionSize(opCode);
         switch (opCode) {
         case OpCode::IFFALSE_M:
         case OpCode::JMP_M:

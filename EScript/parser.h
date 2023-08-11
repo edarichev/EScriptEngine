@@ -173,8 +173,8 @@ private:
     void emitLoadFnArgs();
     void emitPush(); // для return
     void emitRet(); // для return
-    void emitEmptyReturn(std::shared_ptr<Symbol> &func);
-    void emitReturn(std::shared_ptr<Symbol> &func);
+    void emitEmptyReturn();
+    void emitReturn();
     void emitCall(std::shared_ptr<Symbol> &func, int nArgs, std::shared_ptr<Symbol> &resultVariable);
     void emitFnEnd();
     // работа с символами
