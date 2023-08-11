@@ -42,4 +42,14 @@ void FunctionDeclStatement_Test::test_functionDeclOnly()
     assert(record != nullptr);
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(12*12, record->data));
+
+    const u32string code3 = U"y = 5; function myFunc(x) { y = x*x; return y; }; z = myFunc(y);";
+    engine.eval(code3);
+    mainTable = engine.unit()->block()->symbolTable();
+    z = mainTable->find(U"z");
+    assert(z != nullptr);
+    record = engine.getObjectRecord(z);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(25, record->data));
 }

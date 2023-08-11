@@ -137,9 +137,38 @@ void Processor::ldargs()
         case SymbolType::Integer:
             rec = _storage->installRecord(nullptr);
             rec->type = SymbolType::Integer;
-            rec->data = bit_cast<int64_t>(arg.second);
+            rec->data = arg.second;
             *ptr = bit_cast<uint64_t>(rec);
             break;
+        case SymbolType::Real:
+            rec = _storage->installRecord(nullptr);
+            rec->type = SymbolType::Real;
+            rec->data = arg.second;
+            *ptr = bit_cast<uint64_t>(rec);
+            break;
+        case SymbolType::Boolean:
+            rec = _storage->installRecord(nullptr);
+            rec->type = SymbolType::Boolean;
+            rec->data = arg.second;
+            *ptr = bit_cast<uint64_t>(rec);
+            break;
+        case SymbolType::Variable: {
+            auto refRec = (ObjectRecord*)arg.second;
+            // для простых типов делаем прстое копирование
+            switch (refRec->type) {
+            case SymbolType::Integer:
+            case SymbolType::Boolean:
+            case SymbolType::Real:
+                rec = _storage->installRecord(nullptr);
+                rec->type = refRec->type;
+                rec->data = refRec->data;
+                *ptr = bit_cast<uint64_t>(rec);
+                break;
+            default:
+                throw std::domain_error("Not supported (parameter type)");
+            }
+            break;
+        }
         default:
             throw std::domain_error("type not impl.");
         }
