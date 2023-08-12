@@ -46,7 +46,7 @@ private:
     std::stack<std::shared_ptr<Symbol> > _returnStack;
     std::stack<OperandRecord> _values;
     // стек для типа обнаруженного символа
-    std::stack<SymbolType> _types;
+    //std::stack<SymbolType> _types;
 public:
     /**
      * @brief Создаёт новый экземпляр класса Parser
@@ -180,8 +180,8 @@ private:
     void pushVariable(std::shared_ptr<Symbol> &variable);
     void pushVariable(Symbol *variable);
     void pushFunction(std::shared_ptr<Symbol> &func);
-    std::pair<SymbolType, OperandRecord> popStackValue();
-    std::pair<SymbolType, OperandRecord> stackValue();
+    OperandRecord popStackValue();
+    OperandRecord stackValue();
     void pushBack(Token t, const std::u32string &str);
     void pushBack(Token t, std::u32string &&str);
     IntType popInt();

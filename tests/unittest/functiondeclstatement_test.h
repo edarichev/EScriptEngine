@@ -10,6 +10,7 @@ private:
     void initTestCase();
     void cleanupTestCase();
     void test_functionDeclOnly();
+    void test_functionCall();
 };
 
 #endif // FUNCTIONDECLSTATEMENT_TEST_H

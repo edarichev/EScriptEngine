@@ -28,13 +28,12 @@ public:
     ICodeEmitter(std::vector<TCode> &buffer);
     void binaryOp(OperationType operationType,
                   Symbol *resultVariable,
-                  SymbolType operand1Type, const OperandRecord &operand1,
-                  SymbolType operand2Type, const OperandRecord &operand2);
-    void assign(Symbol *lvalue, SymbolType rvalueType,
-                const OperandRecord &operand1);
+                  const OperandRecord &operand1,
+                  const OperandRecord &operand2);
+    void assign(Symbol *lvalue, const OperandRecord &operand1);
     void unaryOp(OperationType operationType,
                  Symbol *resultVariable,
-                 SymbolType operand1Type, const OperandRecord &operand1);
+                 const OperandRecord &operand1);
     void iffalse(Symbol *variableToTest, int exitOrFalseLabelId);
     void goToLabel(int labelId);
     void label(int labelId);
@@ -43,12 +42,12 @@ public:
     void fnLoadArgs();
     void fnEnd();
     void fnArg(std::shared_ptr<Symbol> &argument);
-    void ret(std::shared_ptr<Symbol> &func);
-    void emptyReturn(std::shared_ptr<Symbol> &func);
+    void fnReturn(std::shared_ptr<Symbol> &func);
+    void fnEmptyReturn(std::shared_ptr<Symbol> &func);
     void call(std::shared_ptr<Symbol> &func, int nArgs, std::shared_ptr<Symbol> &resultVariable);
     void startBlock(std::shared_ptr<Block> &block);
     void endBlock(std::shared_ptr<Block> &block);
-    void push(std::pair<SymbolType, OperandRecord> &value);
+    void push(const OperandRecord &value);
     void push(int64_t intValue);
     void pop(std::shared_ptr<Symbol> &resultVariable);
     void switchToTempBuffer();

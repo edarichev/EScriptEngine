@@ -24,6 +24,7 @@ enum class SymbolType : uint8_t
      * Вспомогательный тип, он нужен только в таблице символов
      */
     Variable,
+    Block,
 };
 
 using IntType = long;

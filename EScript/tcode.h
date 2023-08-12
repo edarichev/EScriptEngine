@@ -6,12 +6,10 @@
 #define ESCRIPT_OPCODE_H
 
 #include "EScript_global.h"
-#include "types.h"
+#include "operandrecord.h"
 
 namespace escript {
 
-class Symbol;
-class Block;
 
 /**
  * @brief Тип трёхадресной операции
@@ -46,16 +44,6 @@ enum class OperationType
     BlockEnd,       // op1==Block*
 };
 
-union OperandRecord
-{
-    IntType intValue;
-    RealType realValue;
-    bool boolValue;
-    Symbol *variable;
-    Symbol *function;
-    Block *block;
-};
-
 /**
  * @brief Инструкция трёхадресного кода
  */
@@ -64,13 +52,9 @@ struct ESCRIPT_EXPORT TCode
 public:
     OperationType operation = OperationType::None;
     Symbol *lvalue = nullptr;
-    SymbolType operand1Type = SymbolType::Undefined;
-    SymbolType operand2Type = SymbolType::Undefined;
     OperandRecord operand1 {};
     OperandRecord operand2 {};
     std::string toString() const;
-private:
-    std::string operandToString(SymbolType operandType, OperandRecord op) const;
 };
 
 } // namespace escript

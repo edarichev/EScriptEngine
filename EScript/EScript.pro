@@ -20,6 +20,7 @@ SOURCES += \
     lexer.cpp \
     machine.cpp \
     objectrecord.cpp \
+    operandrecord.cpp \
     parser.cpp \
     processor.cpp \
     pvalue.cpp \
@@ -44,6 +45,7 @@ HEADERS += \
     machine.h \
     objectrecord.h \
     opcode.h \
+    operandrecord.h \
     parser.h \
     processor.h \
     pvalue.h \

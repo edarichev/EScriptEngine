@@ -133,44 +133,18 @@ std::string TCode::toString() const
         result.append(opSign).append(" ");
     }
     if (numberOfOperands > 0) {
-        result.append(operandToString(operand1Type, operand1));
+        result.append(operand1.toString());
         if (numberOfOperands > 1) {
             result.push_back(' ');
             result.append(op);
             result.push_back(' ');
-            result.append(operandToString(operand2Type, operand2));
+            result.append(operand2.toString());
         }
     }
     return result;
 }
 
-std::string TCode::operandToString(SymbolType operandType, OperandRecord op) const
-{
-    std::string opStr;
-    switch (operandType) {
-    case SymbolType::Integer:
-        opStr = std::to_string(op.intValue);
-        break;
-    case SymbolType::Real:
-        opStr = std::to_string(op.realValue);
-        break;
-    case SymbolType::Variable:
-        opStr = op.variable->utf8Name();
-        break;
-    case SymbolType::Boolean:
-        opStr = op.boolValue ? "true" : "false";
-        break;
-    case SymbolType::Function:
-        opStr = "function";
-        break;
-    case SymbolType::Undefined:
-        opStr = "undefined";
-        break;
-    default:
-        throw std::domain_error("Unsupported SymbolType");
-    }
-    return opStr;
-}
+
 
 
 

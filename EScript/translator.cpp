@@ -330,8 +330,8 @@ void Translator::binaryOp(const TCode &c)
     if (tryCalcBinaryOp(c))
         return;
     Assembler &a = as();
-    emit_ldc(c.operand1Type, c.operand1);
-    emit_ldc(c.operand2Type, c.operand2);
+    emit_ldc(c.operand1.type, c.operand1);
+    emit_ldc(c.operand2.type, c.operand2);
 
     // действие над элементами
     switch (c.operation) {
@@ -372,7 +372,7 @@ void Translator::binaryOp(const TCode &c)
 void Translator::opUMinus(const TCode &c)
 {
     Assembler &a = as();
-    switch (c.operand1Type) {
+    switch (c.operand1.type) {
     case SymbolType::Integer:
         a.ldc_int64_data64(c.operand1.intValue);
         break;
@@ -389,7 +389,7 @@ void Translator::opUMinus(const TCode &c)
 void Translator::opAssign(const TCode &c)
 {
     Assembler &a = as();
-    switch (c.operand1Type) {
+    switch (c.operand1.type) {
     case SymbolType::Integer:
         a.ldc_int64_data64(c.operand1.intValue);
         break;
@@ -429,14 +429,14 @@ void Translator::opIfFalse(const TCode &c)
 {
     Assembler &a = as();
     // пусть ругается - остальные типы оптимизировать
-    assert(c.operand1Type == SymbolType::Variable);
-    emit_ldc(c.operand1Type, c.operand1);
+    assert(c.operand1.type == SymbolType::Variable);
+    emit_ldc(c.operand1.type, c.operand1);
     a.iffalse_m(c.operand2.intValue); // номер метки
 }
 
 void Translator::opPush(const TCode &c)
 {
-    emit_ldc(c.operand1Type, c.operand1);
+    emit_ldc(c.operand1.type, c.operand1);
 }
 
 void Translator::opPop(const TCode &c)
@@ -499,7 +499,7 @@ bool Translator::tryCalcBinaryOp(const TCode &c)
     Assembler &a = as();
     // во второй части чаще переменные, поэтому сначала проверим второй операнд
     PValue value1, value2;
-    switch (c.operand2Type) {
+    switch (c.operand2.type) {
     case SymbolType::Integer:
         value2 = c.operand2.intValue;
         break;
@@ -512,7 +512,7 @@ bool Translator::tryCalcBinaryOp(const TCode &c)
     default:
         return false;
     }
-    switch (c.operand1Type) {
+    switch (c.operand1.type) {
     case SymbolType::Integer:
         value1 = c.operand1.intValue;
         break;

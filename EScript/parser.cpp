@@ -636,7 +636,7 @@ const u32string &Parser::tokenText() const
 
 void Parser::emitIfFalseHeader(int exitOrFalseLabelId)
 {
-    auto valueType = _types.top();
+    auto valueType = _values.top().type;
     // зависит от того, что тут есть
     // если значение можно вычислить сейчас, то ветку false/true
     // можно выбросить и обойтись без ветвления
@@ -682,9 +682,7 @@ void Parser::emitBinaryOp(OperationType opType)
         auto opRecord2 = popStackValue();
         auto opRecord1 = popStackValue();
         std::shared_ptr<Symbol> tmp = currentSymbolTable()->addTemp();
-        _emitter->binaryOp(opType, tmp.get(),
-                           opRecord1.first, opRecord1.second,
-                           opRecord2.first, opRecord2.second);
+        _emitter->binaryOp(opType, tmp.get(), opRecord1, opRecord2);
         pushVariable(tmp);
         break;
     }
@@ -708,7 +706,7 @@ void Parser::emitUnaryOp(OperationType opType)
     // смотря что положили
     IntType lastInt;
     RealType lastReal;
-    switch (_types.top()) {
+    switch (_values.top().type) {
     case SymbolType::Integer:
         lastInt = popInt();
         // не нужно тут никакого кода, сразу выполняем действие
@@ -736,8 +734,7 @@ void Parser::emitUnaryOp(OperationType opType)
     case SymbolType::Variable: {
         Symbol *symbol = _values.top().variable;
         auto opRecord1 = popStackValue();
-        _emitter->unaryOp(opType, opRecord1.second.variable,
-                           opRecord1.first, opRecord1.second);
+        _emitter->unaryOp(opType, opRecord1.variable, opRecord1);
         pushVariable(symbol); // ту же самую
         break;
     }
@@ -751,7 +748,7 @@ void Parser::emitAssign(Symbol *lvalue)
 {
     // после Expression всегда что-то есть в стеке
     auto rec = popStackValue();
-    _emitter->assign(lvalue, rec.first, rec.second);
+    _emitter->assign(lvalue, rec);
 }
 
 void Parser::emitFnStart(std::shared_ptr<Symbol> &func)
@@ -798,7 +795,7 @@ void Parser::emitReturn()
     // в стеке должен быть результат
     auto top = popStackValue();
     _emitter->push(top);
-    _emitter->ret(_returnStack.top());
+    _emitter->fnReturn(_returnStack.top());
 }
 
 void Parser::emitCall(std::shared_ptr<Symbol> &func, int nArgs,
@@ -834,26 +831,17 @@ std::shared_ptr<SymbolTable> Parser::currentSymbolTable()
 
 void Parser::pushInt(IntType value)
 {
-    OperandRecord rec;
-    rec.intValue = value;
-    _values.push(rec);
-    _types.push(SymbolType::Integer);
+    _values.emplace(value);
 }
 
 void Parser::pushReal(RealType value)
 {
-    OperandRecord rec;
-    rec.realValue = value;
-    _values.push(rec);
-    _types.push(SymbolType::Real);
+    _values.emplace(value);
 }
 
 void Parser::pushBoolean(bool value)
 {
-    OperandRecord rec;
-    rec.boolValue = value;
-    _values.push(rec);
-    _types.push(SymbolType::Boolean);
+    _values.emplace(value);
 }
 
 void Parser::pushVariable(std::shared_ptr<Symbol> &variable)
@@ -863,25 +851,18 @@ void Parser::pushVariable(std::shared_ptr<Symbol> &variable)
 
 void Parser::pushVariable(Symbol *variable)
 {
-    OperandRecord rec;
-    rec.variable = variable;
-    _values.push(rec);
-    _types.push(SymbolType::Variable);
+    _values.emplace(variable, SymbolType::Variable);
 }
 
 void Parser::pushFunction(std::shared_ptr<Symbol> &func)
 {
-    OperandRecord rec;
-    rec.function = func.get();
-    _values.push(rec);
-    _types.push(SymbolType::Function);
+    _values.emplace(func.get(), SymbolType::Function);
 }
 
 IntType Parser::popInt()
 {
     IntType lastInt = _values.top().intValue;
     _values.pop();
-    _types.pop();
     return lastInt;
 }
 
@@ -889,7 +870,6 @@ IntType Parser::popReal()
 {
     RealType lastInt = _values.top().realValue;
     _values.pop();
-    _types.pop();
     return lastInt;
 }
 
@@ -930,39 +910,16 @@ void Parser::popJumpLabels()
 }
 
 
-std::pair<SymbolType, OperandRecord> Parser::popStackValue()
+OperandRecord Parser::popStackValue()
 {
-    std::pair<SymbolType, OperandRecord> rec = stackValue();
-    _types.pop();
+    OperandRecord rec = stackValue();
     _values.pop();
     return rec;
 }
 
-std::pair<SymbolType, OperandRecord> Parser::stackValue()
+OperandRecord Parser::stackValue()
 {
-    std::pair<SymbolType, OperandRecord> rec;
-    auto valueType = _types.top();
-    rec.first = valueType;
-    switch (valueType) {
-    case SymbolType::Variable:
-        rec.second.variable = _values.top().variable;
-        break;
-    case SymbolType::Integer:
-        rec.second.intValue = _values.top().intValue;
-        break;
-    case SymbolType::Real:
-        rec.second.realValue = _values.top().realValue;
-        break;
-    case SymbolType::Boolean:
-        rec.second.boolValue = _values.top().boolValue;
-        break;
-    case SymbolType::Function:
-        rec.second.function = _values.top().function;
-        break;
-    default:
-        throw std::domain_error("Unsupported SymbolType");
-    }
-    return rec;
+    return _values.top();
 }
 
 /////////////////////// обработка ошибок //////////////////////////////////////

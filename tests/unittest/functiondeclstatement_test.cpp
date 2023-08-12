@@ -53,3 +53,19 @@ void FunctionDeclStatement_Test::test_functionDeclOnly()
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(25, record->data));
 }
+
+void FunctionDeclStatement_Test::test_functionCall()
+{
+    const u32string code1 =
+U"y = 0;"
+"function fn1(x) { return x + 2; } function myFunc(x) { y = x*x; }; z=myFunc(fn1(12));";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto z = mainTable->find(U"z");
+    assert(z != nullptr);
+    auto record = engine.getObjectRecord(z);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(196, record->data));
+}

@@ -66,6 +66,7 @@ decltype(auto) calcValues(T1 v1, T2 v2, ArithmeticOperation op)
 
 /**
  * @brief Структура для упаковки тип+значение (как variant)
+ * (для процессора, P - processor)
  */
 struct PValue
 {
