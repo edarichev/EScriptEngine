@@ -43,6 +43,7 @@ public:
      */
     void clear();
     ObjectRecord *getObjectRecord(std::shared_ptr<Symbol> symbol);
+    std::u32string getUString(int index);
 };
 
 } // namespace escript

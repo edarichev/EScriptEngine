@@ -5,15 +5,15 @@
 #include "stdafx.h"
 #include "parser.h"
 #include "unit.h"
+#include "stringcontainer.h"
 
 using namespace std;
 
 namespace escript {
 
-Parser::Parser(std::shared_ptr<Unit> &unit,
-               std::shared_ptr<Block> &block,
+Parser::Parser(std::shared_ptr<Block> &block, StringContainer &strContainer,
                std::vector<TCode> &outBuffer)
-    : _unit(unit), _rootBlock(block), _currentBlock(block)
+    : _rootBlock(block), _currentBlock(block), _strings(strContainer)
 {
     _emitter = std::make_unique<ICodeEmitter>(outBuffer);
 }
@@ -356,7 +356,10 @@ void Parser::Expression()
     }
     case Token::Function:
         FunctionDeclExpression();
-        break;
+        return;
+    case Token::LeftBracket:
+        ArrayDeclExpression();
+        return;
     default:
         break;
     }
@@ -502,11 +505,19 @@ void Parser::Factor()
         // это правая часть, здесь - только ранее объявленный id
         auto idText = tokenText();
         next();
-        if (lookahead() == Token::LeftParenth) {
+        switch (lookahead()) {
+        case Token::LeftParenth:
             // это вызов функции
             pushBack(Token::Identifier, idText);
             FunctionCallExpression();
             return;
+        case Token::LeftBracket:
+            // обращение к элементу массива
+            pushBack(Token::Identifier, idText);
+            ArrayItemRefExpression();
+            return;
+        default:
+            break; // просто идентификатор
         }
         symbol = currentSymbolTable()->find(idText);
         if (!symbol)
@@ -528,6 +539,10 @@ void Parser::Factor()
         break;
     case Token::False:
         pushBoolean(false);
+        next();
+        break;
+    case Token::QuotedString:
+        pushString(_lexer->tokenText());
         next();
         break;
     default: // ошибка, нужен терминал в виде числа, идентификатора и т.п.
@@ -595,6 +610,38 @@ void Parser::ReturnStatement()
     }
     Expression();
     emitReturn();
+}
+
+void Parser::ArrayDeclExpression()
+{
+    match(Token::LeftBracket);
+    if (lookahead() == Token::RightBracket) {
+        // пустой массив
+        next();
+        return;
+    }
+    ArrayDeclItems();
+    match(Token::RightBracket);
+}
+
+void Parser::ArrayDeclItems()
+{
+    do {
+        if (lookahead() == Token::RightBracket)
+            return;
+        Expression();
+        if (lookahead() == Token::RightBracket)
+            return;
+        match(Token::Comma);
+    } while (lookahead() != Token::Eof);
+}
+
+void Parser::ArrayItemRefExpression()
+{
+    match(Token::Identifier);
+    match(Token::LeftBracket);
+    Expression();
+    match(Token::RightBracket);
 }
 
 //////////////////////// перемещение по потоку  /////////////////////////////
@@ -859,6 +906,14 @@ void Parser::pushFunction(std::shared_ptr<Symbol> &func)
     _values.emplace(func.get(), SymbolType::Function);
 }
 
+void Parser::pushString(const std::u32string &s)
+{
+    Operand rec;
+    rec.type = SymbolType::String;
+    rec.stringIndex = _strings.add(s);
+    _values.push(rec);
+}
+
 IntType Parser::popInt()
 {
     IntType lastInt = _values.top().intValue;
@@ -910,14 +965,14 @@ void Parser::popJumpLabels()
 }
 
 
-OperandRecord Parser::popStackValue()
+Operand Parser::popStackValue()
 {
-    OperandRecord rec = stackValue();
+    Operand rec = stackValue();
     _values.pop();
     return rec;
 }
 
-OperandRecord Parser::stackValue()
+Operand Parser::stackValue()
 {
     return _values.top();
 }

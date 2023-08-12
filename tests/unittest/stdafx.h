@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <iostream>
-#include "escript.h"
+#include "escriptengine.h"
 #include "lexer.h"
 #include <cassert>
 #include <locale>

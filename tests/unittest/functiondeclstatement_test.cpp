@@ -7,6 +7,7 @@ void FunctionDeclStatement_Test::run()
 {
     initTestCase();
     test_functionDeclOnly();
+    test_functionCall();
     cleanupTestCase();
 }
 
@@ -58,7 +59,7 @@ void FunctionDeclStatement_Test::test_functionCall()
 {
     const u32string code1 =
 U"y = 0;"
-"function fn1(x) { return x + 2; } function myFunc(x) { y = x*x; }; z=myFunc(fn1(12));";
+"function fn1(x) { return x + 2; } function myFunc(x) { y = x*x; return y; }; z=myFunc(fn1(12));";
     EScript engine;
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();

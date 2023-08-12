@@ -8,6 +8,7 @@
 #include "EScript_global.h"
 #include <vector>
 #include "storage.h"
+#include "stringcontainer.h"
 #include "processor.h"
 
 namespace escript {
@@ -23,6 +24,8 @@ class ESCRIPT_EXPORT Machine
     std::vector<uint8_t> _memory;
     // хранилище объектов
     Storage _storage;
+    // хранилище строк
+    StringContainer _strings;
     // ЦП
     Processor _cpu;
 public:
@@ -35,6 +38,7 @@ public:
      */
     virtual ~Machine();
     const Storage &storage() const;
+    StringContainer &strings();
     /**
      * @brief Загружает в память объектный файл
      * @param block информация о блоке (таблицы символов и т.п.)

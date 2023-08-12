@@ -194,6 +194,14 @@ void Processor::call()
     setPC(addr);             // перейти к функции
 }
 
+void Processor::ldstring()
+{
+    next();
+    _itemType.push(SymbolType::String);
+    _stack.push(bit_cast<uint64_t>(*(uint64_t*)_p));
+    next(sizeof (uint64_t));
+}
+
 void Processor::binaryStackOp(OpCode opCode)
 {
     next();
@@ -370,6 +378,10 @@ void Processor::stloc_m()
     case SymbolType::Boolean:
         // в операнде находится указатель на запись в таблице символов
         setValue(ptrLValue, item.second ? true : false);
+        break;
+    case SymbolType::String:
+        ptrLValue->type = SymbolType::String;
+        ptrLValue->data = item.second;
         break;
     case SymbolType::Variable:
         // здесь находится указатель на запись в таблице объектов

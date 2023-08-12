@@ -19,6 +19,7 @@ class Unit;
 class SymbolTable;
 class Symbol;
 class Block;
+class StringContainer;
 
 /**
  * @brief Cинтаксический анализатор
@@ -27,10 +28,10 @@ class ESCRIPT_EXPORT Parser
 {
 private:
     std::unique_ptr<Lexer> _lexer;
-    std::shared_ptr<Unit> _unit;
     std::shared_ptr<Block> _rootBlock;
     std::shared_ptr<Block> _currentBlock;
     std::unique_ptr<ICodeEmitter> _emitter;
+    StringContainer &_strings;
     // типы лексем для возврата
     std::deque<Token> _tokensQueue;
     // тексты лексем для возврата
@@ -44,15 +45,15 @@ private:
     std::stack<int> _argumentsCountStack;
     // для return - функции, return - к ближайшей функции
     std::stack<std::shared_ptr<Symbol> > _returnStack;
-    std::stack<OperandRecord> _values;
+    std::stack<Operand> _values;
     // стек для типа обнаруженного символа
     //std::stack<SymbolType> _types;
 public:
     /**
      * @brief Создаёт новый экземпляр класса Parser
      */
-    Parser(std::shared_ptr<Unit> &unit,
-           std::shared_ptr<Block> &block,
+    Parser(std::shared_ptr<Block> &block,
+           StringContainer &strContainer,
            std::vector<TCode> &outBuffer);
     /**
      * @brief производит синтаксический разбор строки кода
@@ -97,6 +98,9 @@ private:
     void ArgumentList();
     void AnyStatement();
     void ReturnStatement();
+    void ArrayDeclExpression();
+    void ArrayDeclItems();
+    void ArrayItemRefExpression();
     // перемещение по потоку
 private:
     /**
@@ -180,8 +184,9 @@ private:
     void pushVariable(std::shared_ptr<Symbol> &variable);
     void pushVariable(Symbol *variable);
     void pushFunction(std::shared_ptr<Symbol> &func);
-    OperandRecord popStackValue();
-    OperandRecord stackValue();
+    void pushString(const std::u32string &s);
+    Operand popStackValue();
+    Operand stackValue();
     void pushBack(Token t, const std::u32string &str);
     void pushBack(Token t, std::u32string &&str);
     IntType popInt();

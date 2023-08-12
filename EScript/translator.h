@@ -125,7 +125,7 @@ private:
      * @param type тип аргумента
      * @param operand значение операнда
      */
-    void emit_ldc(SymbolType type, const OperandRecord &operand);
+    void emit_ldc(const Operand &operand);
     /**
      * @brief Пробует вычислить бинарную операцию, если это возможно.
      * @param c инструкция

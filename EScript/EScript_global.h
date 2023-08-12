@@ -19,6 +19,8 @@
 #endif
 
 #include <cstring>
+#include <codecvt>
+#include <locale>
 
 namespace escript {
 
@@ -49,6 +51,20 @@ bit_cast(const From& src) noexcept
  * Тип данных, равный размеру указателя
  */
 using PtrIntType = uint64_t;
+
+template<typename T = std::u32string>
+std::string to_utf8(const T &str)
+{
+    std::wstring_convert<std::codecvt_utf8<typename T::value_type>, typename T::value_type> convert;
+    return convert.to_bytes(str);
+}
+
+template<typename T = int64_t>
+std::string to_utf8(int64_t i)
+{
+    return std::to_string(i);
+}
+
 
 } // namespace escript
 

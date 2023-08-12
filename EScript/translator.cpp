@@ -330,8 +330,8 @@ void Translator::binaryOp(const TCode &c)
     if (tryCalcBinaryOp(c))
         return;
     Assembler &a = as();
-    emit_ldc(c.operand1.type, c.operand1);
-    emit_ldc(c.operand2.type, c.operand2);
+    emit_ldc(c.operand1);
+    emit_ldc(c.operand2);
 
     // действие над элементами
     switch (c.operation) {
@@ -402,6 +402,9 @@ void Translator::opAssign(const TCode &c)
     case SymbolType::Boolean:
         a.ldc_bool_data8(c.operand1.boolValue);
         break;
+    case SymbolType::String:
+        a.ldstring(c.operand1.stringIndex);
+        break;
     default:
         throw std::domain_error("Unsupported operand type for assign operation");
     }
@@ -430,13 +433,13 @@ void Translator::opIfFalse(const TCode &c)
     Assembler &a = as();
     // пусть ругается - остальные типы оптимизировать
     assert(c.operand1.type == SymbolType::Variable);
-    emit_ldc(c.operand1.type, c.operand1);
+    emit_ldc(c.operand1);
     a.iffalse_m(c.operand2.intValue); // номер метки
 }
 
 void Translator::opPush(const TCode &c)
 {
-    emit_ldc(c.operand1.type, c.operand1);
+    emit_ldc(c.operand1);
 }
 
 void Translator::opPop(const TCode &c)
@@ -473,10 +476,10 @@ void Translator::opCall(const TCode &c)
     a.call(c.operand1.function->location());
 }
 
-void Translator::emit_ldc(SymbolType type, const OperandRecord &operand)
+void Translator::emit_ldc(const Operand &operand)
 {
     Assembler &a = as();
-    switch (type) {
+    switch (operand.type) {
     case SymbolType::Integer:
         a.ldc_int64_data64(operand.intValue);
         break;

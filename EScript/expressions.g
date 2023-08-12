@@ -13,7 +13,7 @@ https://www.epaperpress.com/lexandyacc/if.html
 %token While Do For Break Continue Return
 %token Function
 %token LShift RelOp EqualityOp And Or
-%token NCO // ?? Nullish coalescing operator
+%token NCO // ?? - Nullish coalescing operator
 
 %nonassoc If
 %nonassoc Else
@@ -103,7 +103,16 @@ Variable : Identifier
 Expression : LogicalOrNCOExpression
            | AssignExpression
            | FunctionDeclExpression
+           | ArrayDeclExpression
            ;
+
+ArrayDeclExpression : '[' ArrayDeclItems ']'
+                    ;
+
+ArrayDeclItems : Expression
+               | Expression ',' ArrayDeclItems
+               ;
+
 
 // Nullish coalescing operator
 LogicalOrNCOExpression : LogicalOrOrAndExpression
@@ -158,7 +167,11 @@ Factor : Identifier
        | RealNumber
        | '-' Factor
        | '+' Factor
+       | ArrayItemRefExpression
        ;
+
+ArrayItemRefExpression : Identifier '[' Expression ']'
+                       ;
 
 FunctionCallExpression : Identifier '(' ArgumentList ')'
                        | Identifier '(' ')'

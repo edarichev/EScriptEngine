@@ -11,7 +11,9 @@ CONFIG += PRECOMPILE_HEADER
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    array.cpp \
     assembler.cpp \
+    automationobject.cpp \
     block.cpp \
     escript.cpp \
     function.cpp \
@@ -20,12 +22,13 @@ SOURCES += \
     lexer.cpp \
     machine.cpp \
     objectrecord.cpp \
-    operandrecord.cpp \
+    operand.cpp \
     parser.cpp \
     processor.cpp \
     pvalue.cpp \
     stdafx.cpp \
     storage.cpp \
+    stringcontainer.cpp \
     symbol.cpp \
     symboltable.cpp \
     tcode.cpp \
@@ -35,9 +38,12 @@ SOURCES += \
 
 HEADERS += \
     EScript_global.h \
+    array.h \
     assembler.h \
+    automationobject.h \
     block.h \
     escript.h \
+    escriptengine.h \
     function.h \
     icodeemitter.h \
     keyword.h \
@@ -45,12 +51,13 @@ HEADERS += \
     machine.h \
     objectrecord.h \
     opcode.h \
-    operandrecord.h \
+    operand.h \
     parser.h \
     processor.h \
     pvalue.h \
     stdafx.h \
     storage.h \
+    stringcontainer.h \
     symbol.h \
     symboltable.h \
     tcode.h \

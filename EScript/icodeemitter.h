@@ -28,12 +28,12 @@ public:
     ICodeEmitter(std::vector<TCode> &buffer);
     void binaryOp(OperationType operationType,
                   Symbol *resultVariable,
-                  const OperandRecord &operand1,
-                  const OperandRecord &operand2);
-    void assign(Symbol *lvalue, const OperandRecord &operand1);
+                  const Operand &operand1,
+                  const Operand &operand2);
+    void assign(Symbol *lvalue, const Operand &operand1);
     void unaryOp(OperationType operationType,
                  Symbol *resultVariable,
-                 const OperandRecord &operand1);
+                 const Operand &operand1);
     void iffalse(Symbol *variableToTest, int exitOrFalseLabelId);
     void goToLabel(int labelId);
     void label(int labelId);
@@ -47,7 +47,7 @@ public:
     void call(std::shared_ptr<Symbol> &func, int nArgs, std::shared_ptr<Symbol> &resultVariable);
     void startBlock(std::shared_ptr<Block> &block);
     void endBlock(std::shared_ptr<Block> &block);
-    void push(const OperandRecord &value);
+    void push(const Operand &value);
     void push(int64_t intValue);
     void pop(std::shared_ptr<Symbol> &resultVariable);
     void switchToTempBuffer();

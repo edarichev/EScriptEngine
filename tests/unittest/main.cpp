@@ -13,6 +13,8 @@
 #include "forstatement_test.h"
 #include "dowhilestatement_test.h"
 #include "functiondeclstatement_test.h"
+#include "array_test.h"
+#include "string_test.h"
 
 
 using namespace std;
@@ -32,6 +34,8 @@ int main()
     WhileStatement_Test().run();
     ForStatement_Test().run();
     FunctionDeclStatement_Test().run();
+    //Array_Test().run();
+    String_Test().run();
     cout << "Tests OK" << endl;
     return 0;
 }

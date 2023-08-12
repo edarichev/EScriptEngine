@@ -8,6 +8,7 @@
 #include "EScript_global.h"
 #include "types.h"
 #include "storage.h"
+#include "array.h"
 
 namespace escript {
 

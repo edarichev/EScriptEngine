@@ -25,6 +25,11 @@ const Storage &Machine::storage() const
     return _storage;
 }
 
+StringContainer &Machine::strings()
+{
+    return _strings;
+}
+
 void Machine::load([[maybe_unused]] std::shared_ptr<Block> block,
                    const std::vector<uint8_t> &objectFile)
 {

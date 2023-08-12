@@ -18,8 +18,8 @@ ICodeEmitter::ICodeEmitter(std::vector<TCode> &buffer)
 
 void ICodeEmitter::binaryOp(OperationType operationType,
                             Symbol *resultVariable,
-                            const OperandRecord &operand1,
-                            const OperandRecord &operand2)
+                            const Operand &operand1,
+                            const Operand &operand2)
 {
     switch (operationType) {
     case OperationType::Multiply:
@@ -44,7 +44,7 @@ void ICodeEmitter::binaryOp(OperationType operationType,
 }
 
 void ICodeEmitter::assign(Symbol *lvalue,
-                          const OperandRecord &operand1)
+                          const Operand &operand1)
 {
     TCode code;
     code.lvalue = lvalue;
@@ -53,7 +53,7 @@ void ICodeEmitter::assign(Symbol *lvalue,
     _buffer->push_back(code);
 }
 
-void ICodeEmitter::unaryOp(OperationType operationType, Symbol *resultVariable, const OperandRecord &operand1)
+void ICodeEmitter::unaryOp(OperationType operationType, Symbol *resultVariable, const Operand &operand1)
 {
     switch (operationType) {
     case OperationType::UMinus:
@@ -202,7 +202,7 @@ void ICodeEmitter::endBlock(std::shared_ptr<Block> &block)
     _buffer->push_back(code);
 }
 
-void ICodeEmitter::push(const OperandRecord &value)
+void ICodeEmitter::push(const Operand &value)
 {
     TCode code;
     code.operation = OperationType::Push;

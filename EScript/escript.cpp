@@ -36,11 +36,16 @@ ObjectRecord *EScript::getObjectRecord(std::shared_ptr<Symbol> symbol)
     return r;
 }
 
+std::u32string EScript::getUString(int index)
+{
+    return _machine.strings().get(index);
+}
+
 void EScript::eval(const std::u32string &strCode)
 {
     std::vector<TCode> buffer;
     auto newBlock = _unit->block()->addBlock();
-    Parser parser(_unit, newBlock, buffer);
+    Parser parser(newBlock, _machine.strings(), buffer);
     parser.parse(strCode);
     // оптимизатор промежуточного кода будет находиться здесь
     std::vector<uint8_t> objectFile;

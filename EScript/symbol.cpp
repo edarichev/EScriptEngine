@@ -42,8 +42,7 @@ const std::u32string &Symbol::name() const
 
 const std::string Symbol::utf8Name() const
 {
-    std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convert;
-    return convert.to_bytes(_name);
+    return to_utf8(_name);
 }
 
 SymbolType Symbol::type() const

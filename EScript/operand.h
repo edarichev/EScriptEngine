@@ -9,7 +9,7 @@ namespace escript {
 class Symbol;
 class Block;
 
-struct ESCRIPT_EXPORT OperandRecord
+struct ESCRIPT_EXPORT Operand
 {
     SymbolType type = SymbolType::Undefined;
     union {
@@ -19,12 +19,13 @@ struct ESCRIPT_EXPORT OperandRecord
         Symbol *variable;
         Symbol *function;
         Block *block;
+        int stringIndex;
     };
-    OperandRecord();
-    explicit OperandRecord(IntType value);
-    explicit OperandRecord(RealType value);
-    explicit OperandRecord(bool value);
-    explicit OperandRecord(Symbol *symbol, SymbolType stype);
+    Operand();
+    explicit Operand(IntType value);
+    explicit Operand(RealType value);
+    explicit Operand(bool value);
+    explicit Operand(Symbol *symbol, SymbolType stype);
     std::string toString() const;
 };
 

@@ -1,30 +1,30 @@
 #include "stdafx.h"
-#include "operandrecord.h"
+#include "operand.h"
 #include "symbol.h"
 
 namespace escript {
 
-OperandRecord::OperandRecord(){}
+Operand::Operand(){}
 
-OperandRecord::OperandRecord(IntType value)
+Operand::Operand(IntType value)
 {
     intValue = value;
     type = SymbolType::Integer;
 }
 
-OperandRecord::OperandRecord(RealType value)
+Operand::Operand(RealType value)
 {
     realValue = value;
     type = SymbolType::Real;
 }
 
-OperandRecord::OperandRecord(bool value)
+Operand::Operand(bool value)
 {
     boolValue = value;
     type = SymbolType::Boolean;
 }
 
-OperandRecord::OperandRecord(Symbol *symbol, SymbolType stype)
+Operand::Operand(Symbol *symbol, SymbolType stype)
 {
     switch (stype) {
     case SymbolType::Function:
@@ -40,7 +40,7 @@ OperandRecord::OperandRecord(Symbol *symbol, SymbolType stype)
     }
 }
 
-std::string OperandRecord::toString() const
+std::string Operand::toString() const
 {
     std::string opStr;
     switch (type) {
@@ -61,6 +61,9 @@ std::string OperandRecord::toString() const
         break;
     case SymbolType::Undefined:
         opStr = "undefined";
+        break;
+    case SymbolType::String:
+        opStr = "string";
         break;
     default:
         throw std::domain_error("Unsupported SymbolType");

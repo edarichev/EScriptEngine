@@ -6,7 +6,7 @@
 #define ESCRIPT_OPCODE_H
 
 #include "EScript_global.h"
-#include "operandrecord.h"
+#include "operand.h"
 
 namespace escript {
 
@@ -52,8 +52,8 @@ struct ESCRIPT_EXPORT TCode
 public:
     OperationType operation = OperationType::None;
     Symbol *lvalue = nullptr;
-    OperandRecord operand1 {};
-    OperandRecord operand2 {};
+    Operand operand1 {};
+    Operand operand2 {};
     std::string toString() const;
 };
 
