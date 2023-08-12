@@ -6,6 +6,7 @@
 #include "parser.h"
 #include "unit.h"
 #include "stringcontainer.h"
+#include "automationobject.h"
 
 using namespace std;
 
@@ -910,7 +911,7 @@ void Parser::pushString(const std::u32string &s)
 {
     Operand rec;
     rec.type = SymbolType::String;
-    rec.stringIndex = _strings.add(s);
+    rec.strValue = _strings.add(s);
     _values.push(rec);
 }
 

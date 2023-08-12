@@ -10,6 +10,7 @@ private:
     void initTestCase();
     void cleanupTestCase();
     void test_stringLiteral();
+    void test_stringPlus();
 };
 
 #endif // STRING_TEST_H

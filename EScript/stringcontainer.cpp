@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "stringcontainer.h"
+#include "automationobject.h"
 
 namespace escript {
 
@@ -10,18 +11,21 @@ StringContainer::StringContainer()
 
 StringContainer::~StringContainer()
 {
-
+    for (auto &c : _strings) {
+        delete c;
+    }
 }
 
-const std::u32string &StringContainer::get(int index) const
+StringObject *StringContainer::add(const std::u32string &s)
 {
-    return _strings[index];
+    _strings.push_back(new StringObject(s));
+    return _strings.back();
 }
 
-size_t StringContainer::add(std::u32string s)
+StringObject *StringContainer::add(StringObject *s)
 {
-    _strings.push_back(std::move(s));
-    return _strings.size() - 1;
+    _strings.push_back(s);
+    return s;
 }
 
 

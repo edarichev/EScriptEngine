@@ -30,6 +30,7 @@ enum class ArithmeticOperation : uint8_t
 };
 
 struct PValue;
+class StringObject;
 
 bool operator<(const PValue &v1, const PValue &v2);
 bool operator<=(const PValue &v1, const PValue &v2);
@@ -76,73 +77,19 @@ struct PValue
         int64_t intValue { 0 };
         double realValue;
         bool boolValue;
+        StringObject *strValue;
     };
-    PValue()
-    {
-
-    }
-    PValue(const PValue &rhs)
-    {
-        operator=(rhs);
-    }
-    explicit PValue(int64_t rhs)
-    {
-        operator=(rhs);
-    }
-    explicit PValue(int rhs)
-    {
-        operator=(rhs);
-    }
-    explicit PValue(bool rhs)
-    {
-        operator=((bool)rhs);
-    }
-    explicit PValue(double rhs)
-    {
-        operator=(rhs);
-    }
-    PValue &operator=(const PValue &rhs)
-    {
-        type = rhs.type;
-        switch (type) {
-        case SymbolType::Boolean:
-            boolValue = rhs.boolValue;
-            break;
-        case SymbolType::Integer:
-            intValue = rhs.intValue;
-            break;
-        case SymbolType::Real:
-            realValue = rhs.realValue;
-            break;
-        default:
-            break;
-        }
-        return *this;
-    }
-    PValue &operator=(int64_t rhs)
-    {
-        type = SymbolType::Integer;
-        intValue = rhs;
-        return *this;
-    }
-    PValue &operator=(int rhs)
-    {
-        type = SymbolType::Integer;
-        intValue = rhs;
-        return *this;
-    }
-    PValue &operator=(bool rhs)
-    {
-        type = SymbolType::Boolean;
-        boolValue = rhs;
-        return *this;
-    }
-    PValue &operator=(double rhs)
-    {
-        type = SymbolType::Real;
-        realValue = rhs;
-        return *this;
-    }
+    PValue();
+    PValue(const PValue &rhs);
+    explicit PValue(int64_t rhs);
+    explicit PValue(int rhs);
+    explicit PValue(bool rhs);
+    explicit PValue(double rhs);
+    PValue &operator=(const PValue &rhs);
+    PValue &operator=(int64_t rhs);
+    PValue &operator=(int rhs);
+    PValue &operator=(bool rhs);
+    PValue &operator=(double rhs);
 
     PValue(PValue &&rhs) = default;
 
@@ -153,125 +100,19 @@ struct PValue
      *        то вернёт true.
      * @return
      */
-    bool asBoolean() const
-    {
-        switch (type) {
-        case SymbolType::Boolean:
-            return boolValue;
-        case SymbolType::Integer:
-            return (bool)intValue;
-        case SymbolType::Real:
-            return (bool)realValue;
-        default:
-            return false;
-        }
-    }
+    bool asBoolean() const;
     /**
      * @brief Возвращает значение как uint64_t
      * @return
      */
-    uint64_t value64() const
-    {
-        switch (type) {
-        case SymbolType::Integer:
-            return bit_cast<uint64_t>(intValue);
-        case SymbolType::Real:
-            return bit_cast<uint64_t>(realValue);
-        case SymbolType::Boolean:
-            return boolValue ? 1 : 0;
-        default:
-            throw std::domain_error("unsupproted type by PValue");
-        }
-    }
+    uint64_t value64() const;
 
-    static PValue getValue(ObjectRecord *ptr)
-    {
-        PValue val;
-        switch (ptr->type) {
-        case SymbolType::Integer:
-            val = bit_cast<int64_t>(ptr->data);
-            break;
-        case SymbolType::Real:
-            val = bit_cast<double>(ptr->data);
-            break;
-        case SymbolType::Boolean:
-            val = ptr->data ? true : false;
-            break;
-        default:
-            throw std::domain_error("Unsupported type: getValue");
-        }
-        return val;
-    }
+    static PValue getValue(ObjectRecord *ptr);
 
-    static PValue getValue(const std::pair<SymbolType, uint64_t> &item)
-    {
-        PValue val;
-        switch (item.first) {
-        // тип переменной
-        case SymbolType::Integer:
-            val = bit_cast<int64_t>(item.second);
-            break;
-        case SymbolType::Real:
-            val = bit_cast<double>(item.second);
-            break;
-        case SymbolType::Boolean:
-            val = item.second ? true : false;
-            break;
-        case SymbolType::Variable:
-            return getValue((ObjectRecord*)item.second);
-        default:
-            throw std::domain_error("Unsupported type: getValue(pair)");
-        }
-        return val;
-    }
+    static PValue getValue(const std::pair<SymbolType, uint64_t> &item);
 
     static PValue binaryOpValues(const PValue &value1, const PValue &value2,
-                                 ArithmeticOperation op)
-    {
-        // в арифметических действиях true/false рассматриваем как целые числа 1, 0
-        // и результат переводим в целое
-        switch (value1.type) {
-        case SymbolType::Integer:
-            switch (value2.type) {
-            case SymbolType::Integer:
-                return calcValues(value1.intValue, value2.intValue, op);
-            case SymbolType::Real:
-                return calcValues(value1.intValue, value2.realValue, op);
-            case SymbolType::Boolean:
-                return calcValues(value1.intValue, (IntType)(value2.boolValue ? 1 : 0), op);
-            default:
-                break;
-            }
-            break;
-        case SymbolType::Real:
-            switch (value2.type) {
-            case SymbolType::Integer:
-                return calcValues(value1.realValue, value2.intValue, op);
-            case SymbolType::Real:
-                return calcValues(value1.realValue, value2.realValue, op);
-            case SymbolType::Boolean:
-                return calcValues(value1.realValue, (RealType)(value2.boolValue ? 1 : 0), op);
-            default:
-                break;
-            }
-            break;
-        case SymbolType::Boolean:
-            switch (value2.type) {
-            case SymbolType::Integer:
-                return calcValues(value1.boolValue ? 1 : 0, value2.intValue, op);
-            case SymbolType::Real:
-                return calcValues(value1.boolValue ? 1.0 : 0.0, value2.realValue, op);
-            case SymbolType::Boolean:
-                return calcValues((IntType)value1.boolValue, (IntType)value2.boolValue, op);
-            default:
-                break;
-            }
-            break;
-        default:
-            break;
-        }
-        throw std::domain_error("Unsupported type");
-    }
+                                 ArithmeticOperation op);
 
     friend bool operator<(const PValue &v1, const PValue &v2);
 };

@@ -403,7 +403,7 @@ void Translator::opAssign(const TCode &c)
         a.ldc_bool_data8(c.operand1.boolValue);
         break;
     case SymbolType::String:
-        a.ldstring(c.operand1.stringIndex);
+        a.ldstring(bit_cast<uint64_t>(c.operand1.strValue));
         break;
     default:
         throw std::domain_error("Unsupported operand type for assign operation");
@@ -491,6 +491,9 @@ void Translator::emit_ldc(const Operand &operand)
         break;
     case SymbolType::Variable:
         a.ldloc_m(location(operand.variable));
+        break;
+    case SymbolType::String:
+        a.ldstring(bit_cast<uint64_t>(operand.strValue));
         break;
     default:
         throw std::domain_error("Unsupported type");

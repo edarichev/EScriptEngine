@@ -52,6 +52,7 @@ public:
         _memoryLimit = limit;
         _storage = storage;
     }
+    void setStrings(StringContainer *s) { _strings = s; }
     /**
      * @brief PC - Program Counter, счётчик команд, позиция, где находится
      *        команда, которая должна выполнятся следующей
@@ -237,6 +238,7 @@ private:
     void setValue(ObjectRecord *ptr, int64_t value);
     void setValue(ObjectRecord *ptr, double value);
     void setValue(ObjectRecord *ptr, bool value);
+    void setValue(ObjectRecord *ptr, StringObject *value);
 
     int64_t getIntValue(ObjectRecord *ptr);
     double getRealValue(ObjectRecord *ptr);

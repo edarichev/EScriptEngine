@@ -12,7 +12,7 @@ namespace escript {
 
 Machine::Machine()
 {
-
+    _cpu.setStrings(&_strings);
 }
 
 Machine::~Machine()

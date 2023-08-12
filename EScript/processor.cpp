@@ -212,6 +212,10 @@ void Processor::binaryStackOp(OpCode opCode)
     // это должно быть гарантировано, если это не так, пусть вылетит
     ArithmeticOperation op = optypes.find(opCode)->second;
     PValue result = PValue::binaryOpValues(value1, value2, op);
+    if (result.type == SymbolType::String) {
+        // это всегда новая строка, её нужно установить в таблицу строк
+        _strings->add(result.strValue);
+    }
     pushToStack(result.type, result.value64());
 }
 
@@ -314,6 +318,12 @@ void Processor::setValue(ObjectRecord *ptr, bool value)
     ptr->data = value ? 1 : 0;
 }
 
+void Processor::setValue(ObjectRecord *ptr, StringObject *value)
+{
+    ptr->type = SymbolType::String;
+    memcpy(&ptr->data, &value, sizeof(value));
+}
+
 int64_t Processor::getIntValue(ObjectRecord *ptr)
 { // можно bit_cast, но оставим как второй вариант, без лишнего вызова.
     int64_t v;
@@ -357,6 +367,7 @@ void Processor::stloc_m()
     int64_t iValue = 0;
     double dValue = 0;
     bool bValue = false;
+    StringObject *stringValue = nullptr;
     ptrLValue = readRecord(symbol);
     if (!ptrLValue) { // это lvalue, его нужно установить, если его ещё нет
         ptrLValue = installRecord(symbol);
@@ -400,6 +411,10 @@ void Processor::stloc_m()
         case SymbolType::Boolean:
             bValue = ptrRValue->data ? true : false;
             setValue(ptrLValue, bValue);
+            break;
+        case SymbolType::String:
+            stringValue = (StringObject*)ptrRValue->data;
+            setValue(ptrLValue, stringValue);
             break;
         default:
             throw std::domain_error("Unsupported type of variable :" + std::to_string((uint8_t)item.first));

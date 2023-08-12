@@ -36,11 +36,6 @@ ObjectRecord *EScript::getObjectRecord(std::shared_ptr<Symbol> symbol)
     return r;
 }
 
-std::u32string EScript::getUString(int index)
-{
-    return _machine.strings().get(index);
-}
-
 void EScript::eval(const std::u32string &strCode)
 {
     std::vector<TCode> buffer;

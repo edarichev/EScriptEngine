@@ -8,6 +8,7 @@ namespace escript {
 
 class Symbol;
 class Block;
+class StringObject;
 
 struct ESCRIPT_EXPORT Operand
 {
@@ -19,7 +20,7 @@ struct ESCRIPT_EXPORT Operand
         Symbol *variable;
         Symbol *function;
         Block *block;
-        int stringIndex;
+        StringObject *strValue;
     };
     Operand();
     explicit Operand(IntType value);

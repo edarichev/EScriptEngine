@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "operand.h"
 #include "symbol.h"
+#include "automationobject.h"
 
 namespace escript {
 
