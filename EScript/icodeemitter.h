@@ -56,10 +56,13 @@ public:
     void switchToMainBuffer();
     void writeTempBuffer();
     /**
-     * @brief Вызов свойства AutomationObject
-     * @param propName
+     * @brief Вызов метода AutomationObject
+     * @param leftVariable переменная у которой вызывается метод
+     * @param propName название метода или свойства (начинается с get_)
+     * @param resultVariable (временная) переменная, куда пометсить результат
+     * @param nArgs число аргементов (0 для свойства)
      */
-    void callAOProperty(std::shared_ptr<Symbol> &leftVariable, StringObject *propName, std::shared_ptr<Symbol> &resultVariable);
+    void callAOMethod(std::shared_ptr<Symbol> &leftVariable, StringObject *propName, std::shared_ptr<Symbol> &resultVariable, int nArgs);
 };
 
 } // namespace escript

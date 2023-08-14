@@ -173,9 +173,10 @@ private:
     void emitReturn();
     void emitCall(std::shared_ptr<Symbol> &func, int nArgs, std::shared_ptr<Symbol> &resultVariable);
     void emitFnEnd();
-    void emitCallProperty(std::shared_ptr<Symbol> &leftVariable,
+    void emitCallAOMethod(std::shared_ptr<Symbol> &leftVariable,
                           const std::u32string &propName,
-                          std::shared_ptr<Symbol> &resultVariable);
+                          std::shared_ptr<Symbol> &resultVariable,
+                          int nArgs);
     // работа с символами
 private:
     /**

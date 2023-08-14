@@ -259,12 +259,16 @@ void ICodeEmitter::writeTempBuffer()
     _tmpBuffer.clear();
 }
 
-void ICodeEmitter::callAOProperty(std::shared_ptr<Symbol> &leftVariable,
-        StringObject *propName,
-        std::shared_ptr<Symbol> &resultVariable)
+
+void ICodeEmitter::callAOMethod(std::shared_ptr<Symbol> &leftVariable,
+                                StringObject *propName,
+                                std::shared_ptr<Symbol> &resultVariable,
+                                int nArgs)
 {
+    // в стеке должны находиться аргументы, например,
+    // в результате применения правила ArgumentList
     // число операндов, д.б. == 0
-    push(0);
+    push(nArgs);
     // сверху - имя метода
     pushString(propName);
     // выше - сам объект

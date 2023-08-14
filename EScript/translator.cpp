@@ -479,7 +479,7 @@ void Translator::opCall(const TCode &c)
     a.call(c.operand1.function->location());
 }
 
-void Translator::opCallM(const TCode &c)
+void Translator::opCallM(const TCode &)
 {
     Assembler &a = as();
     a.callm();

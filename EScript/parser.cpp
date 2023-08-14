@@ -661,16 +661,22 @@ void Parser::DotOperation()
     match(Token::Dot);
     auto methodName = tokenText();
     match(Token::Identifier);
+    auto resultVariable = currentSymbolTable()->addTemp();
+    int nArgs = 0;
     if (lookahead() == Token::LeftParenth) {
         // это метод
         match(Token::LeftParenth);
+        _argumentsCountStack.push(0);
+        ArgumentList();
+        nArgs = _argumentsCountStack.top();
+        _argumentsCountStack.pop();
         match(Token::RightParenth);
     } else {
         // это свойство
-        auto resultVariable = currentSymbolTable()->addTemp();
-        emitCallProperty(symbol, U"get_" + methodName, resultVariable);
-        pushVariable(resultVariable);
+        methodName = U"get_" + methodName;
     }
+    emitCallAOMethod(symbol, methodName, resultVariable, nArgs);
+    pushVariable(resultVariable);
 }
 
 //////////////////////// перемещение по потоку  /////////////////////////////
@@ -885,13 +891,15 @@ void Parser::emitFnEnd()
     _emitter->fnEnd();
 }
 
-void Parser::emitCallProperty(
-        std::shared_ptr<Symbol> &leftVariable,
-        const std::u32string &propName,
-        std::shared_ptr<Symbol> &resultVariable)
+void Parser::emitCallAOMethod(std::shared_ptr<Symbol> &leftVariable,
+                              const std::u32string &propName,
+                              std::shared_ptr<Symbol> &resultVariable,
+                              int nArgs)
 {
-    _emitter->callAOProperty(leftVariable, _strings.add(propName),
-                             resultVariable);
+    // в стеке должны находиться аргументы, например,
+    // в результате применения правила ArgumentList
+    _emitter->callAOMethod(leftVariable, _strings.add(propName),
+                             resultVariable, nArgs);
 }
 
 

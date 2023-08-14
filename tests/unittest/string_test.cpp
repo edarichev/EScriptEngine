@@ -7,6 +7,7 @@ void String_Test::run()
     test_stringLiteral();
     test_stringPlus();
     test_stringLength();
+    test_stringAt();
     cleanupTestCase();
 }
 
@@ -48,7 +49,6 @@ void String_Test::test_stringPlus()
 
 void String_Test::test_stringLength()
 {
-    cout << "====\n";
     const u32string code1 = U"s = \"hello\"; i = s.length;";
     EScript engine;
     engine.eval(code1);
@@ -57,4 +57,16 @@ void String_Test::test_stringLength()
     auto record = engine.getObjectRecord(i);
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(5, record->data));
+}
+
+void String_Test::test_stringAt()
+{
+    const u32string code1 = U"s = \"hello\"; i = s.at(1);";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto i = mainTable->find(U"i");
+    auto record = engine.getObjectRecord(i);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64('e', record->data));
 }

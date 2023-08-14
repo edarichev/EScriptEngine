@@ -12,6 +12,7 @@ private:
     void test_stringLiteral();
     void test_stringPlus();
     void test_stringLength();
+    void test_stringAt();
 };
 
 #endif // STRING_TEST_H
