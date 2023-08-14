@@ -182,6 +182,9 @@ void Translator::translateOperation(const TCode &c)
     case OperationType::Pop:
         opPop(c);
         break;
+    case OperationType::CallM:
+        opCallM(c);
+        break;
     default:
         throw std::domain_error("Can not translate operation: " + c.toString());
     }
@@ -474,6 +477,12 @@ void Translator::opCall(const TCode &c)
 {
     Assembler &a = as();
     a.call(c.operand1.function->location());
+}
+
+void Translator::opCallM(const TCode &c)
+{
+    Assembler &a = as();
+    a.callm();
 }
 
 void Translator::emit_ldc(const Operand &operand)

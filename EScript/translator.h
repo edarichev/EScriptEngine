@@ -120,6 +120,7 @@ private:
     void opLdArgs(const TCode &c);
     void opRet(const TCode &c);
     void opCall(const TCode &c);
+    void opCallM(const TCode &c);
     /**
      * @brief Генерирует вывод команды ldc_*** в зависимотси от типа
      * @param type тип аргумента

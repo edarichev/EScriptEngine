@@ -168,7 +168,12 @@ Factor : Identifier
        | '-' Factor
        | '+' Factor
        | ArrayItemRefExpression
+       | Identifier DotOperation
        ;
+
+// правая часть операции обращения к функции-члену
+DotOperation : '.' Identifier '(' ')'
+             ;
 
 ArrayItemRefExpression : Identifier '[' Expression ']'
                        ;

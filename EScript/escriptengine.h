@@ -3,5 +3,6 @@
 
 #include "escript.h"
 #include "automationobject.h"
+#include "stringobject.h"
 
 #endif // ESCRIPTENGINE_H

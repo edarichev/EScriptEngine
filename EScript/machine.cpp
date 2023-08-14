@@ -10,6 +10,11 @@
 
 namespace escript {
 
+const Processor &Machine::cpu() const
+{
+    return _cpu;
+}
+
 Machine::Machine()
 {
     _cpu.setStrings(&_strings);

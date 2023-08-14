@@ -43,6 +43,7 @@ public:
      */
     void clear();
     ObjectRecord *getObjectRecord(std::shared_ptr<Symbol> symbol);
+    const Machine &machine() const;
 };
 
 } // namespace escript

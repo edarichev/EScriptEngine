@@ -9,6 +9,11 @@
 
 namespace escript {
 
+const Machine &EScript::machine() const
+{
+    return _machine;
+}
+
 EScript::EScript()
 {
     _unit = std::make_shared<Unit>();

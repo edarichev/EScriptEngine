@@ -49,10 +49,17 @@ public:
     void endBlock(std::shared_ptr<Block> &block);
     void push(const Operand &value);
     void push(int64_t intValue);
+    void pushVariable(Symbol *v);
+    void pushString(StringObject *s);
     void pop(std::shared_ptr<Symbol> &resultVariable);
     void switchToTempBuffer();
     void switchToMainBuffer();
     void writeTempBuffer();
+    /**
+     * @brief Вызов свойства AutomationObject
+     * @param propName
+     */
+    void callAOProperty(std::shared_ptr<Symbol> &leftVariable, StringObject *propName, std::shared_ptr<Symbol> &resultVariable);
 };
 
 } // namespace escript

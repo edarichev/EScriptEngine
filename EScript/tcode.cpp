@@ -12,6 +12,7 @@ namespace escript {
 std::string TCode::toString() const
 {
     std::string op;
+    // только для форматированного вывода, не реальное число
     int numberOfOperands = 0;
     std::string opSign;
     std::string assign = ":=";
@@ -122,6 +123,10 @@ std::string TCode::toString() const
     case OperationType::BlockEnd:
         numberOfOperands = 0;
         opSign = "BLOCK END";
+        break;
+    case OperationType::CallM:
+        numberOfOperands = 0;
+        opSign = "CALLM";
         break;
     }
     std::string result;

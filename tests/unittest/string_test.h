@@ -11,6 +11,7 @@ private:
     void cleanupTestCase();
     void test_stringLiteral();
     void test_stringPlus();
+    void test_stringLength();
 };
 
 #endif // STRING_TEST_H

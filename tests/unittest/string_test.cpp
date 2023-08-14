@@ -6,6 +6,7 @@ void String_Test::run()
     initTestCase();
     test_stringLiteral();
     test_stringPlus();
+    test_stringLength();
     cleanupTestCase();
 }
 
@@ -43,4 +44,17 @@ void String_Test::test_stringPlus()
     assert(record->type == SymbolType::String);
     auto str = (StringObject*)record->data;
     assert(*str == U"hello, world");
+}
+
+void String_Test::test_stringLength()
+{
+    cout << "====\n";
+    const u32string code1 = U"s = \"hello\"; i = s.length;";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto i = mainTable->find(U"i");
+    auto record = engine.getObjectRecord(i);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(5, record->data));
 }

@@ -101,6 +101,7 @@ private:
     void ArrayDeclExpression();
     void ArrayDeclItems();
     void ArrayItemRefExpression();
+    void DotOperation();
     // перемещение по потоку
 private:
     /**
@@ -172,6 +173,9 @@ private:
     void emitReturn();
     void emitCall(std::shared_ptr<Symbol> &func, int nArgs, std::shared_ptr<Symbol> &resultVariable);
     void emitFnEnd();
+    void emitCallProperty(std::shared_ptr<Symbol> &leftVariable,
+                          const std::u32string &propName,
+                          std::shared_ptr<Symbol> &resultVariable);
     // работа с символами
 private:
     /**

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "stringcontainer.h"
-#include "automationobject.h"
+#include "stringobject.h"
 
 namespace escript {
 

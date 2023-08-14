@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "processor.h"
 #include "pvalue.h"
+#include "stringobject.h"
 
 namespace escript {
 
@@ -32,8 +33,8 @@ void Processor::neg()
 {
     next();
     auto item = popFromStack();
-    if (item.first == SymbolType::Variable) {
-        ObjectRecord *ptr = (ObjectRecord*)item.second;
+    if (item.type == SymbolType::Variable) {
+        ObjectRecord *ptr = (ObjectRecord*)item.value;
         int64_t value = -(int64_t)ptr->data;
         pushToStack(SymbolType::Integer, value);
     }
@@ -124,36 +125,36 @@ void Processor::ldargs()
 
     // здесь первым идёт число аргументов
     auto item = popFromStack();
-    assert(item.first == SymbolType::Integer);
-    int nArgs = item.second;
+    assert(item.type == SymbolType::Integer);
+    int nArgs = item.value;
     while (nArgs > 0) {
         auto arg = popFromStack();
         // если тут Variable, то в стеке - ObjectRecord, и сюда заносим
         // это значение
         // иначе - просто число/float/bool
         ObjectRecord *rec = nullptr;
-        auto argumentType = arg.first;
+        auto argumentType = arg.type;
         switch (argumentType) {
         case SymbolType::Integer:
             rec = _storage->installRecord(nullptr);
             rec->type = SymbolType::Integer;
-            rec->data = arg.second;
+            rec->data = arg.value;
             *ptr = bit_cast<uint64_t>(rec);
             break;
         case SymbolType::Real:
             rec = _storage->installRecord(nullptr);
             rec->type = SymbolType::Real;
-            rec->data = arg.second;
+            rec->data = arg.value;
             *ptr = bit_cast<uint64_t>(rec);
             break;
         case SymbolType::Boolean:
             rec = _storage->installRecord(nullptr);
             rec->type = SymbolType::Boolean;
-            rec->data = arg.second;
+            rec->data = arg.value;
             *ptr = bit_cast<uint64_t>(rec);
             break;
         case SymbolType::Variable: {
-            auto refRec = (ObjectRecord*)arg.second;
+            auto refRec = (ObjectRecord*)arg.value;
             // для простых типов делаем прстое копирование
             switch (refRec->type) {
             case SymbolType::Integer:
@@ -197,9 +198,52 @@ void Processor::call()
 void Processor::ldstring()
 {
     next();
-    _itemType.push(SymbolType::String);
-    _stack.push(bit_cast<uint64_t>(*(uint64_t*)_p));
+    _stack.emplace(SymbolType::String, bit_cast<uint64_t>(*(uint64_t*)_p));
     next(sizeof (uint64_t));
+}
+
+void Processor::callm()
+{
+    next();
+    // сверху - указатель на сам объект
+    auto objItem = popFromStack();
+    AutomationObject *obj = nullptr;
+    ObjectRecord *rec = nullptr;
+    switch (objItem.type) {
+    case SymbolType::Variable:
+        rec = (ObjectRecord*)objItem.value;
+        switch (rec->type) {
+        case SymbolType::String:
+            obj = (StringObject*)rec->data;
+            break;
+        default:
+            throw std::domain_error("Can not call method of unsupported type");
+        }
+        break;
+    default:
+        throw std::domain_error("Can not call method of unsupported type");
+    }
+    // название метода - это следующая переменная в стеке
+    auto methodNameItem = popFromStack();
+    StringObject *method = nullptr;
+    std::u32string methodName;
+    // проверка типа
+    switch (methodNameItem.type) {
+    case SymbolType::String:
+        method = (StringObject*)methodNameItem.value; // он напрямую в таблице строк
+        methodName = method->uString();
+        break;
+    default:
+        throw std::domain_error("Expected a string at top of stack");
+    }
+    obj->call(methodName, this);
+    // теперь в стеке кол-во значений (0/1)
+    // и возвращённое значение (одно или нет)
+}
+
+void Processor::pushValue(int64_t value)
+{
+    pushToStack(SymbolType::Integer, value);
 }
 
 void Processor::binaryStackOp(OpCode opCode)
@@ -248,9 +292,8 @@ void Processor::ldloc_m()
     // добавим счётчик ссылок, т.к. теперь объект используется в стеке
     ptr->counter++;
     // тип объекта - тут всегда переменная, такова команда ldloc m
-    _itemType.push(SymbolType::Variable);
     // значение/указатель, в зависимости от типа
-    _stack.push((uint64_t)ptr);
+    _stack.emplace(SymbolType::Variable, (uint64_t)ptr);
     // сдвиг на следующую команду
     next(sizeof (uint64_t));
 }
@@ -258,8 +301,7 @@ void Processor::ldloc_m()
 void Processor::ldc_double_data64()
 {
     next();
-    _itemType.push(SymbolType::Real);
-    _stack.push(bit_cast<uint64_t>(*(double*)_p));
+    _stack.emplace(SymbolType::Real, bit_cast<uint64_t>(*(double*)_p));
     next(sizeof (double));
 }
 
@@ -285,16 +327,14 @@ void Processor::nop()
 void Processor::ldc_uint64_data64()
 {
     next();
-    _itemType.push(SymbolType::Integer);
-    _stack.push(*(uint64_t*)_p);
+    _stack.emplace(SymbolType::Integer, *(uint64_t*)_p);
     next(sizeof (uint64_t));
 }
 
 void Processor::ldc_int64_data64()
 {
     next();
-    _itemType.push(SymbolType::Integer);
-    _stack.push(*(uint64_t*)_p);
+    _stack.emplace(SymbolType::Integer, *(uint64_t*)_p);
     next(sizeof (uint64_t));
 }
 
@@ -341,19 +381,16 @@ ObjectRecord *Processor::installRecord(Symbol *symbol)
     return _storage->installRecord(symbol);
 }
 
-std::pair<SymbolType, uint64_t> Processor::popFromStack()
+StackValue Processor::popFromStack()
 {
-    auto type = _itemType.top();
-    _itemType.pop();
-    uint64_t item = _stack.top();
+    auto item = _stack.top();
     _stack.pop();
-    return std::make_pair(type, item);
+    return item;
 }
 
 void Processor::pushToStack(SymbolType type, uint64_t value)
 {
-    _itemType.push(type);
-    _stack.push(value);
+    _stack.emplace(type, value);
 }
 
 void Processor::stloc_m()
@@ -377,28 +414,28 @@ void Processor::stloc_m()
         uint64_t ptrAsAddr = (uint64_t)ptrLValue;
         memcpy(addr, &ptrAsAddr, sizeof(uint64_t));
     }
-    switch (item.first) {
+    switch (item.type) {
     case SymbolType::Integer:
         // в операнде находится указатель на запись в таблице символов
-        setValue(ptrLValue, (int64_t)item.second);
+        setValue(ptrLValue, (int64_t)item.value);
         break;
     case SymbolType::Real:
         // в операнде находится указатель на запись в таблице символов
-        setValue(ptrLValue, bit_cast<double>(item.second));
+        setValue(ptrLValue, bit_cast<double>(item.value));
         break;
     case SymbolType::Boolean:
         // в операнде находится указатель на запись в таблице символов
-        setValue(ptrLValue, item.second ? true : false);
+        setValue(ptrLValue, item.value ? true : false);
         break;
     case SymbolType::String:
         ptrLValue->type = SymbolType::String;
-        ptrLValue->data = item.second;
+        ptrLValue->data = item.value;
         break;
     case SymbolType::Variable:
         // здесь находится указатель на запись в таблице объектов
         // в зависимости от типа, мы либо меняем ссылку, либо присваиваем по значению
         // пока целые - меняем по значению
-        ptrRValue = (ObjectRecord*)item.second;
+        ptrRValue = (ObjectRecord*)item.value;
         switch (ptrRValue->type) {
         case SymbolType::Integer:
             iValue = bit_cast<int64_t>(ptrRValue->data);
@@ -417,11 +454,11 @@ void Processor::stloc_m()
             setValue(ptrLValue, stringValue);
             break;
         default:
-            throw std::domain_error("Unsupported type of variable :" + std::to_string((uint8_t)item.first));
+            throw std::domain_error("Unsupported type of variable :" + std::to_string((uint8_t)item.type));
         }
         break;
     default:
-        throw std::domain_error("Unsupported type :" + std::to_string((uint8_t)item.first));
+        throw std::domain_error("Unsupported type :" + std::to_string((uint8_t)item.type));
     }
     next(sizeof (uint64_t));//размер операнда-указателя
 }

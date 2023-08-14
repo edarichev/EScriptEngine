@@ -9,6 +9,7 @@
 #include "types.h"
 #include "storage.h"
 #include "array.h"
+#include "stackvalue.h"
 
 namespace escript {
 
@@ -109,7 +110,7 @@ struct PValue
 
     static PValue getValue(ObjectRecord *ptr);
 
-    static PValue getValue(const std::pair<SymbolType, uint64_t> &item);
+    static PValue getValue(const escript::StackValue &item);
 
     static PValue binaryOpValues(const PValue &value1, const PValue &value2,
                                  ArithmeticOperation op);

@@ -49,6 +49,8 @@ public:
      * @brief Запустить исполнение с текущей позиции PC
      */
     void run();
+    const Processor &cpu() const;
+
 private:
     size_t startOffsetOf(const std::vector<uint8_t> &objectFile);
     /**

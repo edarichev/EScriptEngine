@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "pvalue.h"
-#include "automationobject.h"
+#include "stringobject.h"
 
 namespace escript {
 
@@ -195,24 +195,24 @@ PValue PValue::getValue(ObjectRecord *ptr)
     return val;
 }
 
-PValue PValue::getValue(const std::pair<SymbolType, uint64_t> &item)
+PValue PValue::getValue(const StackValue &item)
 {
     PValue val;
-    switch (item.first) {
+    switch (item.type) {
     // тип переменной
     case SymbolType::Integer:
-        val = bit_cast<int64_t>(item.second);
+        val = bit_cast<int64_t>(item.value);
         break;
     case SymbolType::Real:
-        val = bit_cast<double>(item.second);
+        val = bit_cast<double>(item.value);
         break;
     case SymbolType::Boolean:
-        val = item.second ? true : false;
+        val = item.value ? true : false;
         break;
     case SymbolType::Variable:
-        return getValue((ObjectRecord*)item.second);
+        return getValue((ObjectRecord*)item.value);
     case SymbolType::String:
-        val.strValue = (StringObject*)item.second;
+        val.strValue = (StringObject*)item.value;
         val.type = SymbolType::String;
         break;
     default:

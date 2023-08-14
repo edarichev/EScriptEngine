@@ -29,6 +29,7 @@ SOURCES += \
     stdafx.cpp \
     storage.cpp \
     stringcontainer.cpp \
+    stringobject.cpp \
     symbol.cpp \
     symboltable.cpp \
     tcode.cpp \
@@ -55,9 +56,11 @@ HEADERS += \
     parser.h \
     processor.h \
     pvalue.h \
+    stackvalue.h \
     stdafx.h \
     storage.h \
     stringcontainer.h \
+    stringobject.h \
     symbol.h \
     symboltable.h \
     tcode.h \

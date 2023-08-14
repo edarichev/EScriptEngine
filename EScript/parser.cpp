@@ -517,6 +517,11 @@ void Parser::Factor()
             pushBack(Token::Identifier, idText);
             ArrayItemRefExpression();
             return;
+        case Token::Dot:
+            // DotOperation: здесь важно различить: это слева от = или справа
+            pushBack(Token::Identifier, idText);
+            DotOperation();
+            return;
         default:
             break; // просто идентификатор
         }
@@ -643,6 +648,29 @@ void Parser::ArrayItemRefExpression()
     match(Token::LeftBracket);
     Expression();
     match(Token::RightBracket);
+}
+
+void Parser::DotOperation()
+{
+    // пока только одноуровневые: id.свойство, а не id.prop1.prop2.prop3
+    auto variableName = tokenText();
+    match(Token::Identifier);
+    auto symbol = currentSymbolTable()->find(variableName);
+    if (!symbol)
+        undeclaredIdentifier();
+    match(Token::Dot);
+    auto methodName = tokenText();
+    match(Token::Identifier);
+    if (lookahead() == Token::LeftParenth) {
+        // это метод
+        match(Token::LeftParenth);
+        match(Token::RightParenth);
+    } else {
+        // это свойство
+        auto resultVariable = currentSymbolTable()->addTemp();
+        emitCallProperty(symbol, U"get_" + methodName, resultVariable);
+        pushVariable(resultVariable);
+    }
 }
 
 //////////////////////// перемещение по потоку  /////////////////////////////
@@ -855,6 +883,15 @@ void Parser::emitCall(std::shared_ptr<Symbol> &func, int nArgs,
 void Parser::emitFnEnd()
 {
     _emitter->fnEnd();
+}
+
+void Parser::emitCallProperty(
+        std::shared_ptr<Symbol> &leftVariable,
+        const std::u32string &propName,
+        std::shared_ptr<Symbol> &resultVariable)
+{
+    _emitter->callAOProperty(leftVariable, _strings.add(propName),
+                             resultVariable);
 }
 
 

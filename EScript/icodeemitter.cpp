@@ -167,8 +167,6 @@ void ICodeEmitter::fnEmptyReturn(std::shared_ptr<Symbol> &func)
 void ICodeEmitter::call(std::shared_ptr<Symbol> &func, int nArgs,
                         std::shared_ptr<Symbol> &resultVariable)
 {
-    // TODO: нужна вторая версия для вызова из функции
-    // для сохранения записи активации.
     TCode codeArgs;
     codeArgs.operation = OperationType::Push;
     codeArgs.operand1.type = SymbolType::Integer;
@@ -219,6 +217,24 @@ void ICodeEmitter::push(int64_t intValue)
     _buffer->push_back(code);
 }
 
+void ICodeEmitter::pushVariable(Symbol *v)
+{
+    TCode code;
+    code.operation = OperationType::Push;
+    code.operand1.type = SymbolType::Variable;
+    code.operand1.variable = v;
+    _buffer->push_back(code);
+}
+
+void ICodeEmitter::pushString(StringObject *s)
+{
+    TCode code;
+    code.operation = OperationType::Push;
+    code.operand1.type = SymbolType::String;
+    code.operand1.strValue = s;
+    _buffer->push_back(code);
+}
+
 void ICodeEmitter::pop(std::shared_ptr<Symbol> &resultVariable)
 {
     TCode code;
@@ -241,6 +257,26 @@ void ICodeEmitter::writeTempBuffer()
 {
     _buffer->insert(_buffer->end(), _tmpBuffer.begin(), _tmpBuffer.end());
     _tmpBuffer.clear();
+}
+
+void ICodeEmitter::callAOProperty(std::shared_ptr<Symbol> &leftVariable,
+        StringObject *propName,
+        std::shared_ptr<Symbol> &resultVariable)
+{
+    // число операндов, д.б. == 0
+    push(0);
+    // сверху - имя метода
+    pushString(propName);
+    // выше - сам объект
+    pushVariable(leftVariable.get());
+    // теперь вызов метода объекта автоматизации
+    TCode code;
+    code.operation = OperationType::CallM;
+    code.operand1.type = SymbolType::Variable;
+    code.operand1.variable = resultVariable.get();
+    _buffer->push_back(code);
+    // извлечение результата:
+    pop(resultVariable);
 }
 
 } // namespace escript

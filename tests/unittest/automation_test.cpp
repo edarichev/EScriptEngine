@@ -49,8 +49,8 @@ void Automation_Test::test_auto1()
 {
     StringObject str = U"Hello";
     escript::EScript engine;
-    str.setEngine(&engine);
-    str.call("at");
+    auto p = engine.machine().cpu();
+    str.call(U"at", &p);
 }
 
 

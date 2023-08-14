@@ -42,6 +42,7 @@ enum class OperationType
     FunctionEnd,    // конец функции
     BlockStart,     // op1==Block*
     BlockEnd,       // op1==Block*
+    CallM,          // Вызов метода объекта автоматизации
 };
 
 /**
