@@ -281,15 +281,22 @@ void Parser::ExpressionList()
 
 void Parser::AssignExpression()
 {
+    // здесь пока только переменные
+    assert(lookahead() == Token::Identifier);
+    auto id = tokenText();
     Variable();
     auto lvalueSymbol = _values.top().variable;
     popStackValue(); // результат в lvalueSymbol, просто вынем из стека
-    match(Token::Assign);
-    Expression();
-    emitAssign(lvalueSymbol);
-    // поскольку присваивание само является выражением, нужно поместить в стек
-    // результат вычислений
-    pushVariable(lvalueSymbol);
+    if (lookahead() == Token::Assign) {
+        match(Token::Assign);
+        Expression();
+        emitAssign(lvalueSymbol);
+        // поскольку присваивание само является выражением, нужно поместить в стек
+        // результат вычислений
+        pushVariable(lvalueSymbol);
+    } else {
+        expected(Token::Assign);
+    }
 }
 
 void Parser::FunctionDeclExpression()
@@ -328,11 +335,8 @@ void Parser::Variable()
         if (!symbol) // или добавляем новую запись
             symbol = currentSymbolTable()->add(id);
         pushVariable(symbol.get());
-        next();
-    } else {
-        // может быть составной идентификатор: obj.property.method
-        match(Token::Identifier);
     }
+    match(Token::Identifier);
 }
 
 void Parser::Expression()
@@ -345,6 +349,7 @@ void Parser::Expression()
         next();
         // если знак присваивания, то в ветку AssignStatement
         if (Lexer::isAssignOp(lookahead())) {
+            // одно из присваиваний или обращение к элементу массива
             // перейти в ветку присваивания
             pushBack(token0, std::move(tokenText0));
             AssignExpression();
@@ -657,12 +662,23 @@ void Parser::ArrayItemRefExpression()
     auto arrValue = currentSymbolTable()->find(id);
     match(Token::Identifier);
     match(Token::LeftBracket);
-    Expression();
+    Expression(); // индекс элемента
     emitPush();
-    auto resultVariable = currentSymbolTable()->addTemp();
-    emitCallAOMethod(arrValue, U"get", resultVariable, 1);
-    pushVariable(resultVariable);
     match(Token::RightBracket);
+    if (lookahead() == Token::Assign) {
+        // присваивание элементу массива
+        next();
+        Expression(); // новое значение
+        emitPush();
+        auto resultVariable = currentSymbolTable()->addTemp();
+        emitCallAOMethod(arrValue, U"set", resultVariable, 2);
+        pushVariable(resultVariable);
+    } else {
+        // получение значения элемента массива
+        auto resultVariable = currentSymbolTable()->addTemp();
+        emitCallAOMethod(arrValue, U"get", resultVariable, 1);
+        pushVariable(resultVariable);
+    }
 }
 
 void Parser::DotOperation()

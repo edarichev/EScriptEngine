@@ -82,6 +82,7 @@ struct PValue
     };
     PValue();
     PValue(const PValue &rhs);
+    explicit PValue(SymbolType t, int64_t rhs);
     explicit PValue(int64_t rhs);
     explicit PValue(int rhs);
     explicit PValue(bool rhs);

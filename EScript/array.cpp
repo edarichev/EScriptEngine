@@ -30,6 +30,11 @@ void Array::set(int64_t index, PValue value)
     _items[to_utf8(index)] = value;
 }
 
+void Array::set(int64_t index, SymbolType t, uint64_t value)
+{
+    set(index, PValue(t, value));
+}
+
 void Array::set(const std::u32string &index, PValue value)
 {
     _items[to_utf8(index)] = value;
@@ -80,6 +85,24 @@ bool escript::Array::call(const std::u32string &method, Processor *p)
         }
         PValue v = this->get(index);
         p->pushToStack(v.type, v.value64()); // OK
+        return true;
+    }
+    if (method == U"set") {
+        auto argCount = p->popFromStack().value; // число аргументов == 2
+        assert(argCount == 2);
+        auto argValue = p->popFromStack(); // сначала значение
+        auto argIndex = p->popFromStack(); // теперь индекс/ключ
+        // пусть только переменные типа Integer и тип Integer
+        int index = -1;
+        if (argIndex.type == SymbolType::Integer)
+            index = argIndex.value;
+        else if (argIndex.type == SymbolType::Variable) {
+            ObjectRecord *rec = (ObjectRecord*)(argIndex.value);
+            index = rec->data;
+        }
+        // индекс может не существовать, как ключ он будет добавлен
+        set(index, argValue.type, argValue.value);
+        p->pushToStack(0); // OK
         return true;
     }
     throw std::domain_error("Call of unknown method: array." + to_utf8(method));

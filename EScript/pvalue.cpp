@@ -79,6 +79,24 @@ PValue::PValue(const PValue &rhs)
     operator=(rhs);
 }
 
+PValue::PValue(SymbolType t, int64_t rhs)
+{
+    type = t;
+    switch (t) {
+    case SymbolType::Boolean:
+        boolValue = rhs ? true : false;
+        break;
+    case SymbolType::Integer:
+        intValue = bit_cast<int64_t>(rhs);
+        break;
+    case SymbolType::Real:
+        realValue = bit_cast<double>(rhs);
+        break;
+    default:
+        throw std::domain_error("PValue: not supported type");
+    }
+}
+
 PValue::PValue(int64_t rhs)
 {
     operator=(rhs);

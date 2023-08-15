@@ -4,7 +4,7 @@
 #include "EScript_global.h"
 #include <map>
 #include "automationobject.h"
-
+#include "types.h"
 
 namespace escript {
 
@@ -33,6 +33,7 @@ public:
     PValue get(int64_t index);
     PValue get(const std::u32string &index);
     void set(int64_t index, PValue value);
+    void set(int64_t index, SymbolType t, uint64_t value);
     void set(const std::u32string &index, PValue value);
     int64_t length() const;
     void add(PValue value);

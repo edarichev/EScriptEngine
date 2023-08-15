@@ -10,6 +10,7 @@ private:
     void initTestCase();
     void cleanupTestCase();
     void test_arrayAccess();
+    void test_arrayItemSet();
 };
 
 #endif // ARRAY_TEST_H

@@ -14,6 +14,11 @@ namespace escript {
 // для конвертации операций
 std::map<OperationType, ArithmeticOperation> Translator::optypes;
 
+void Translator::setShowListing(bool newShowListing)
+{
+    _showListing = newShowListing;
+}
+
 Translator::Translator()
 {
     if (optypes.empty()) {
@@ -191,7 +196,8 @@ void Translator::translateOperation(const TCode &c)
     default:
         throw std::domain_error("Can not translate operation: " + c.toString());
     }
-    cout << c.toString() << endl;
+    if (_showListing)
+        cout << c.toString() << endl;
 }
 
 void Translator::translateFunctionBlock(std::vector<TCode>::const_iterator &it,

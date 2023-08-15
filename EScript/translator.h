@@ -19,6 +19,7 @@ namespace escript {
 class ESCRIPT_EXPORT Translator
 {
 private:
+    bool _showListing = false;
     std::unique_ptr<Assembler> _asm;
     std::shared_ptr<Block> _block;
     // для конвертации операций
@@ -56,6 +57,8 @@ public:
     void translate(std::shared_ptr<Block> block,
                    const std::vector<TCode> &inputBuffer,
                    std::vector<uint8_t> &outBuffer);
+    void setShowListing(bool newShowListing);
+
 private:
     /**
      * @brief Возвращает короткую ссылку на ассемблер для удобства

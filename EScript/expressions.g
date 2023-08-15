@@ -7,7 +7,7 @@ https://www.epaperpress.com/lexandyacc/if.html
 
 %token Identifier
 %token IntegerNumber
-%token RealNumber
+%token RealNumber UnaryMinus UnaryPlus
 %token Assign
 %token Equal
 %token While Do For Break Continue Return
@@ -17,6 +17,10 @@ https://www.epaperpress.com/lexandyacc/if.html
 
 %nonassoc If
 %nonassoc Else
+
+
+
+%start Program
 %%
 
 Program : StatementList
@@ -95,6 +99,7 @@ ParameterDeclList : Identifier
                   ;
 
 AssignExpression : Variable Assign Expression
+                 | Identifier '[' Expression ']' Assign Expression
                  ;
 
 Variable : Identifier
@@ -161,18 +166,25 @@ Term : Factor
      | Term '/' Factor
      ;
 
-Factor : Identifier
-       | FunctionCallExpression
-       | IntegerNumber
-       | RealNumber
-       | '-' Factor
-       | '+' Factor
-       | ArrayItemRefExpression
-       | Identifier DotOperation
+Factor : MajorOps
+       | UnaryMinus Factor
+       | UnaryPlus Factor
        ;
 
+MajorOps : FunctionCallExpression
+         | ArrayItemRefExpression
+         | DotOperation
+         | Literals
+         ;
+
+Literals : Identifier
+         | IntegerNumber
+         | RealNumber
+         ;
+
 // правая часть операции обращения к функции-члену
-DotOperation : '.' Identifier '(' ')'
+DotOperation : Identifier '.' Identifier '(' ')'
+             | Identifier '.' Identifier '(' ExpressionList ')'
              ;
 
 ArrayItemRefExpression : Identifier '[' Expression ']'
