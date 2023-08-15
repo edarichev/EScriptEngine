@@ -128,6 +128,10 @@ std::string TCode::toString() const
         numberOfOperands = 0;
         opSign = "CALLM";
         break;
+    case OperationType::AllocArray:
+        numberOfOperands = 0;
+        opSign = "ALLOCARRAY";
+        break;
     }
     std::string result;
     if (lvalue)

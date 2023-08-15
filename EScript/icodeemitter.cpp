@@ -283,5 +283,13 @@ void ICodeEmitter::callAOMethod(std::shared_ptr<Symbol> &leftVariable,
     pop(resultVariable);
 }
 
+void ICodeEmitter::allocArray(std::shared_ptr<Symbol> &arrVariable)
+{
+    TCode code;
+    code.operation = OperationType::AllocArray;
+    code.lvalue = arrVariable.get();
+    _buffer->push_back(code);
+}
+
 } // namespace escript
 

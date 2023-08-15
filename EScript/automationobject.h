@@ -2,17 +2,18 @@
 #define ESCRIPT_AUTOMATIONOBJECT_H
 
 #include "EScript_global.h"
-#include "escript.h"
+
 
 namespace escript {
 
 class EScript;
+class Processor;
 
 /**
  * @brief Базовый класс для всех обёрток, в т.ч. классов в виртуальной машине.
  * @details Чтобы сделать свойство, имя метода должно начинаться с "get_"
  */
-class AutomationObject
+class ESCRIPT_EXPORT AutomationObject
 {
 public:
     AutomationObject(){};

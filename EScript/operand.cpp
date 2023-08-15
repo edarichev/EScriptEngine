@@ -66,8 +66,11 @@ std::string Operand::toString() const
     case SymbolType::String:
         opStr = "string";
         break;
+    case SymbolType::Array:
+        opStr = "array";
+        break;
     default:
-        throw std::domain_error("Unsupported SymbolType");
+        throw std::domain_error(__PRETTY_FUNCTION__ + std::string(": Unsupported SymbolType"));
     }
     return opStr;
 }

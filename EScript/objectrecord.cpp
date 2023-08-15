@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "objectrecord.h"
 #include "function.h"
+#include "array.h"
 
 namespace escript {
 
@@ -20,6 +21,9 @@ ObjectRecord::~ObjectRecord()
 {
     if (data) {
         switch (type) {
+        case SymbolType::Array:
+            delete (Array*)data;
+            break;
         case SymbolType::Function:
             delete (Function*)data;
             break;

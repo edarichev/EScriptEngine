@@ -185,6 +185,9 @@ void Translator::translateOperation(const TCode &c)
     case OperationType::CallM:
         opCallM(c);
         break;
+    case OperationType::AllocArray:
+        opAllocArray(c);
+        break;
     default:
         throw std::domain_error("Can not translate operation: " + c.toString());
     }
@@ -408,6 +411,9 @@ void Translator::opAssign(const TCode &c)
     case SymbolType::String:
         a.ldstring(bit_cast<uint64_t>(c.operand1.strValue));
         break;
+    case SymbolType::Array:
+        a.ldloc_m(location(c.operand1.variable));
+        break;
     default:
         throw std::domain_error("Unsupported operand type for assign operation");
     }
@@ -483,6 +489,13 @@ void Translator::opCallM(const TCode &)
 {
     Assembler &a = as();
     a.callm();
+}
+
+void Translator::opAllocArray(const TCode &c)
+{
+    Assembler &a = as();
+    Symbol *arrVariable = c.lvalue;
+    a.allocarray(location(arrVariable));
 }
 
 void Translator::emit_ldc(const Operand &operand)

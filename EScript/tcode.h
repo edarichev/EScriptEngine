@@ -43,6 +43,7 @@ enum class OperationType
     BlockStart,     // op1==Block*
     BlockEnd,       // op1==Block*
     CallM,          // Вызов метода объекта автоматизации
+    AllocArray,     // выделение памяти под массив
 };
 
 /**

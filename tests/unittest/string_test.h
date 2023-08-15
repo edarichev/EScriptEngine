@@ -13,6 +13,7 @@ private:
     void test_stringPlus();
     void test_stringLength();
     void test_stringAt();
+    void test_stringSubstring();
 };
 
 #endif // STRING_TEST_H

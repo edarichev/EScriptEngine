@@ -99,7 +99,6 @@ private:
     void AnyStatement();
     void ReturnStatement();
     void ArrayDeclExpression();
-    void ArrayDeclItems();
     void ArrayItemRefExpression();
     void DotOperation();
     // перемещение по потоку
@@ -177,6 +176,7 @@ private:
                           const std::u32string &propName,
                           std::shared_ptr<Symbol> &resultVariable,
                           int nArgs);
+    void emitAllocArray(std::shared_ptr<Symbol> &arrVariable);
     // работа с символами
 private:
     /**
@@ -190,6 +190,7 @@ private:
     void pushVariable(Symbol *variable);
     void pushFunction(std::shared_ptr<Symbol> &func);
     void pushString(const std::u32string &s);
+    void pushArray(std::shared_ptr<Symbol> &arrVariable);
     Operand popStackValue();
     Operand stackValue();
     void pushBack(Token t, const std::u32string &str);

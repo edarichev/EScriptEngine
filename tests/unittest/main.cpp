@@ -34,8 +34,8 @@ int main()
     WhileStatement_Test().run();
     ForStatement_Test().run();
     FunctionDeclStatement_Test().run();
-    //Array_Test().run();
     String_Test().run();
+    Array_Test().run();
     cout << "Tests OK" << endl;
     return 0;
 }

@@ -15,6 +15,11 @@ const Processor &Machine::cpu() const
     return _cpu;
 }
 
+uint64_t Machine::addressValueOf(std::shared_ptr<Symbol> &symbol) const
+{
+    return *(uint64_t*)(_memory.data() + symbol->location());
+}
+
 Machine::Machine()
 {
     _cpu.setStrings(&_strings);

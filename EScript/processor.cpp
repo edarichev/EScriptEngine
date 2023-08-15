@@ -216,6 +216,9 @@ void Processor::callm()
         case SymbolType::String:
             obj = (StringObject*)rec->data;
             break;
+        case SymbolType::Array:
+            obj = (Array*)rec->data;
+            break;
         default:
             throw std::domain_error("Can not call method of unsupported type");
         }
@@ -237,11 +240,37 @@ void Processor::callm()
         throw std::domain_error("Expected a string at top of stack");
     }
     obj->call(methodName, this);
-    // теперь в стеке кол-во значений (0/1)
-    // и возвращённое значение (одно или нет)
+    // теперь в стеке возвращённое значение (одно или нет)
+    // проверим, какой это тип и установим его в таблицу строк или объектов:
+    auto result = popFromStack();
+    switch (result.type) {
+    case SymbolType::String:
+        _strings->add((StringObject*)result.value);
+        break;
+    default: // ничего не делать
+        break;
+    }
+    // тип проверен, вернуть обратно
+    pushToStack(result);
 }
 
-void Processor::pushValue(int64_t value)
+void Processor::allocarray()
+{
+    next();
+    uint64_t symbolAddress = *(uint64_t*)_p;
+    Symbol *symbol = (Symbol*)symbolAddress;
+    // адрес указателя на переменную в секции DATA
+    uint64_t address = symbol->location();
+    // создаём новый массив
+    ObjectRecord *rec = installRecord(symbol);
+    rec->type = SymbolType::Array;
+    rec->data = (PtrIntType)new Array();
+    *(uint64_t*)(_memory + address) = (uint64_t)rec;
+
+    next(sizeof (uint64_t));
+}
+
+void Processor::pushToStack(int64_t value)
 {
     pushToStack(SymbolType::Integer, value);
 }
@@ -393,6 +422,11 @@ void Processor::pushToStack(SymbolType type, uint64_t value)
     _stack.emplace(type, value);
 }
 
+void Processor::pushToStack(StackValue value)
+{
+    _stack.push(value);
+}
+
 void Processor::stloc_m()
 {
     next();
@@ -452,6 +486,12 @@ void Processor::stloc_m()
         case SymbolType::String:
             stringValue = (StringObject*)ptrRValue->data;
             setValue(ptrLValue, stringValue);
+            break;
+        case SymbolType::Array:
+            // здесь нужно заменить само значение указателя в секции DATA
+            // а не просто сменить значение, теперь переменная указывает на
+            // нужный объект, а тот оказывается в мусоре
+            *(uint64_t*)(_memory + symbol->location()) = (uint64_t)ptrRValue;
             break;
         default:
             throw std::domain_error("Unsupported type of variable :" + std::to_string((uint8_t)item.type));

@@ -50,6 +50,16 @@ public:
      */
     void run();
     const Processor &cpu() const;
+    /**
+     * @brief Возвращает значение, расположенное по адресу, на который
+     * указывает свойство location() данного символа.
+     * @details Значение извлекается из абсолютного адреса.
+     * Например, в секции DATA находится 8 байт, соответствующие
+     * символу "symbol", эти 8 байт возвращаются.
+     * @param symbol
+     * @return
+     */
+    uint64_t addressValueOf(std::shared_ptr<Symbol> &symbol) const;
 
 private:
     size_t startOffsetOf(const std::vector<uint8_t> &objectFile);

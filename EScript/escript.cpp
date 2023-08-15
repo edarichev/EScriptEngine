@@ -36,8 +36,8 @@ void EScript::clear()
 
 ObjectRecord *EScript::getObjectRecord(std::shared_ptr<Symbol> symbol)
 {
-    auto s = _machine.storage();
-    ObjectRecord *r = s.findRecord(symbol.get());
+    uint64_t addr = _machine.addressValueOf(symbol);
+    ObjectRecord *r = (ObjectRecord*)addr;
     return r;
 }
 

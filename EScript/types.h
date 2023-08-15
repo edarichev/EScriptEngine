@@ -19,6 +19,7 @@ enum class SymbolType : uint8_t
     Boolean,
     String,
     Function,
+    Array,
     Object,
     /**
      * Вспомогательный тип, он нужен только в таблице символов

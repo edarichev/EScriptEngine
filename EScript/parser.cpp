@@ -621,32 +621,47 @@ void Parser::ReturnStatement()
 void Parser::ArrayDeclExpression()
 {
     match(Token::LeftBracket);
+    auto arrValue = currentSymbolTable()->addTemp();
+    pushArray(arrValue);
+    emitAllocArray(arrValue);
     if (lookahead() == Token::RightBracket) {
         // пустой массив
+        pushVariable(arrValue);
         next();
         return;
     }
-    ArrayDeclItems();
-    match(Token::RightBracket);
-}
-
-void Parser::ArrayDeclItems()
-{
+    // ArrayDeclItems - здесь, не в отдельном правиле
     do {
         if (lookahead() == Token::RightBracket)
-            return;
+            break;
         Expression();
+        auto e = currentSymbolTable()->addTemp();
+        emitAssign(e.get());
+        pushVariable(e);
+        emitPush();
+        // в результате вызова всегда что-то есть, даже 0
+        auto resultVariable = currentSymbolTable()->addTemp();
+        emitCallAOMethod(arrValue, U"add", resultVariable, 1);
+        pushVariable(resultVariable);
         if (lookahead() == Token::RightBracket)
-            return;
+            break;
         match(Token::Comma);
     } while (lookahead() != Token::Eof);
+    match(Token::RightBracket);
+    pushVariable(arrValue);
 }
 
 void Parser::ArrayItemRefExpression()
 {
+    auto id = tokenText();
+    auto arrValue = currentSymbolTable()->find(id);
     match(Token::Identifier);
     match(Token::LeftBracket);
     Expression();
+    emitPush();
+    auto resultVariable = currentSymbolTable()->addTemp();
+    emitCallAOMethod(arrValue, U"get", resultVariable, 1);
+    pushVariable(resultVariable);
     match(Token::RightBracket);
 }
 
@@ -899,7 +914,14 @@ void Parser::emitCallAOMethod(std::shared_ptr<Symbol> &leftVariable,
     // в стеке должны находиться аргументы, например,
     // в результате применения правила ArgumentList
     _emitter->callAOMethod(leftVariable, _strings.add(propName),
-                             resultVariable, nArgs);
+                           resultVariable, nArgs);
+}
+
+void Parser::emitAllocArray(std::shared_ptr<Symbol> &arrVariable)
+{
+    _emitter->allocArray(arrVariable);
+    //_emitter->pushVariable(arrVariable.get());
+    //_emitter->pop(arrVariable); // вызовет stloc
 }
 
 
@@ -957,6 +979,14 @@ void Parser::pushString(const std::u32string &s)
     Operand rec;
     rec.type = SymbolType::String;
     rec.strValue = _strings.add(s);
+    _values.push(rec);
+}
+
+void Parser::pushArray(std::shared_ptr<Symbol> &arrVariable)
+{
+    Operand rec;
+    rec.type = SymbolType::Array;
+    rec.variable = arrVariable.get();
     _values.push(rec);
 }
 
