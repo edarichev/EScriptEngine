@@ -12,6 +12,7 @@ private:
     void test_bitAnd();
     void test_bitOr();
     void test_bitXor();
+    void test_unaryBitNot();
 };
 
 #endif // BIT_TEST_H

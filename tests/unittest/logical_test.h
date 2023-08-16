@@ -11,6 +11,7 @@ private:
     void cleanupTestCase();
     void test_logAnd();
     void test_logOr();
+    void test_logNot();
 };
 
 #endif // LOGICAL_TEST_H

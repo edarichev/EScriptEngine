@@ -55,6 +55,8 @@ enum class OperationType
     BitXOR,         // ^
     LogAND,         // &&
     LogOR,          // ||
+    BitNOT,         // ~
+    LogNOT,         // !
 };
 
 /**

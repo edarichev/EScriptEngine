@@ -391,6 +391,28 @@ void Processor::log_or()
     binaryStackOp(OpCode::LOG_OR);
 }
 
+void Processor::bit_not()
+{
+    next();
+    auto item = popFromStack();
+    if (item.type == SymbolType::Variable) {
+        ObjectRecord *ptr = (ObjectRecord*)item.value;
+        int64_t value = ~(int64_t)ptr->data;
+        pushToStack(SymbolType::Integer, value);
+    }
+}
+
+void Processor::log_not()
+{
+    next();
+    auto item = popFromStack();
+    if (item.type == SymbolType::Variable) {
+        ObjectRecord *ptr = (ObjectRecord*)item.value;
+        bool value = (int64_t)ptr->data ? false : true;
+        pushToStack(SymbolType::Boolean, value);
+    }
+}
+
 void Processor::pushToStack(int64_t value)
 {
     pushToStack(SymbolType::Integer, value);

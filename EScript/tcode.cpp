@@ -168,6 +168,10 @@ std::string TCode::toString() const
         numberOfOperands = 0;
         opSign = "BIT.XOR";
         break;
+    case OperationType::BitNOT:
+        numberOfOperands = 0;
+        opSign = "BIT.NOT";
+        break;
     case OperationType::LogAND:
         numberOfOperands = 0;
         opSign = "LOG.AND";
@@ -175,6 +179,10 @@ std::string TCode::toString() const
     case OperationType::LogOR:
         numberOfOperands = 0;
         opSign = "LOG.OR";
+        break;
+    case OperationType::LogNOT:
+        numberOfOperands = 0;
+        opSign = "LOG.NOT";
         break;
     }
     std::string result;

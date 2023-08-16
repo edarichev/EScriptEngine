@@ -128,6 +128,8 @@ private:
     void opAllocArray(const TCode &c);
     void opIncrement(const TCode &c);
     void opDecrement(const TCode &c);
+    void opBitNot(const TCode &c);
+    void opLogNot(const TCode &c);
     /**
      * @brief Генерирует вывод команды ldc_*** в зависимотси от типа
      * @param type тип аргумента

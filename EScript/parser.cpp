@@ -553,6 +553,16 @@ void Parser::Factor()
         Factor();
         emitUnaryOp(OperationType::UMinus);
         break;
+    case Token::Exclamation: // логическое НЕ
+        next();
+        Factor();
+        emitUnaryOp(OperationType::LogNOT);
+        break;
+    case Token::BitNot: // побитовое НЕ
+        next();
+        Factor();
+        emitUnaryOp(OperationType::BitNOT);
+        break;
     case Token::PlusPlus:
         next();
         Factor();
@@ -925,6 +935,7 @@ void Parser::emitUnaryOp(OperationType opType)
     // смотря что положили
     IntType lastInt;
     RealType lastReal;
+    bool lastBool;
     switch (_values.top().type) {
     case SymbolType::Integer:
         lastInt = popInt();
@@ -932,11 +943,19 @@ void Parser::emitUnaryOp(OperationType opType)
         switch (opType) {
         case OperationType::UMinus:
             lastInt = -lastInt;
+            pushInt(lastInt);
+            break;
+        case OperationType::BitNOT:
+            lastInt = ~lastInt;
+            pushInt(lastInt);
+            break;
+        case OperationType::LogNOT:
+            lastInt = !lastInt;
+            pushBoolean(lastInt ? true : false);
             break;
         default:
             throw std::domain_error("Invalid unary operation");
         }
-        pushInt(lastInt);
         break;
     case SymbolType::Real:
         lastReal = popReal();
@@ -944,11 +963,24 @@ void Parser::emitUnaryOp(OperationType opType)
         switch (opType) {
         case OperationType::UMinus:
             lastReal = -lastReal;
+            pushReal(lastReal);
+            break;
+        case OperationType::LogNOT: // инвертируем относительно 0
+            pushBoolean(lastReal == 0 ? true : false);
             break;
         default:
             throw std::domain_error("Invalid unary operation");
         }
-        pushReal(lastReal);
+        break;
+    case SymbolType::Boolean:
+        lastBool = popBoolean();
+        switch (opType) {
+        case OperationType::LogNOT: // инвертируем относительно 0
+            pushBoolean(!lastBool);
+            break;
+        default:
+            throw std::domain_error("Invalid unary operation");
+        }
         break;
     case SymbolType::Variable: {
         Symbol *symbol = _values.top().variable;
@@ -1154,6 +1186,13 @@ IntType Parser::popInt()
     IntType lastInt = _values.top().intValue;
     _values.pop();
     return lastInt;
+}
+
+bool Parser::popBoolean()
+{
+    bool lastBool = _values.top().boolValue;
+    _values.pop();
+    return lastBool;
 }
 
 IntType Parser::popReal()

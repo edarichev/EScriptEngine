@@ -161,6 +161,12 @@ void Translator::translateOperation(const TCode &c)
     case OperationType::UMinus:
         opUMinus(c);
         break;
+    case OperationType::BitNOT:
+        opBitNot(c);
+        break;
+    case OperationType::LogNOT:
+        opLogNot(c);
+        break;
     case OperationType::Goto:
         opGoto(c);
         break;
@@ -569,6 +575,46 @@ void Translator::opDecrement(const TCode &)
 {
     Assembler &a = as();
     a.dec();
+}
+
+void Translator::opBitNot(const TCode &c)
+{
+    Assembler &a = as();
+    switch (c.operand1.type) {
+    case SymbolType::Integer:
+        a.ldc_int64_data64(c.operand1.intValue);
+        break;
+    case SymbolType::Variable:
+        a.ldloc_m(location(c.operand1.variable));
+        break;
+    default:
+        throw std::domain_error("Unsupported operand type for unary operation");
+    }
+    a.bit_not();
+    a.stloc_m(location(c.lvalue));
+}
+
+void Translator::opLogNot(const TCode &c)
+{
+    Assembler &a = as();
+    switch (c.operand1.type) {
+    case SymbolType::Integer:
+        a.ldc_bool_data8(c.operand1.intValue ? 1 : 0);
+        break;
+    case SymbolType::Boolean:
+        a.ldc_bool_data8(c.operand1.boolValue);
+        break;
+    case SymbolType::Real:
+        a.ldc_bool_data8(c.operand1.realValue ? 1 : 0);
+        break;
+    case SymbolType::Variable:
+        a.ldloc_m(location(c.operand1.variable));
+        break;
+    default:
+        throw std::domain_error("Unsupported operand type for unary operation");
+    }
+    a.log_not();
+    a.stloc_m(location(c.lvalue));
 }
 
 void Translator::emit_ldc(const Operand &operand)

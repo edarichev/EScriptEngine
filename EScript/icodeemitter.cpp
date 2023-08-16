@@ -65,6 +65,8 @@ void ICodeEmitter::unaryOp(OperationType operationType, Symbol *resultVariable, 
 {
     switch (operationType) {
     case OperationType::UMinus:
+    case OperationType::BitNOT:
+    case OperationType::LogNOT:
         break;
     default:
         throw std::domain_error("Invalid unary operation");

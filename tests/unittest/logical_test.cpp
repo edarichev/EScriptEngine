@@ -6,6 +6,7 @@ void Logical_Test::run()
     initTestCase();
     test_logAnd();
     test_logOr();
+    test_logNot();
     cleanupTestCase();
 }
 
@@ -88,3 +89,25 @@ void Logical_Test::test_logOr()
     assert(record->type == SymbolType::Boolean);
     assert(Compare::equals_int64(false || false, record->data));
 }
+
+void Logical_Test::test_logNot()
+{
+    const u32string code1 = U"a = 2363; b = !a;";
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto b = mainTable->find(U"b");
+    auto record = engine.getObjectRecord(b);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_int64(!2363, record->data));
+
+    const u32string code2 = U"a = false; b = !a;";
+    engine.eval(code2);
+    b = mainTable->find(U"b");
+    record = engine.getObjectRecord(b);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_int64(!false, record->data));
+}
+
