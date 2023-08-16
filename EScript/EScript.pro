@@ -15,6 +15,7 @@ SOURCES += \
     assembler.cpp \
     automationobject.cpp \
     block.cpp \
+    console.cpp \
     escript.cpp \
     function.cpp \
     icodeemitter.cpp \
@@ -26,6 +27,7 @@ SOURCES += \
     parser.cpp \
     processor.cpp \
     pvalue.cpp \
+    stackvalue.cpp \
     stdafx.cpp \
     storage.cpp \
     stringcontainer.cpp \
@@ -35,6 +37,7 @@ SOURCES += \
     tcode.cpp \
     token.cpp \
     translator.cpp \
+    types.cpp \
     unit.cpp
 
 HEADERS += \
@@ -43,6 +46,7 @@ HEADERS += \
     assembler.h \
     automationobject.h \
     block.h \
+    console.h \
     escript.h \
     escriptengine.h \
     function.h \

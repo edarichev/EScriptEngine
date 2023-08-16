@@ -17,6 +17,9 @@ namespace escript {
 class ESCRIPT_EXPORT EScript
 {
 private:
+    std::ostream *_outStream;
+    bool _showTCode = false;
+    bool _showDisassembleListing = false;
     Machine _machine;
     std::shared_ptr<Unit> _unit;
 public:
@@ -44,6 +47,9 @@ public:
     void clear();
     ObjectRecord *getObjectRecord(std::shared_ptr<Symbol> symbol);
     const Machine &machine() const;
+    void setShowTCode(bool newShowTCode);
+    void setShowDisassembleListing(bool newShowDisassembleListing);
+    void setOutStream(std::ostream &newOutStream);
 };
 
 } // namespace escript

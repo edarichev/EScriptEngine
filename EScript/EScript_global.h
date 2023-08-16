@@ -18,6 +18,18 @@
 #  define ESCRIPT_EXPORT Q_DECL_IMPORT
 #endif
 
+#if __GNUC__
+#if __x86_64__ || __ppc64__
+#define ENVIRONMENT64
+#else
+#define ENVIRONMENT32
+#endif
+#endif
+
+#if !defined(ENVIRONMENT64)
+#error 64bit platform is required
+#endif
+
 #include <cstring>
 #include <codecvt>
 #include <locale>

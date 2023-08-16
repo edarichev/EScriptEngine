@@ -48,6 +48,11 @@ uint8_t Assembler::_opCodeSize[] = {
 // ключ - код операции, значение - индекс в массивах
 std::map<OpCode, int> Assembler::_opCodesMap;
 
+void Assembler::setShowListing(bool newShowListing)
+{
+    _showListing = newShowListing;
+}
+
 const std::string &Assembler::mnemonics(OpCode opCode)
 {
     auto it = _opCodesMap.find(opCode);
@@ -73,10 +78,10 @@ void Assembler::initOpCodesMap()
     }
 }
 
-void Assembler::disassemble(const std::vector<ContainerElementType> &objectFile, std::ostream &out)
+void Assembler::disassemble(std::ostream &out)
 {
     size_t i = 0;
-    const uint8_t *p = objectFile.data();
+    const uint8_t *p = _buffer.data();
     // пропустить начальный JMP и 4 байта "DATA"
     uint32_t dataLength = *(uint32_t*)(p + 4 + Assembler::instructionSize(OpCode::JMP_M));
     i = Assembler::instructionSize(OpCode::JMP_M) +
@@ -92,7 +97,8 @@ void Assembler::disassemble(const std::vector<ContainerElementType> &objectFile,
         try {
             uint8_t instrSize = instructionSize(opCode);
             i += instrSize;
-            out << mnemonics(opCode) << std::endl;
+            if (_showListing)
+                out << mnemonics(opCode) << std::endl;
         } catch (const std::out_of_range &e) {
             if (*(p + i) == 'F') {
                 if (strncmp((char*)p + i, fnMarker, 4) == 0) {

@@ -488,12 +488,11 @@ void Parser::Term()
 
 void Parser::Factor()
 {
-    std::shared_ptr<Symbol> symbol;
     switch (lookahead()) {
     case Token::LeftParenth:
         // круглые скобки
         next();
-        SimpleExpression();
+        Expression();
         match(Token::RightParenth);
         return;
     case Token::Plus:
@@ -530,7 +529,7 @@ void Parser::Factor()
         default:
             break; // просто идентификатор
         }
-        symbol = currentSymbolTable()->find(idText);
+        auto symbol = currentSymbolTable()->find(idText);
         if (!symbol)
             undeclaredIdentifier();
         pushVariable(symbol);
@@ -708,6 +707,26 @@ void Parser::DotOperation()
     }
     emitCallAOMethod(symbol, methodName, resultVariable, nArgs);
     pushVariable(resultVariable);
+}
+
+void Parser::PostfixOperation()
+{
+
+}
+
+void Parser::CallOrAccess()
+{
+
+}
+
+void Parser::Literals()
+{
+
+}
+
+void Parser::Grouping()
+{
+
 }
 
 //////////////////////// перемещение по потоку  /////////////////////////////

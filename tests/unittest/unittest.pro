@@ -12,6 +12,8 @@ SOURCES += \
         codegen_test.cpp \
         codeunit_test.cpp \
         compare.cpp \
+        console_test.cpp \
+        conversions_test.cpp \
         dowhilestatement_test.cpp \
         forstatement_test.cpp \
         functiondeclstatement_test.cpp \
@@ -33,6 +35,8 @@ HEADERS += \
     codegen_test.h \
     codeunit_test.h \
     compare.h \
+    console_test.h \
+    conversions_test.h \
     dowhilestatement_test.h \
     forstatement_test.h \
     functiondeclstatement_test.h \

@@ -15,6 +15,8 @@
 #include "functiondeclstatement_test.h"
 #include "array_test.h"
 #include "string_test.h"
+#include "console_test.h"
+#include "conversions_test.h"
 
 
 using namespace std;
@@ -36,6 +38,8 @@ int main()
     FunctionDeclStatement_Test().run();
     String_Test().run();
     Array_Test().run();
+    Console_Test().run();
+    Conversions_Test().run();
     cout << "Tests OK" << endl;
     return 0;
 }

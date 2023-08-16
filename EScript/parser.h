@@ -101,6 +101,10 @@ private:
     void ArrayDeclExpression();
     void ArrayItemRefExpression();
     void DotOperation();
+    void PostfixOperation();
+    void CallOrAccess();
+    void Literals();
+    void Grouping();
     // перемещение по потоку
 private:
     /**

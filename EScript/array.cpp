@@ -47,6 +47,12 @@ void Array::add(PValue value)
     set(_items.size(), value);
 }
 
+std::u32string Array::uString() const
+{
+    // TODO: вывести все элементы
+    return U"array";
+}
+
 } // namespace escript
 
 

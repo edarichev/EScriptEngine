@@ -26,7 +26,10 @@ struct StackValue
 
     StackValue(){}
     StackValue(SymbolType t, uint64_t v) : type(t), value(v){}
+    std::u32string uString() const;
+
 };
+
 
 } // namespace escript
 

@@ -15,5 +15,6 @@
 #include <cassert>
 #include <stack>
 #include <set>
+#include <sstream>
 
 #endif // STDAFX_H

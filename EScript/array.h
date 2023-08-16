@@ -37,6 +37,7 @@ public:
     void set(const std::u32string &index, PValue value);
     int64_t length() const;
     void add(PValue value);
+    std::u32string uString() const;
 
     // AutomationObject interface
 public:

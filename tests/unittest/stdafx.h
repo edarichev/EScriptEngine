@@ -9,6 +9,7 @@
 #include <locale>
 #include <codecvt>
 #include <limits>
+#include <sstream>
 #include "compare.h"
 
 using namespace escript;

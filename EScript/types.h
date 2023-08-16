@@ -5,6 +5,8 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include "EScript_global.h"
+
 namespace escript {
 
 /**
@@ -31,6 +33,8 @@ enum class SymbolType : uint8_t
 using IntType = long;
 using RealType = double;
 using StringType = std::u32string; // потом сделать по стандарту отдельный класс
+
+std::u32string to_u32string(const SymbolType &t, uint64_t v);
 
 } // namespace escript
 

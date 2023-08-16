@@ -14,6 +14,7 @@ https://www.epaperpress.com/lexandyacc/if.html
 %token Function
 %token LShift RelOp EqualityOp And Or
 %token NCO // ?? - Nullish coalescing operator
+%token PlusPlus MinusMinus
 
 %nonassoc If
 %nonassoc Else
@@ -166,15 +167,26 @@ Term : Factor
      | Term '/' Factor
      ;
 
-Factor : MajorOps
-       | UnaryMinus Factor
-       | UnaryPlus Factor
+Factor : PostfixOperation
+       | UnaryMinus PostfixOperation
+       | UnaryPlus PostfixOperation
+       | PlusPlus PostfixOperation
+       | MinusMinus PostfixOperation
        ;
 
-MajorOps : FunctionCallExpression
-         | ArrayItemRefExpression
-         | DotOperation
-         | Literals
+PostfixOperation : CallOrAccess
+                 | CallOrAccess PlusPlus
+                 | CallOrAccess MinusMinus
+                 ;
+
+CallOrAccess : Grouping
+             | FunctionCallExpression
+             | ArrayItemRefExpression
+             | DotOperation
+             ;
+
+Grouping : Literals
+         | '(' Expression ')'
          ;
 
 Literals : Identifier

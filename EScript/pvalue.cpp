@@ -194,6 +194,11 @@ uint64_t PValue::value64() const
     }
 }
 
+std::u32string PValue::uString() const
+{
+    return to_u32string(type, value64());
+}
+
 PValue PValue::getValue(ObjectRecord *ptr)
 {
     PValue val;
@@ -280,27 +285,19 @@ PValue PValue::binaryOpValues(const PValue &value1, const PValue &value2, Arithm
             break;
         }
         break;
-    case SymbolType::String:
-        switch (value2.type) {
-        case SymbolType::String: {
-            StringObject *newString = StringObject::concat(value1.strValue, value2.strValue);
-            // как установить эту строку в таблицу строк?
-            // возвращаем это значение, а вызывающая функция установит его,
-            // в таблицу если результат - строка (т.к. при каждой конверсии
-            // будет новая строка),
-            PValue ret;
-            ret.strValue = newString;
-            ret.type = SymbolType::String;
-            return ret;
-        }
-        default:
-            break;
-        }
-        break;
     default:
         break;
     }
-    throw std::domain_error("Unsupported type");
+    if (op == ArithmeticOperation::Add) {
+        // всё остальное переводим в строку как получится
+        auto str = value1.uString() + value2.uString();
+        StringObject *newString = new StringObject(str);
+        PValue ret;
+        ret.strValue = newString;
+        ret.type = SymbolType::String;
+        return ret;
+    }
+    throw std::domain_error("Unsupported binary operation for specified types");
 }
 
 

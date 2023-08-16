@@ -20,6 +20,16 @@ uint64_t Machine::addressValueOf(std::shared_ptr<Symbol> &symbol) const
     return *(uint64_t*)(_memory.data() + symbol->location());
 }
 
+void Machine::replaceValuePtr(std::shared_ptr<Symbol> &symbol, ObjectRecord *rec)
+{
+    *(uint64_t*)(_memory.data() + symbol->location()) = (uint64_t)rec;
+}
+
+void Machine::replaceValuePtr(std::shared_ptr<Symbol> &symbol, StringObject *s)
+{
+    *(uint64_t*)(_memory.data() + symbol->location()) = (uint64_t)s;
+}
+
 Machine::Machine()
 {
     _cpu.setStrings(&_strings);
@@ -30,7 +40,7 @@ Machine::~Machine()
 
 }
 
-const Storage &Machine::storage() const
+Storage &Machine::storage()
 {
     return _storage;
 }

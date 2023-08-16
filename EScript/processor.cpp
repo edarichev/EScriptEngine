@@ -219,6 +219,9 @@ void Processor::callm()
         case SymbolType::Array:
             obj = (Array*)rec->data;
             break;
+        case SymbolType::Object:
+            obj = (AutomationObject*)rec->data;
+            break;
         default:
             throw std::domain_error("Can not call method of unsupported type");
         }

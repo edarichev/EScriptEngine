@@ -109,6 +109,8 @@ struct PValue
      */
     uint64_t value64() const;
 
+    std::u32string uString() const;
+
     static PValue getValue(ObjectRecord *ptr);
 
     static PValue getValue(const escript::StackValue &item);

@@ -37,7 +37,7 @@ public:
      * @brief Освобождает связанные с этим экземпляром ресурсы
      */
     virtual ~Machine();
-    const Storage &storage() const;
+    Storage &storage();
     StringContainer &strings();
     /**
      * @brief Загружает в память объектный файл
@@ -60,6 +60,14 @@ public:
      * @return
      */
     uint64_t addressValueOf(std::shared_ptr<Symbol> &symbol) const;
+    /**
+     * @brief Заменяет значение указателя в секции DATA для данного символа так,
+     * чтобы он указывал на запись rec.
+     * @param symbol
+     * @param rec
+     */
+    void replaceValuePtr(std::shared_ptr<Symbol> &symbol, ObjectRecord *rec);
+    void replaceValuePtr(std::shared_ptr<Symbol> &symbol, StringObject *s);
 
 private:
     size_t startOffsetOf(const std::vector<uint8_t> &objectFile);
