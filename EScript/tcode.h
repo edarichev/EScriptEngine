@@ -36,7 +36,8 @@ enum class OperationType
     FunctionCode,   // начало блока кода (стартовая точка запуска) функции
     LoadArguments,  // загрузка аргументов из стека на входе в функцию
     Push,           // push op1
-    Pop,            // pop op1
+    PopTo,          // pop op1
+    Pop,            // просто извлечь из стека
     Ret,            // возврат из функции
     Call,           // вызов функции, addr==op1.intValue
     FunctionEnd,    // конец функции
@@ -45,6 +46,7 @@ enum class OperationType
     CallM,          // Вызов метода объекта автоматизации
     AllocArray,     // выделение памяти под массив
     Increment,      // pop, int, push
+    Decrement,      // pop, int, push
 };
 
 /**

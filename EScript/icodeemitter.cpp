@@ -238,8 +238,15 @@ void ICodeEmitter::pushString(StringObject *s)
 void ICodeEmitter::pop(std::shared_ptr<Symbol> &resultVariable)
 {
     TCode code;
-    code.operation = OperationType::Pop;
+    code.operation = OperationType::PopTo;
     code.lvalue = resultVariable.get();
+    _buffer->push_back(code);
+}
+
+void ICodeEmitter::pop()
+{
+    TCode code;
+    code.operation = OperationType::Pop;
     _buffer->push_back(code);
 }
 
@@ -295,6 +302,13 @@ void ICodeEmitter::increment()
 {
     TCode code;
     code.operation = OperationType::Increment;
+    _buffer->push_back(code);
+}
+
+void ICodeEmitter::decrement()
+{
+    TCode code;
+    code.operation = OperationType::Decrement;
     _buffer->push_back(code);
 }
 

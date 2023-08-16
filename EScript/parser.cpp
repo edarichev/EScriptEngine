@@ -494,23 +494,28 @@ void Parser::Factor()
         next();
         Expression();
         match(Token::RightParenth);
-        return;
+        break;
     case Token::Plus:
         // унарный плюс, ничего не делаем
         next();
         Factor();
-        return;
+        break;
     case Token::Minus:
         // унарный минус
         next();
         Factor();
         emitUnaryOp(OperationType::UMinus);
-        return;
+        break;
     case Token::PlusPlus:
         next();
         Factor();
         emitIncrement();
-        return;
+        break;
+    case Token::MinusMinus:
+        next();
+        Factor();
+        emitDecrement();
+        break;
     case Token::Identifier: {
         // это правая часть, здесь - только ранее объявленный id
         auto idText = tokenText();
@@ -520,24 +525,24 @@ void Parser::Factor()
             // это вызов функции
             pushBack(Token::Identifier, idText);
             FunctionCallExpression();
-            return;
+            break;
         case Token::LeftBracket:
             // обращение к элементу массива
             pushBack(Token::Identifier, idText);
             ArrayItemRefExpression();
-            return;
+            break;
         case Token::Dot:
             // DotOperation: здесь важно различить: это слева от = или справа
             pushBack(Token::Identifier, idText);
             DotOperation();
-            return;
+            break;
         default:
+            auto symbol = currentSymbolTable()->find(idText);
+            if (!symbol)
+                undeclaredIdentifier();
+            pushVariable(symbol);
             break; // просто идентификатор
         }
-        auto symbol = currentSymbolTable()->find(idText);
-        if (!symbol)
-            undeclaredIdentifier();
-        pushVariable(symbol);
         break;
     }
     case Token::IntegerNumber:
@@ -563,6 +568,7 @@ void Parser::Factor()
     default: // ошибка, нужен терминал в виде числа, идентификатора и т.п.
         expected(Token::Identifier);
     }
+    PostfixOperation();
 }
 
 void Parser::FunctionCallExpression()
@@ -716,23 +722,44 @@ void Parser::DotOperation()
 
 void Parser::PostfixOperation()
 {
-
+    void (Parser::*pfn)();
+    switch (lookahead()) {
+    case Token::PlusPlus:
+        pfn = &Parser::emitIncrement;
+        break;
+    case Token::MinusMinus:
+        pfn = &Parser::emitDecrement;
+        break;
+    default:
+        return;
+    }
+    next();
+    // postfix
+    // вынуть из стека, создать временную переменную == копию вынутого,
+    // увеличить временную переменную, затолкать её в стек вместо первой
+    auto top = stackValue();
+    auto tmp = currentSymbolTable()->addTemp();
+    emitAssign(tmp.get());
+    switch (top.type) {
+    case SymbolType::Integer:
+        pushInt(top.intValue);
+        break;
+    case SymbolType::Real:
+        pushInt(top.realValue);
+        break;
+    case SymbolType::Variable:
+        pushVariable(top.variable);
+        break;
+    default:
+        error("INC/DEC not supported here");
+    }
+    emitPush();
+    (this->*pfn)();    // inc/dec
+    emitPop();         // убрать результат inc/dec
+    popStackValue();
+    pushVariable(tmp);
 }
 
-void Parser::CallOrAccess()
-{
-
-}
-
-void Parser::Literals()
-{
-
-}
-
-void Parser::Grouping()
-{
-
-}
 
 //////////////////////// перемещение по потоку  /////////////////////////////
 
@@ -960,8 +987,6 @@ void Parser::emitCallAOMethod(std::shared_ptr<Symbol> &leftVariable,
 void Parser::emitAllocArray(std::shared_ptr<Symbol> &arrVariable)
 {
     _emitter->allocArray(arrVariable);
-    //_emitter->pushVariable(arrVariable.get());
-    //_emitter->pop(arrVariable); // вызовет stloc
 }
 
 void Parser::emitIncrement()
@@ -979,6 +1004,28 @@ void Parser::emitIncrement()
         _emitter->increment();
         pushVariable(top.variable);
     }
+}
+
+void Parser::emitDecrement()
+{
+    auto top = popStackValue();
+    // попробовать вычислить, если это число
+    if (top.type == SymbolType::Integer) {
+        top.intValue--;
+        pushInt(top.intValue);
+    } else if (top.type == SymbolType::Real) {
+        top.realValue--;
+        pushReal(top.realValue);
+    } else if (top.type == SymbolType::Variable) {
+        _emitter->push(top);
+        _emitter->decrement();
+        pushVariable(top.variable);
+    }
+}
+
+void Parser::emitPop()
+{
+    _emitter->pop();
 }
 
 

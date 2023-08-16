@@ -102,9 +102,6 @@ private:
     void ArrayItemRefExpression();
     void DotOperation();
     void PostfixOperation();
-    void CallOrAccess();
-    void Literals();
-    void Grouping();
     // перемещение по потоку
 private:
     /**
@@ -182,6 +179,8 @@ private:
                           int nArgs);
     void emitAllocArray(std::shared_ptr<Symbol> &arrVariable);
     void emitIncrement();
+    void emitDecrement();
+    void emitPop();
     // работа с символами
 private:
     /**

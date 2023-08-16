@@ -100,7 +100,7 @@ std::string TCode::toString() const
         numberOfOperands = 1;
         opSign = "PUSH";
         break;
-    case OperationType::Pop:           // pop op1
+    case OperationType::PopTo:           // pop op1
         numberOfOperands = 1;
         opSign = "POP";
         break;
@@ -135,6 +135,14 @@ std::string TCode::toString() const
     case OperationType::Increment:
         numberOfOperands = 0;
         opSign = "INC";
+        break;
+    case OperationType::Decrement:
+        numberOfOperands = 0;
+        opSign = "DEC";
+        break;
+    case OperationType::Pop:
+        numberOfOperands = 0;
+        opSign = "POP";
         break;
     }
     std::string result;

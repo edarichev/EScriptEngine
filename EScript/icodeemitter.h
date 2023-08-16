@@ -52,6 +52,7 @@ public:
     void pushVariable(Symbol *v);
     void pushString(StringObject *s);
     void pop(std::shared_ptr<Symbol> &resultVariable);
+    void pop();
     void switchToTempBuffer();
     void switchToMainBuffer();
     void writeTempBuffer();
@@ -68,6 +69,7 @@ public:
      * @brief извлечь из стека, увеличить, засунуть обратно
      */
     void increment();
+    void decrement();
 };
 
 } // namespace escript

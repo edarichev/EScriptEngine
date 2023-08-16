@@ -117,6 +117,7 @@ private:
     void opLabel(const TCode &c);
     void opIfFalse(const TCode &c);
     void opPush(const TCode &c);
+    void opPopTo(const TCode &c);
     void opPop(const TCode &c);
     void opFunctionStart(const TCode &c);
     void opFunctionArgument(const TCode &c);

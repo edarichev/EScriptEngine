@@ -456,6 +456,10 @@ void Lexer::readNumber(int firstChar)
                 unexpected(c);
             isReal = true;
         } else if (c == '+' || c == '-') {
+            if (!hasExpE) {
+                back(); // это плюс как знак, впереди д.б. E, но его нет
+                break;
+            }
             if (hasExpSign)
                 unexpected(c);
             hasExpSign = true;

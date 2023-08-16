@@ -184,6 +184,9 @@ void Translator::translateOperation(const TCode &c)
                     c.operand1.block->parentBlock().get() :
                     _block.get();
         break;
+    case OperationType::PopTo:
+        opPopTo(c);
+        break;
     case OperationType::Pop:
         opPop(c);
         break;
@@ -195,6 +198,9 @@ void Translator::translateOperation(const TCode &c)
         break;
     case OperationType::Increment:
         opIncrement(c);
+        break;
+    case OperationType::Decrement:
+        opDecrement(c);
         break;
     default:
         throw std::domain_error("Can not translate operation: " + c.toString());
@@ -460,10 +466,16 @@ void Translator::opPush(const TCode &c)
     emit_ldc(c.operand1);
 }
 
-void Translator::opPop(const TCode &c)
+void Translator::opPopTo(const TCode &c)
 {
     Assembler &a = as();
     a.stloc_m(location(c.lvalue));
+}
+
+void Translator::opPop(const TCode &)
+{
+    Assembler &a = as();
+    a.pop();
 }
 
 void Translator::opFunctionStart([[maybe_unused]]const TCode &c)

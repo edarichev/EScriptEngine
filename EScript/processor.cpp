@@ -308,6 +308,39 @@ void Processor::inc()
 void Processor::dec()
 {
     next();
+    auto item = popFromStack();
+
+    switch (item.type) {
+    case SymbolType::Integer:
+        item.value = bit_cast<int64_t>(item.value) - 1;
+        break;
+    case SymbolType::Real:
+        item.value = bit_cast<uint64_t>(bit_cast<double>(item.value) - 1);
+        break;
+    case SymbolType::Variable: {
+        ObjectRecord *rec = (ObjectRecord*)item.value;
+        switch (rec->type) {
+        case SymbolType::Integer:
+            rec->data = bit_cast<int64_t>(rec->data) - 1;
+            break;
+        case SymbolType::Real:
+            rec->data = bit_cast<uint64_t>(bit_cast<double>(rec->data) - 1);
+            break;
+        default:
+            throw std::domain_error("Unable to increment");
+        }
+        break;
+    }
+    default:
+        throw std::domain_error("Unable to increment");
+    }
+    pushToStack(item.type, item.value);
+}
+
+void Processor::pop()
+{
+    next();
+    popFromStack();
 }
 
 void Processor::pushToStack(int64_t value)
