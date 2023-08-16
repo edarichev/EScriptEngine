@@ -184,6 +184,10 @@ std::string TCode::toString() const
         numberOfOperands = 0;
         opSign = "LOG.NOT";
         break;
+    case OperationType::Mod:
+        numberOfOperands = 0;
+        opSign = "MOD";
+        break;
     }
     std::string result;
     if (lvalue)

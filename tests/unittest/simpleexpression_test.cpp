@@ -22,6 +22,7 @@ void SimpleExpression_Test::run()
     test_chTypeBinaryOp2();
     test_sequentialRun();
     test_braceSimple();
+    test_mod();
     cleanupTestCase();
 }
 
@@ -245,4 +246,18 @@ void SimpleExpression_Test::test_braceSimple()
     record = engine.getObjectRecord(x);
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(54, record->data));
+}
+
+void SimpleExpression_Test::test_mod()
+{
+    const u32string code1 = U"a = 157; b = 7; c = a % b;";
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto c = mainTable->find(U"c");
+    auto record = engine.getObjectRecord(c);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(157 % 7, record->data));
 }

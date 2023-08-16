@@ -40,6 +40,7 @@ Translator::Translator()
             {OperationType::BitXOR, ArithmeticOperation::BITXOR },
             {OperationType::LogAND, ArithmeticOperation::LOGAND },
             {OperationType::LogOR, ArithmeticOperation::LOGOR },
+            {OperationType::Mod, ArithmeticOperation::Mod },
         };
     }
 }
@@ -153,6 +154,7 @@ void Translator::translateOperation(const TCode &c)
     case OperationType::BitXOR:
     case OperationType::LogAND:
     case OperationType::LogOR:
+    case OperationType::Mod:
         binaryOp(c);
         break;
     case OperationType::Assign:
@@ -429,6 +431,9 @@ void Translator::binaryOp(const TCode &c)
     case OperationType::LogOR:
         a.log_or();
         break;
+    case OperationType::Mod:
+        a.modst();
+        break;
     default:
         throw std::domain_error("Unsupported binary operation");
     }
@@ -673,7 +678,10 @@ bool Translator::tryCalcBinaryOp(const TCode &c)
         return false;
     }
     // это должно быть гарантировано, если это не так, пусть вылетит
-    ArithmeticOperation op = optypes.find(c.operation)->second;
+    auto its = optypes.find(c.operation);
+    if (its == optypes.end())
+        throw std::domain_error("Operation not found");
+    ArithmeticOperation op = its->second;
     // эта часть почти совпадает с void Processor::binaryStackOp(OpCode opCode)
     PValue result = PValue::binaryOpValues(value1, value2, op);
     switch (result.type) {

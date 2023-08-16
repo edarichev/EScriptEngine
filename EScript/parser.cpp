@@ -284,19 +284,69 @@ void Parser::AssignExpression()
     // здесь пока только переменные
     assert(lookahead() == Token::Identifier);
     auto id = tokenText();
+    auto symbol = currentSymbolTable()->find(id); // для += должен существовать
     Variable();
     auto lvalueSymbol = _values.top().variable;
     popStackValue(); // результат в lvalueSymbol, просто вынем из стека
-    if (lookahead() == Token::Assign) {
+    // выбрать оператор присваивания
+    OperationType op;
+    switch (lookahead()) {
+    case Token::Assign: {
         match(Token::Assign);
         Expression();
         emitAssign(lvalueSymbol);
         // поскольку присваивание само является выражением, нужно поместить в стек
         // результат вычислений
         pushVariable(lvalueSymbol);
-    } else {
-        expected(Token::Assign);
+        return;
     }
+    case Token::PlusAssign:
+        op = OperationType::Add;
+        break;
+    case Token::MinusAssign:
+        op = OperationType::Minus;
+        break;
+    case Token::MulAssign:
+        op = OperationType::Multiply;
+        break;
+    case Token::SlashAssign:
+        op = OperationType::Div;
+        break;
+    case Token::BitAndAssign:
+        op = OperationType::BitAND;
+        break;
+    case Token::BitOrAssign:
+        op = OperationType::BitOR;
+        break;
+    case Token::XorAssign:
+        op = OperationType::BitXOR;
+        break;
+    case Token::LShiftAssign:
+        op = OperationType::LShift;
+        break;
+    case Token::RShiftAssign:
+        op = OperationType::RShift;
+        break;
+    case Token::RShiftZeroAssign:
+        op = OperationType::RShiftZero;
+        break;
+    case Token::PercentAssign:
+        op = OperationType::Mod;
+        break;
+    default:
+        expected(Token::Assign);
+        return;
+    }
+    next();
+    // левая часть должна существовать
+    if (!symbol)
+        undeclaredIdentifier();
+    // поместить в стек левую часть и выполнить Expression,
+    pushVariable(symbol);
+    Expression(); // правая часть
+    emitBinaryOp(op);
+    emitAssign(lvalueSymbol);
+    pushVariable(lvalueSymbol);
 }
 
 void Parser::FunctionDeclExpression()
@@ -525,6 +575,11 @@ void Parser::Term()
             next();
             Factor();
             emitBinaryOp(OperationType::Div);
+            continue;
+        case Token::Percent: // по модулю
+            next();
+            Factor();
+            emitBinaryOp(OperationType::Mod);
             continue;
         default:
             break;
@@ -907,6 +962,7 @@ void Parser::emitBinaryOp(OperationType opType)
     case OperationType::BitXOR:
     case OperationType::LogAND:
     case OperationType::LogOR:
+    case OperationType::Mod:
     {
         auto opRecord2 = popStackValue();
         auto opRecord1 = popStackValue();
@@ -1255,14 +1311,15 @@ Operand Parser::stackValue()
 
 void Parser::error(const std::string &msg)
 {
-    std::cout << "Line: " << _lexer->line()
-              << ", position: " << _lexer->pos()
-              << ": ";
-    std::cout << msg << std::endl;
-    exit(1);
+    std::stringstream ss;
+    ss << "Line: " << _lexer->line()
+       << ", position: " << _lexer->pos()
+       << ": ";
+    ss << msg;
+    throw domain_error(ss.str());
 }
 
-void Parser::expected(Token expectedToken)
+void Parser::expected(Token expectedToken) noexcept(false)
 {
     if (lookahead() != expectedToken)
         error("Expected " + TokenName::toString(expectedToken));

@@ -39,7 +39,7 @@ const char *TokenName::_names[] = {
 "Assign", "Equal", "Identity",
 "Ampersand", "LogicalAnd", "BitAndAssign",
 "Vertical", "LogicalOr", "BitOrAssign",
-"BitNot", "BitNotAssign", "Question",
+"BitNot", "Question",
 "Colon", "Comma", "Semicolon",
 "RealNumber", "IntegerNumber", "QuotedString",
 "BackQuotedString", "Identifier"};
@@ -75,7 +75,7 @@ Token::RShiftAssign, Token::RShiftZero, Token::RShiftZeroAssign,
 Token::Assign, Token::Equal, Token::Identity,
 Token::Ampersand, Token::LogicalAnd, Token::BitAndAssign,
 Token::Vertical, Token::LogicalOr, Token::BitOrAssign,
-Token::BitNot, Token::BitNotAssign, Token::Question,
+Token::BitNot, Token::Question,
 Token::Colon, Token::Comma, Token::Semicolon,
 Token::RealNumber, Token::IntegerNumber, Token::QuotedString,
 Token::BackQuotedString, Token::Identifier};

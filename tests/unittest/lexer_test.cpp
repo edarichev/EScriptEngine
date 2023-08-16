@@ -36,7 +36,7 @@ void Lexer_Test::test_allTokens()
             U" super switch this throw  try typeof var void while with yield\n"
             U" . ( { [ ) } ] + ++ += - -- -= ^ ^= ! != !== * *= / /=\n"
             U" % %= < <= << <<= > >= >> >>= >>> >>>= = == === & && &=\n"
-            U" | || |= ~  ~= ? : ,;";
+            U" | || |= ~  ? : ,;";
 
     const Token tokens[] = {
         Token::Break,              // break
@@ -125,7 +125,6 @@ void Lexer_Test::test_allTokens()
         Token::LogicalOr,          // ||
         Token::BitOrAssign,        // |=
         Token::BitNot,             // ~
-        Token::BitNotAssign,       // ~=
         Token::Question,           // ?
         Token::Colon,              // :
         Token::Comma,              // ,

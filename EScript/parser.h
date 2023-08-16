@@ -216,7 +216,7 @@ private:
     // обработка ошибок
 private:
     void error(const std::string &msg);
-    void expected(Token expectedToken);
+    void expected(Token expectedToken) noexcept(false);
     void unexpected(Token unexpectedToken);
     void undeclaredIdentifier();
     static std::string toUtf8(const std::u32string &s);

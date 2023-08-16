@@ -21,6 +21,7 @@
 #include "shift_test.h"
 #include "bit_test.h"
 #include "logical_test.h"
+#include "assign_test.h"
 
 
 using namespace std;
@@ -48,6 +49,7 @@ int main()
     Shift_Test().run();
     Bit_Test().run();
     Logical_Test().run();
+    Assign_Test().run();
     cout << "Tests OK" << endl;
     return 0;
 }

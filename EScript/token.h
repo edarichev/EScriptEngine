@@ -103,7 +103,6 @@ enum class Token
     LogicalOr,          // ||
     BitOrAssign,        // |=
     BitNot,             // ~
-    BitNotAssign,       // ~=
     Question,           // ?
     Colon,              // :
     Comma,              // ,

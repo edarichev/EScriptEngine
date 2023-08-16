@@ -446,4 +446,20 @@ PValue PValue::log_or(const PValue &v1, const PValue &v2)
     return PValue(v1.asBoolean() || v2.asBoolean());
 }
 
+PValue PValue::mod(const PValue &v1, const PValue &v2)
+{
+    // только целые
+    uint64_t left = 0;
+    if (v1.type == SymbolType::Integer)
+        left = bit_cast<uint64_t>(v1.intValue);
+    else
+        throw std::domain_error("Only integer numbers are supported: xor");
+    uint64_t right = 0;
+    if (v2.type == SymbolType::Integer)
+        right = bit_cast<uint64_t>(v2.intValue);
+    else
+        throw std::domain_error("Only integer numbers are supported: xor");
+    return PValue(left % right);
+}
+
 } // namespace escript

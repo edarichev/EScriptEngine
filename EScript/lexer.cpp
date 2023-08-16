@@ -41,12 +41,12 @@ bool Lexer::isAssignOp(Token t)
     case Token::MulAssign:          // *=
     case Token::SlashAssign:        // /=
     case Token::PercentAssign:      // %=
+    case Token::LShiftAssign:       // <<=
     case Token::RShiftAssign:       // >>=
     case Token::RShiftZeroAssign:   // >>>=
     case Token::BitAndAssign:       // &=
     case Token::BitOrAssign:        // |=
     case Token::XorAssign:          // ^=
-    case Token::BitNotAssign:       // ~=
         return true;
     default:
         break;
@@ -188,16 +188,9 @@ Token Lexer::next()
                 return TOKEN(Token::XorAssign);
             }
             back();
-            return _token = Token::Caret;
+            return TOKEN(Token::Caret);
         case '~':
-            if ((c = read()) < 0)
-                return TOKEN(Token::BitNot);
-            if (c == '=') { // ~=
-                PUSH(c);
-                return TOKEN(Token::BitNotAssign);
-            }
-            back();
-            return _token = Token::BitNot;
+            return TOKEN(Token::BitNot);
         case '*':
             if ((c = read()) < 0)
                 return TOKEN(Token::Asterisk);

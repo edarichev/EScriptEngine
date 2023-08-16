@@ -35,7 +35,8 @@ enum class ArithmeticOperation : uint8_t
     BITOR = 13,
     BITXOR = 14,
     LOGAND = 15,
-    LOGOR = 16
+    LOGOR = 16,
+    Mod = 17
 };
 
 class StringObject;
@@ -106,6 +107,7 @@ struct PValue
     static PValue bit_xor(const PValue &v1, const PValue &v2);
     static PValue log_and(const PValue &v1, const PValue &v2);
     static PValue log_or(const PValue &v1, const PValue &v2);
+    static PValue mod(const PValue &v1, const PValue &v2);
 };
 
 bool operator<(const PValue &v1, const PValue &v2);
@@ -127,6 +129,8 @@ decltype(auto) calcValues(T1 v1, T2 v2, ArithmeticOperation op)
         return PValue(v1 / v2);
     case ArithmeticOperation::Sub:
         return PValue(v1 - v2);
+    case ArithmeticOperation::Mod:
+        return PValue::mod(PValue(v1), PValue(v2));
     case ArithmeticOperation::BoolLess:
         return PValue(PValue(v1) < PValue(v2));
     case ArithmeticOperation::BoolLessOrEqual:

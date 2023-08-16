@@ -33,6 +33,7 @@ Processor::Processor()
             {OpCode::BIT_XOR, ArithmeticOperation::BITXOR },
             {OpCode::LOG_AND, ArithmeticOperation::LOGAND },
             {OpCode::LOG_OR, ArithmeticOperation::LOGOR },
+            {OpCode::MODST, ArithmeticOperation::Mod },
         };
     }
 }
@@ -413,6 +414,11 @@ void Processor::log_not()
     }
 }
 
+void Processor::modst()
+{
+    binaryStackOp(OpCode::MODST);
+}
+
 void Processor::pushToStack(int64_t value)
 {
     pushToStack(SymbolType::Integer, value);
@@ -426,7 +432,10 @@ void Processor::binaryStackOp(OpCode opCode)
     PValue value1 = PValue::getValue(item1);
     PValue value2 = PValue::getValue(item2);
     // это должно быть гарантировано, если это не так, пусть вылетит
-    ArithmeticOperation op = optypes.find(opCode)->second;
+    auto its = optypes.find(opCode);
+    if (its == optypes.end())
+        throw std::domain_error("Processor: Operation not found");
+    ArithmeticOperation op = its->second;
     PValue result = PValue::binaryOpValues(value1, value2, op);
     if (result.type == SymbolType::String) {
         // это всегда новая строка, её нужно установить в таблицу строк

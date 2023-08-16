@@ -7,6 +7,7 @@ CONFIG += PRECOMPILE_HEADER
 SOURCES += \
         array_test.cpp \
         assembler_test.cpp \
+        assign_test.cpp \
         automation_test.cpp \
         bit_test.cpp \
         boolean_test.cpp \
@@ -34,6 +35,7 @@ SOURCES += \
 HEADERS += \
     array_test.h \
     assembler_test.h \
+    assign_test.h \
     automation_test.h \
     bit_test.h \
     boolean_test.h \

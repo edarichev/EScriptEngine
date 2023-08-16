@@ -57,6 +57,7 @@ enum class OperationType
     LogOR,          // ||
     BitNOT,         // ~
     LogNOT,         // !
+    Mod,            // %
 };
 
 /**
