@@ -18,6 +18,7 @@
 #include "console_test.h"
 #include "conversions_test.h"
 #include "incdec_test.h"
+#include "shift_test.h"
 
 
 using namespace std;
@@ -42,6 +43,7 @@ int main()
     Console_Test().run();
     Conversions_Test().run();
     IncDec_Test().run();
+    Shift_Test().run();
     cout << "Tests OK" << endl;
     return 0;
 }

@@ -47,6 +47,9 @@ enum class OperationType
     AllocArray,     // выделение памяти под массив
     Increment,      // pop, int, push
     Decrement,      // pop, int, push
+    LShift,         // <<
+    RShift,         // >>
+    RShiftZero,     // >>>
 };
 
 /**

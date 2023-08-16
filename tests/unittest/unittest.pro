@@ -23,6 +23,7 @@ SOURCES += \
         main.cpp \
         opcode_test.cpp \
         pvalue_test.cpp \
+        shift_test.cpp \
         simpleexpression_test.cpp \
         stdafx.cpp \
         string_test.cpp \
@@ -46,6 +47,7 @@ HEADERS += \
     lexer_test.h \
     opcode_test.h \
     pvalue_test.h \
+    shift_test.h \
     simpleexpression_test.h \
     stdafx.h \
     string_test.h \

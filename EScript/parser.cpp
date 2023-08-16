@@ -397,6 +397,23 @@ void Parser::SimpleExpression()
 void Parser::SimpleOrShiftExpression()
 {
     SimpleExpression();
+    OperationType op;
+    switch (lookahead()) {
+    case Token::LShift:
+        op = OperationType::LShift;
+        break;
+    case Token::RShift:
+        op = OperationType::RShift;
+        break;
+    case Token::RShiftZero:
+        op = OperationType::RShiftZero;
+        break;
+    default:
+        return;
+    }
+    next();
+    SimpleExpression();
+    emitBinaryOp(op);
 }
 
 void Parser::ShiftOrRelationExpression()
@@ -842,6 +859,9 @@ void Parser::emitBinaryOp(OperationType opType)
     case OperationType::Greater:
     case OperationType::GreaterOrEqual:
     case OperationType::Equal:
+    case OperationType::LShift:
+    case OperationType::RShift:
+    case OperationType::RShiftZero:
     {
         auto opRecord2 = popStackValue();
         auto opRecord1 = popStackValue();

@@ -144,6 +144,18 @@ std::string TCode::toString() const
         numberOfOperands = 0;
         opSign = "POP";
         break;
+    case OperationType::LShift:
+        numberOfOperands = 0;
+        opSign = "LSH";
+        break;
+    case OperationType::RShift:
+        numberOfOperands = 0;
+        opSign = "RSH";
+        break;
+    case OperationType::RShiftZero:
+        numberOfOperands = 0;
+        opSign = "RSHZ";
+        break;
     }
     std::string result;
     if (lvalue)

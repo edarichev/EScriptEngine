@@ -102,6 +102,11 @@ PValue::PValue(int64_t rhs)
     operator=(rhs);
 }
 
+PValue::PValue(uint64_t rhs)
+{
+    operator=(rhs);
+}
+
 PValue::PValue(int rhs)
 {
     operator=(rhs);
@@ -140,6 +145,13 @@ PValue &PValue::operator=(int64_t rhs)
 {
     type = SymbolType::Integer;
     intValue = rhs;
+    return *this;
+}
+
+PValue &PValue::operator=(uint64_t rhs)
+{
+    type = SymbolType::Integer;
+    intValue = bit_cast<int64_t>(rhs);
     return *this;
 }
 
@@ -326,6 +338,54 @@ void PValue::decrement()
     default:
         throw std::domain_error("Unable to decrement: not supported type");
     }
+}
+
+PValue PValue::lshift(const PValue &v1, const PValue &v2)
+{
+    // только целые
+    int64_t left = 0;
+    if (v1.type == SymbolType::Integer)
+        left = v1.intValue;
+    else
+        throw std::domain_error("Only integer numbers are supported: <<");
+    int64_t right = 0;
+    if (v2.type == SymbolType::Integer)
+        right = v2.intValue;
+    else
+        throw std::domain_error("Only integer numbers are supported: <<");
+    return PValue(left << right);
+}
+
+PValue PValue::rshift(const PValue &v1, const PValue &v2)
+{
+    // только целые
+    int64_t left = 0;
+    if (v1.type == SymbolType::Integer)
+        left = v1.intValue;
+    else
+        throw std::domain_error("Only integer numbers are supported: >>");
+    int64_t right = 0;
+    if (v2.type == SymbolType::Integer)
+        right = v2.intValue;
+    else
+        throw std::domain_error("Only integer numbers are supported: >>");
+    return PValue(left >> right);
+}
+
+PValue PValue::rshiftz(const PValue &v1, const PValue &v2)
+{
+    // только целые
+    uint64_t left = 0;
+    if (v1.type == SymbolType::Integer)
+        left = bit_cast<uint64_t>(v1.intValue);
+    else
+        throw std::domain_error("Only integer numbers are supported: <<");
+    uint64_t right = 0;
+    if (v2.type == SymbolType::Integer)
+        right = bit_cast<uint64_t>(v2.intValue);
+    else
+        throw std::domain_error("Only integer numbers are supported: <<");
+    return PValue(left >> right);
 }
 
 } // namespace escript

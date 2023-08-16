@@ -28,44 +28,12 @@ enum class ArithmeticOperation : uint8_t
     BoolGreater = 6,
     BoolGreaterOrEqual = 7,
     BoolEqual = 8,
+    LShift = 9,
+    RShift = 10,
+    RShiftZero = 11
 };
 
-struct PValue;
 class StringObject;
-
-bool operator<(const PValue &v1, const PValue &v2);
-bool operator<=(const PValue &v1, const PValue &v2);
-bool operator>(const PValue &v1, const PValue &v2);
-bool operator>=(const PValue &v1, const PValue &v2);
-bool operator==(const PValue &v1, const PValue &v2);
-
-// для строк и неприводимых типов - другая функция
-template<typename T1, typename T2>
-decltype(auto) calcValues(T1 v1, T2 v2, ArithmeticOperation op)
-{
-    switch (op) {
-    case ArithmeticOperation::Add:
-        return PValue(v1 + v2);
-    case ArithmeticOperation::Mul:
-        return PValue(v1 * v2);
-    case ArithmeticOperation::Div:
-        return PValue(v1 / v2);
-    case ArithmeticOperation::Sub:
-        return PValue(v1 - v2);
-    case ArithmeticOperation::BoolLess:
-        return PValue(PValue(v1) < PValue(v2));
-    case ArithmeticOperation::BoolLessOrEqual:
-        return PValue(PValue(v1) <= PValue(v2));
-    case ArithmeticOperation::BoolGreater:
-        return PValue(PValue(v1) > PValue(v2));
-    case ArithmeticOperation::BoolGreaterOrEqual:
-        return PValue(PValue(v1) >= PValue(v2));
-    case ArithmeticOperation::BoolEqual:
-        return PValue(PValue(v1) == PValue(v2));
-    default:
-        throw std::domain_error("Unsupported bin.op");
-    }
-}
 
 /**
  * @brief Структура для упаковки тип+значение (как variant)
@@ -84,11 +52,13 @@ struct PValue
     PValue(const PValue &rhs);
     explicit PValue(SymbolType t, int64_t rhs);
     explicit PValue(int64_t rhs);
+    explicit PValue(uint64_t rhs);
     explicit PValue(int rhs);
     explicit PValue(bool rhs);
     explicit PValue(double rhs);
     PValue &operator=(const PValue &rhs);
     PValue &operator=(int64_t rhs);
+    PValue &operator=(uint64_t rhs);
     PValue &operator=(int rhs);
     PValue &operator=(bool rhs);
     PValue &operator=(double rhs);
@@ -122,7 +92,53 @@ struct PValue
     void decrement();
 
     friend bool operator<(const PValue &v1, const PValue &v2);
+
+    static PValue lshift(const PValue &v1, const PValue &v2);
+    static PValue rshift(const PValue &v1, const PValue &v2);
+    static PValue rshiftz(const PValue &v1, const PValue &v2);
 };
+
+bool operator<(const PValue &v1, const PValue &v2);
+bool operator<=(const PValue &v1, const PValue &v2);
+bool operator>(const PValue &v1, const PValue &v2);
+bool operator>=(const PValue &v1, const PValue &v2);
+bool operator==(const PValue &v1, const PValue &v2);
+
+// для строк и неприводимых типов - другая функция
+template<typename T1, typename T2>
+decltype(auto) calcValues(T1 v1, T2 v2, ArithmeticOperation op)
+{
+    switch (op) {
+    case ArithmeticOperation::Add:
+        return PValue(v1 + v2);
+    case ArithmeticOperation::Mul:
+        return PValue(v1 * v2);
+    case ArithmeticOperation::Div:
+        return PValue(v1 / v2);
+    case ArithmeticOperation::Sub:
+        return PValue(v1 - v2);
+    case ArithmeticOperation::BoolLess:
+        return PValue(PValue(v1) < PValue(v2));
+    case ArithmeticOperation::BoolLessOrEqual:
+        return PValue(PValue(v1) <= PValue(v2));
+    case ArithmeticOperation::BoolGreater:
+        return PValue(PValue(v1) > PValue(v2));
+    case ArithmeticOperation::BoolGreaterOrEqual:
+        return PValue(PValue(v1) >= PValue(v2));
+    case ArithmeticOperation::BoolEqual:
+        return PValue(PValue(v1) == PValue(v2));
+    case ArithmeticOperation::LShift:
+        return PValue::lshift(PValue(v1), PValue(v2));
+    case ArithmeticOperation::RShift:
+        return PValue::rshift(PValue(v1), PValue(v2));
+    case ArithmeticOperation::RShiftZero:
+        return PValue::rshiftz(PValue(v1), PValue(v2));
+    default:
+        throw std::domain_error("Unsupported bin.op");
+    }
+}
+
+
 
 } // namespace escript
 

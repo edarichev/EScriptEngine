@@ -32,6 +32,9 @@ Translator::Translator()
             {OperationType::Greater, ArithmeticOperation::BoolGreater },
             {OperationType::GreaterOrEqual, ArithmeticOperation::BoolGreaterOrEqual },
             {OperationType::Equal, ArithmeticOperation::BoolEqual },
+            {OperationType::LShift, ArithmeticOperation::LShift },
+            {OperationType::RShift, ArithmeticOperation::RShift },
+            {OperationType::RShiftZero, ArithmeticOperation::RShiftZero },
         };
     }
 }
@@ -137,6 +140,9 @@ void Translator::translateOperation(const TCode &c)
     case OperationType::Greater:
     case OperationType::GreaterOrEqual:
     case OperationType::Equal:
+    case OperationType::LShift:
+    case OperationType::RShift:
+    case OperationType::RShiftZero:
         binaryOp(c);
         break;
     case OperationType::Assign:
@@ -382,6 +388,15 @@ void Translator::binaryOp(const TCode &c)
         break;
     case OperationType::Equal:
         a.steq();
+        break;
+    case OperationType::LShift:
+        a.lsh();
+        break;
+    case OperationType::RShift:
+        a.rsh();
+        break;
+    case OperationType::RShiftZero:
+        a.rshz();
         break;
     default:
         throw std::domain_error("Unsupported binary operation");

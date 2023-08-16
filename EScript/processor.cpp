@@ -25,6 +25,9 @@ Processor::Processor()
             {OpCode::STGT, ArithmeticOperation::BoolGreater },
             {OpCode::STGT_EQ, ArithmeticOperation::BoolGreaterOrEqual },
             {OpCode::STEQ, ArithmeticOperation::BoolEqual },
+            {OpCode::LSH, ArithmeticOperation::LShift },
+            {OpCode::RSH, ArithmeticOperation::RShift },
+            {OpCode::RSHZ, ArithmeticOperation::RShiftZero },
         };
     }
 }
@@ -341,6 +344,21 @@ void Processor::pop()
 {
     next();
     popFromStack();
+}
+
+void Processor::rsh()
+{
+    binaryStackOp(OpCode::RSH);
+}
+
+void Processor::rshz()
+{
+    binaryStackOp(OpCode::RSHZ);
+}
+
+void Processor::lsh()
+{
+    binaryStackOp(OpCode::LSH);
 }
 
 void Processor::pushToStack(int64_t value)

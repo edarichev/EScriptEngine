@@ -55,8 +55,8 @@ void IncDec_Test::test_postfixInc()
 {
     const u32string code1 = U"a = 3; b = a++;";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    //engine.setShowDisassembleListing(true);
+    //engine.setShowTCode(true);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto a = mainTable->find(U"a");
@@ -112,8 +112,8 @@ void IncDec_Test::test_postfixDec()
 {
     const u32string code1 = U"a = 3; b = a--;";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    //engine.setShowDisassembleListing(true);
+    //engine.setShowTCode(true);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto a = mainTable->find(U"a");
@@ -134,4 +134,14 @@ void IncDec_Test::test_postfixDec()
     record = engine.getObjectRecord(b);
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(6, record->data));
+
+
+    const u32string code3 = U"a = 4; c = 6; b = c-- + a;";
+    engine.eval(code3);
+
+    b = mainTable->find(U"b");
+    record = engine.getObjectRecord(b);
+    assert(record->type == SymbolType::Integer);
+    int c = 6;
+    assert(Compare::equals_int64(c-- + 4, record->data)); // == 10
 }
