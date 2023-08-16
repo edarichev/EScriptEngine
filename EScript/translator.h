@@ -125,6 +125,8 @@ private:
     void opCall(const TCode &c);
     void opCallM(const TCode &c);
     void opAllocArray(const TCode &c);
+    void opIncrement(const TCode &c);
+    void opDecrement(const TCode &c);
     /**
      * @brief Генерирует вывод команды ldc_*** в зависимотси от типа
      * @param type тип аргумента

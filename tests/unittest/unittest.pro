@@ -18,6 +18,7 @@ SOURCES += \
         forstatement_test.cpp \
         functiondeclstatement_test.cpp \
         ifelsestatement_test.cpp \
+        incdec_test.cpp \
         lexer_test.cpp \
         main.cpp \
         opcode_test.cpp \
@@ -41,6 +42,7 @@ HEADERS += \
     forstatement_test.h \
     functiondeclstatement_test.h \
     ifelsestatement_test.h \
+    incdec_test.h \
     lexer_test.h \
     opcode_test.h \
     pvalue_test.h \

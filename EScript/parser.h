@@ -181,6 +181,7 @@ private:
                           std::shared_ptr<Symbol> &resultVariable,
                           int nArgs);
     void emitAllocArray(std::shared_ptr<Symbol> &arrVariable);
+    void emitIncrement();
     // работа с символами
 private:
     /**

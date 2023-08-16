@@ -291,5 +291,12 @@ void ICodeEmitter::allocArray(std::shared_ptr<Symbol> &arrVariable)
     _buffer->push_back(code);
 }
 
+void ICodeEmitter::increment()
+{
+    TCode code;
+    code.operation = OperationType::Increment;
+    _buffer->push_back(code);
+}
+
 } // namespace escript
 

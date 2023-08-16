@@ -300,5 +300,32 @@ PValue PValue::binaryOpValues(const PValue &value1, const PValue &value2, Arithm
     throw std::domain_error("Unsupported binary operation for specified types");
 }
 
+void PValue::increment()
+{
+    switch (type) {
+    case SymbolType::Integer:
+        intValue++;
+        break;
+    case SymbolType::Real:
+        realValue++;
+        break;
+    default:
+        throw std::domain_error("Unable to increment: not supported type");
+    }
+}
+
+void PValue::decrement()
+{
+    switch (type) {
+    case SymbolType::Integer:
+        intValue--;
+        break;
+    case SymbolType::Real:
+        realValue--;
+        break;
+    default:
+        throw std::domain_error("Unable to decrement: not supported type");
+    }
+}
 
 } // namespace escript

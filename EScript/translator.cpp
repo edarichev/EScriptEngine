@@ -193,6 +193,9 @@ void Translator::translateOperation(const TCode &c)
     case OperationType::AllocArray:
         opAllocArray(c);
         break;
+    case OperationType::Increment:
+        opIncrement(c);
+        break;
     default:
         throw std::domain_error("Can not translate operation: " + c.toString());
     }
@@ -502,6 +505,18 @@ void Translator::opAllocArray(const TCode &c)
     Assembler &a = as();
     Symbol *arrVariable = c.lvalue;
     a.allocarray(location(arrVariable));
+}
+
+void Translator::opIncrement(const TCode &)
+{
+    Assembler &a = as();
+    a.inc();
+}
+
+void Translator::opDecrement(const TCode &)
+{
+    Assembler &a = as();
+    a.dec();
 }
 
 void Translator::emit_ldc(const Operand &operand)

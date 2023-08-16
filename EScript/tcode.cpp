@@ -132,6 +132,10 @@ std::string TCode::toString() const
         numberOfOperands = 0;
         opSign = "ALLOCARRAY";
         break;
+    case OperationType::Increment:
+        numberOfOperands = 0;
+        opSign = "INC";
+        break;
     }
     std::string result;
     if (lvalue)

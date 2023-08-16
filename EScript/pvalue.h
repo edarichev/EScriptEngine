@@ -118,6 +118,9 @@ struct PValue
     static PValue binaryOpValues(const PValue &value1, const PValue &value2,
                                  ArithmeticOperation op);
 
+    void increment();
+    void decrement();
+
     friend bool operator<(const PValue &v1, const PValue &v2);
 };
 

@@ -487,7 +487,7 @@ void Parser::Term()
 }
 
 void Parser::Factor()
-{
+{ // Здесь объединены правила Literals, Grouping, CallOrAccess, PostfixOperation
     switch (lookahead()) {
     case Token::LeftParenth:
         // круглые скобки
@@ -501,10 +501,15 @@ void Parser::Factor()
         Factor();
         return;
     case Token::Minus:
-        next();
         // унарный минус
+        next();
         Factor();
         emitUnaryOp(OperationType::UMinus);
+        return;
+    case Token::PlusPlus:
+        next();
+        Factor();
+        emitIncrement();
         return;
     case Token::Identifier: {
         // это правая часть, здесь - только ранее объявленный id
@@ -957,6 +962,23 @@ void Parser::emitAllocArray(std::shared_ptr<Symbol> &arrVariable)
     _emitter->allocArray(arrVariable);
     //_emitter->pushVariable(arrVariable.get());
     //_emitter->pop(arrVariable); // вызовет stloc
+}
+
+void Parser::emitIncrement()
+{
+    auto top = popStackValue();
+    // попробовать вычислить, если это число
+    if (top.type == SymbolType::Integer) {
+        top.intValue++;
+        pushInt(top.intValue);
+    } else if (top.type == SymbolType::Real) {
+        top.realValue++;
+        pushReal(top.realValue);
+    } else if (top.type == SymbolType::Variable) {
+        _emitter->push(top);
+        _emitter->increment();
+        pushVariable(top.variable);
+    }
 }
 
 

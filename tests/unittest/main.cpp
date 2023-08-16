@@ -17,6 +17,7 @@
 #include "string_test.h"
 #include "console_test.h"
 #include "conversions_test.h"
+#include "incdec_test.h"
 
 
 using namespace std;
@@ -40,6 +41,7 @@ int main()
     Array_Test().run();
     Console_Test().run();
     Conversions_Test().run();
+    IncDec_Test().run();
     cout << "Tests OK" << endl;
     return 0;
 }
