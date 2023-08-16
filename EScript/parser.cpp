@@ -452,26 +452,56 @@ void Parser::RelationOrEqualityExpression()
 void Parser::BitwiseAndOrEqualityExpression()
 {
     RelationOrEqualityExpression();
+    if (lookahead() == Token::Ampersand) {
+        // побитовое AND
+        next();
+        RelationOrEqualityExpression();
+        emitBinaryOp(OperationType::BitAND);
+    }
 }
 
 void Parser::BitwiseXOROrAndExpression()
 {
     BitwiseAndOrEqualityExpression();
+    if (lookahead() == Token::Caret) {
+        // побитовое XOR
+        next();
+        BitwiseAndOrEqualityExpression();
+        emitBinaryOp(OperationType::BitXOR);
+    }
 }
 
 void Parser::BitwiseOROrXORExpression()
 {
     BitwiseXOROrAndExpression();
+    if (lookahead() == Token::Vertical) {
+        // побитовое OR
+        next();
+        BitwiseXOROrAndExpression();
+        emitBinaryOp(OperationType::BitOR);
+    }
 }
 
 void Parser::LogicalAndOrBitORExpression()
 {
     BitwiseOROrXORExpression();
+    if (lookahead() == Token::LogicalAnd) {
+        // логическое AND
+        next();
+        BitwiseOROrXORExpression();
+        emitBinaryOp(OperationType::LogAND);
+    }
 }
 
 void Parser::LogicalOrOrAndExpression()
 {
     LogicalAndOrBitORExpression();
+    if (lookahead() == Token::LogicalOr) {
+        // логическое OR
+        next();
+        LogicalAndOrBitORExpression();
+        emitBinaryOp(OperationType::LogOR);
+    }
 }
 
 void Parser::LogicalOrNCOExpression()
@@ -862,6 +892,11 @@ void Parser::emitBinaryOp(OperationType opType)
     case OperationType::LShift:
     case OperationType::RShift:
     case OperationType::RShiftZero:
+    case OperationType::BitAND:
+    case OperationType::BitOR:
+    case OperationType::BitXOR:
+    case OperationType::LogAND:
+    case OperationType::LogOR:
     {
         auto opRecord2 = popStackValue();
         auto opRecord1 = popStackValue();

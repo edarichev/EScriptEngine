@@ -8,6 +8,7 @@ SOURCES += \
         array_test.cpp \
         assembler_test.cpp \
         automation_test.cpp \
+        bit_test.cpp \
         boolean_test.cpp \
         codegen_test.cpp \
         codeunit_test.cpp \
@@ -20,6 +21,7 @@ SOURCES += \
         ifelsestatement_test.cpp \
         incdec_test.cpp \
         lexer_test.cpp \
+        logical_test.cpp \
         main.cpp \
         opcode_test.cpp \
         pvalue_test.cpp \
@@ -33,6 +35,7 @@ HEADERS += \
     array_test.h \
     assembler_test.h \
     automation_test.h \
+    bit_test.h \
     boolean_test.h \
     codegen_test.h \
     codeunit_test.h \
@@ -45,6 +48,7 @@ HEADERS += \
     ifelsestatement_test.h \
     incdec_test.h \
     lexer_test.h \
+    logical_test.h \
     opcode_test.h \
     pvalue_test.h \
     shift_test.h \

@@ -35,6 +35,11 @@ Translator::Translator()
             {OperationType::LShift, ArithmeticOperation::LShift },
             {OperationType::RShift, ArithmeticOperation::RShift },
             {OperationType::RShiftZero, ArithmeticOperation::RShiftZero },
+            {OperationType::BitAND, ArithmeticOperation::BITAND },
+            {OperationType::BitOR, ArithmeticOperation::BITOR },
+            {OperationType::BitXOR, ArithmeticOperation::BITXOR },
+            {OperationType::LogAND, ArithmeticOperation::LOGAND },
+            {OperationType::LogOR, ArithmeticOperation::LOGOR },
         };
     }
 }
@@ -143,6 +148,11 @@ void Translator::translateOperation(const TCode &c)
     case OperationType::LShift:
     case OperationType::RShift:
     case OperationType::RShiftZero:
+    case OperationType::BitAND:
+    case OperationType::BitOR:
+    case OperationType::BitXOR:
+    case OperationType::LogAND:
+    case OperationType::LogOR:
         binaryOp(c);
         break;
     case OperationType::Assign:
@@ -397,6 +407,21 @@ void Translator::binaryOp(const TCode &c)
         break;
     case OperationType::RShiftZero:
         a.rshz();
+        break;
+    case OperationType::BitAND:
+        a.bit_and();
+        break;
+    case OperationType::BitOR:
+        a.bit_or();
+        break;
+    case OperationType::BitXOR:
+        a.bit_xor();
+        break;
+    case OperationType::LogAND:
+        a.log_and();
+        break;
+    case OperationType::LogOR:
+        a.log_or();
         break;
     default:
         throw std::domain_error("Unsupported binary operation");

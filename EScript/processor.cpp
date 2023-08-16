@@ -28,6 +28,11 @@ Processor::Processor()
             {OpCode::LSH, ArithmeticOperation::LShift },
             {OpCode::RSH, ArithmeticOperation::RShift },
             {OpCode::RSHZ, ArithmeticOperation::RShiftZero },
+            {OpCode::BIT_AND, ArithmeticOperation::BITAND },
+            {OpCode::BIT_OR, ArithmeticOperation::BITOR },
+            {OpCode::BIT_XOR, ArithmeticOperation::BITXOR },
+            {OpCode::LOG_AND, ArithmeticOperation::LOGAND },
+            {OpCode::LOG_OR, ArithmeticOperation::LOGOR },
         };
     }
 }
@@ -359,6 +364,31 @@ void Processor::rshz()
 void Processor::lsh()
 {
     binaryStackOp(OpCode::LSH);
+}
+
+void Processor::bit_and()
+{
+    binaryStackOp(OpCode::BIT_AND);
+}
+
+void Processor::bit_or()
+{
+    binaryStackOp(OpCode::BIT_OR);
+}
+
+void Processor::bit_xor()
+{
+    binaryStackOp(OpCode::BIT_XOR);
+}
+
+void Processor::log_and()
+{
+    binaryStackOp(OpCode::LOG_AND);
+}
+
+void Processor::log_or()
+{
+    binaryStackOp(OpCode::LOG_OR);
 }
 
 void Processor::pushToStack(int64_t value)

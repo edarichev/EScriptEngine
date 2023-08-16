@@ -19,6 +19,8 @@
 #include "conversions_test.h"
 #include "incdec_test.h"
 #include "shift_test.h"
+#include "bit_test.h"
+#include "logical_test.h"
 
 
 using namespace std;
@@ -44,6 +46,8 @@ int main()
     Conversions_Test().run();
     IncDec_Test().run();
     Shift_Test().run();
+    Bit_Test().run();
+    Logical_Test().run();
     cout << "Tests OK" << endl;
     return 0;
 }

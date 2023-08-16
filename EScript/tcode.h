@@ -50,6 +50,11 @@ enum class OperationType
     LShift,         // <<
     RShift,         // >>
     RShiftZero,     // >>>
+    BitAND,         // &
+    BitOR,          // |
+    BitXOR,         // ^
+    LogAND,         // &&
+    LogOR,          // ||
 };
 
 /**

@@ -156,6 +156,26 @@ std::string TCode::toString() const
         numberOfOperands = 0;
         opSign = "RSHZ";
         break;
+    case OperationType::BitAND:
+        numberOfOperands = 0;
+        opSign = "BIT.AND";
+        break;
+    case OperationType::BitOR:
+        numberOfOperands = 0;
+        opSign = "BIT.OR";
+        break;
+    case OperationType::BitXOR:
+        numberOfOperands = 0;
+        opSign = "BIT.XOR";
+        break;
+    case OperationType::LogAND:
+        numberOfOperands = 0;
+        opSign = "LOG.AND";
+        break;
+    case OperationType::LogOR:
+        numberOfOperands = 0;
+        opSign = "LOG.OR";
+        break;
     }
     std::string result;
     if (lvalue)

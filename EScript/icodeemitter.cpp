@@ -34,6 +34,11 @@ void ICodeEmitter::binaryOp(OperationType operationType,
     case OperationType::LShift:
     case OperationType::RShift:
     case OperationType::RShiftZero:
+    case OperationType::BitAND:
+    case OperationType::BitOR:
+    case OperationType::BitXOR:
+    case OperationType::LogAND:
+    case OperationType::LogOR:
         break;
     default:
         throw std::domain_error("Invalid binary operation");

@@ -30,7 +30,12 @@ enum class ArithmeticOperation : uint8_t
     BoolEqual = 8,
     LShift = 9,
     RShift = 10,
-    RShiftZero = 11
+    RShiftZero = 11,
+    BITAND = 12,
+    BITOR = 13,
+    BITXOR = 14,
+    LOGAND = 15,
+    LOGOR = 16
 };
 
 class StringObject;
@@ -96,6 +101,11 @@ struct PValue
     static PValue lshift(const PValue &v1, const PValue &v2);
     static PValue rshift(const PValue &v1, const PValue &v2);
     static PValue rshiftz(const PValue &v1, const PValue &v2);
+    static PValue bit_and(const PValue &v1, const PValue &v2);
+    static PValue bit_or(const PValue &v1, const PValue &v2);
+    static PValue bit_xor(const PValue &v1, const PValue &v2);
+    static PValue log_and(const PValue &v1, const PValue &v2);
+    static PValue log_or(const PValue &v1, const PValue &v2);
 };
 
 bool operator<(const PValue &v1, const PValue &v2);
@@ -133,6 +143,16 @@ decltype(auto) calcValues(T1 v1, T2 v2, ArithmeticOperation op)
         return PValue::rshift(PValue(v1), PValue(v2));
     case ArithmeticOperation::RShiftZero:
         return PValue::rshiftz(PValue(v1), PValue(v2));
+    case ArithmeticOperation::BITAND:
+        return PValue::bit_and(PValue(v1), PValue(v2));
+    case ArithmeticOperation::BITOR:
+        return PValue::bit_or(PValue(v1), PValue(v2));
+    case ArithmeticOperation::BITXOR:
+        return PValue::bit_xor(PValue(v1), PValue(v2));
+    case ArithmeticOperation::LOGAND:
+        return PValue::log_and(PValue(v1), PValue(v2));
+    case ArithmeticOperation::LOGOR:
+        return PValue::log_or(PValue(v1), PValue(v2));
     default:
         throw std::domain_error("Unsupported bin.op");
     }
