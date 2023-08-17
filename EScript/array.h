@@ -3,6 +3,7 @@
 
 #include "EScript_global.h"
 #include <map>
+#include <vector>
 #include "automationobject.h"
 #include "types.h"
 
@@ -20,6 +21,7 @@ struct PValue;
 class ESCRIPT_EXPORT Array : public AutomationObject
 {
     std::map<std::string, PValue> _items;
+    std::vector<std::string> _keys;
     using BaseClass = AutomationObject;
 public:
     /**
@@ -38,7 +40,8 @@ public:
     int64_t length() const;
     void add(PValue value);
     std::u32string uString() const;
-
+private:
+    void setKeyValue(const std::string &key, const PValue &value);
     // AutomationObject interface
 public:
     virtual bool call(const std::u32string &method, Processor *p) override;

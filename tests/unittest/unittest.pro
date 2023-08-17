@@ -5,6 +5,7 @@ CONFIG -= qt
 CONFIG += PRECOMPILE_HEADER
 
 SOURCES += \
+        algo_test.cpp \
         array_test.cpp \
         assembler_test.cpp \
         assign_test.cpp \
@@ -31,9 +32,11 @@ SOURCES += \
         simpleexpression_test.cpp \
         stdafx.cpp \
         string_test.cpp \
+        variabledecl_test.cpp \
         whilestatement_test.cpp
 
 HEADERS += \
+    algo_test.h \
     array_test.h \
     assembler_test.h \
     assign_test.h \
@@ -59,6 +62,7 @@ HEADERS += \
     simpleexpression_test.h \
     stdafx.h \
     string_test.h \
+    variabledecl_test.h \
     whilestatement_test.h
 
 PRECOMPILED_HEADER = stdafx.h

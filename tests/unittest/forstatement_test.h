@@ -10,6 +10,9 @@ private:
     void initTestCase();
     void cleanupTestCase();
     void test_for();
+    void test_nestedFor();
+    void test_forArray();
+    void test_arrayItemAdd();
 };
 
 #endif // FORSTATEMENT_TEST_H

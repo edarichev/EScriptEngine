@@ -35,6 +35,10 @@ using RealType = double;
 using StringType = std::u32string; // потом сделать по стандарту отдельный класс
 
 std::u32string to_u32string(const SymbolType &t, uint64_t v);
+std::u32string to_u32string(const std::string &ascii);
+std::u32string to_u32string(int64_t v);
+std::u32string to_u32string(double v);
+std::u32string to_u32string(bool v);
 
 } // namespace escript
 

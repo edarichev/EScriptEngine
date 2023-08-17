@@ -7,6 +7,10 @@ void Array_Test::run()
     initTestCase();
     test_arrayAccess();
     test_arrayItemSet();
+    test_arrayItemGet();
+    test_arrayItemSwap();
+    test_arrayItemAdd();
+    test_arrayIfElse();
     cleanupTestCase();
 }
 
@@ -80,4 +84,80 @@ void Array_Test::test_arrayItemSet()
     assert(record != nullptr);
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(88, record->data));
+}
+
+void Array_Test::test_arrayItemGet()
+{
+    const u32string code1 = U"a = [3,6,9,]; t = a[1];";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto t = mainTable->find(U"t");
+    assert(t != nullptr);
+    auto record = engine.getObjectRecord(t);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(6, record->data));
+}
+
+void Array_Test::test_arrayItemSwap()
+{
+    const u32string code1 = U"a = [3,6,9,]; i = 1; j = 2; t = a[i]; a[i] = a[j]; a[j] = t;";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto t = mainTable->find(U"t");
+    assert(t != nullptr);
+    auto record = engine.getObjectRecord(t);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(6, record->data));
+}
+void Array_Test::test_arrayItemAdd()
+{
+    const string prog1 = R"(
+a = [11,17];
+var x = 0;
+x = x + a[1];
+)";
+    const std::u32string code1 = to_u32string(prog1);
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(17, record->data));
+}
+
+void Array_Test::test_arrayIfElse()
+{
+    const std::string prog1 = R"(
+arr = [1, 3, 5, 7, 8, 9];
+v = 5;
+function fx(arr, x) {
+    if(arr[1] > x)
+        return 2;
+    else
+        return 1;
+}
+i = fx(arr, v);
+
+    )";
+    const std::u32string code1 = to_u32string(prog1);
+    EScript engine;
+    stringstream ss;
+    engine.setOutStream(ss);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto i = mainTable->find(U"i");
+    auto record = engine.getObjectRecord(i);
+    mainTable = engine.unit()->block()->symbolTable();
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(1, record->data));
 }

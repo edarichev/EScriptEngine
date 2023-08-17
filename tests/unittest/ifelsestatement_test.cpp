@@ -9,6 +9,7 @@ void IfElseStatement_Test::run()
 {
     initTestCase();
     test_ifOnly();
+    test_ifWithIfElse();
     cleanupTestCase();
 }
 
@@ -60,4 +61,16 @@ void IfElseStatement_Test::test_ifOnly()
     record = engine.getObjectRecord(i);
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(9, record->data));
+}
+
+void IfElseStatement_Test::test_ifWithIfElse()
+{
+    const u32string code1 = U"i = 0; if (true) i = 6; if (false) i = 7; else i = 11;";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto i = mainTable->find(U"i");
+    auto record = engine.getObjectRecord(i);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(11, record->data));
 }

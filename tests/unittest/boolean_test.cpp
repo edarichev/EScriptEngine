@@ -15,6 +15,7 @@ void Boolean_Test::run()
     test_greater();
     test_greaterOrEqual();
     test_equal();
+    test_arrayItemsLess();
     cleanupTestCase();
 }
 
@@ -176,4 +177,21 @@ void Boolean_Test::test_equal()
     record = engine.getObjectRecord(y);
     assert(record->type == SymbolType::Boolean);
     assert(Compare::equals_bool(false, record->data));
+}
+
+void Boolean_Test::test_arrayItemsLess()
+{
+    const u32string code1 = U"a = [3,7,11]; i = 1; j = 2; x = a[i]; b = false; if (a[i] < a[j]) b = true;";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(7, record->data));
+
+    auto b = mainTable->find(U"b");
+    record = engine.getObjectRecord(b);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(true, record->data));
 }

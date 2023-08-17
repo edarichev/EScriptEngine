@@ -274,18 +274,21 @@ void ICodeEmitter::pop()
 
 void ICodeEmitter::switchToTempBuffer()
 {
+    _tmpBuffer.clear();
     _buffer = &_tmpBuffer;
 }
 
 void ICodeEmitter::switchToMainBuffer()
 {
     _buffer = _mainBuffer;
+    _stackOfTmpBuffers.push(std::move(_tmpBuffer));
 }
 
 void ICodeEmitter::writeTempBuffer()
 {
-    _buffer->insert(_buffer->end(), _tmpBuffer.begin(), _tmpBuffer.end());
-    _tmpBuffer.clear();
+    auto top = _stackOfTmpBuffers.top();
+    _buffer->insert(_buffer->end(), top.begin(), top.end());
+    _stackOfTmpBuffers.pop();
 }
 
 

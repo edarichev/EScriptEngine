@@ -62,6 +62,19 @@ std::shared_ptr<Symbol> SymbolTable::find(const std::u32string &identifier)
     return nullptr;
 }
 
+std::shared_ptr<Symbol> SymbolTable::findCurrentScopeOnly(const std::u32string &identifier)
+{
+    auto it = _symbols.find(identifier);
+    if (it != _symbols.end())
+        return it->second;
+    // Возможно, родительский, если он верхнего уровня, тоже надо
+    // просмотреть, т.к. всё сливаются в глобальную область:
+    if (_parentTable && !_parentTable->_parentTable) {
+        return _parentTable->find(identifier);
+    }
+    return nullptr;
+}
+
 void SymbolTable::addOffset(uint64_t offset)
 {
     for (auto &item : _symbols)

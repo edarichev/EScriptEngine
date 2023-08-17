@@ -24,6 +24,7 @@ private:
     std::vector<TCode> *_mainBuffer;
     std::vector<TCode> *_buffer;
     std::vector<TCode> _tmpBuffer;
+    std::stack<std::vector<TCode>> _stackOfTmpBuffers;
 public:
     ICodeEmitter(std::vector<TCode> &buffer);
     void binaryOp(OperationType operationType,

@@ -92,6 +92,23 @@ PValue::PValue(SymbolType t, int64_t rhs)
     case SymbolType::Real:
         realValue = bit_cast<double>(rhs);
         break;
+    case SymbolType::Variable: {
+        ObjectRecord *rec = (ObjectRecord*)rhs;
+        switch (rec->type) {
+        case SymbolType::Boolean:
+            boolValue = rec->data ? true : false;
+            break;
+        case SymbolType::Integer:
+            intValue = bit_cast<int64_t>(rec->data);
+            break;
+        case SymbolType::Real:
+            realValue = bit_cast<double>(rec->data);
+            break;
+        default:
+            throw std::domain_error("PValue: not supported type");
+        }
+        break;
+    }
     default:
         throw std::domain_error("PValue: not supported type");
     }

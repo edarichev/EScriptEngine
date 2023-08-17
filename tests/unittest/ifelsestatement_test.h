@@ -10,6 +10,7 @@ private:
     void initTestCase();
     void cleanupTestCase();
     void test_ifOnly();
+    void test_ifWithIfElse();
 };
 
 #endif // IFELSESTATEMENT_TEST_H

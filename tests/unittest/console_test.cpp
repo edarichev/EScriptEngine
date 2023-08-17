@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "console_test.h"
 
-std::string eol = "\n";
 
 void Console_Test::run()
 {

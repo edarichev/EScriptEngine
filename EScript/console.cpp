@@ -43,7 +43,7 @@ bool escript::Console::call(const std::u32string &method, Processor *p)
         std::vector<std::u32string> args;
         while (nArgs > 0) {
             auto arg = p->popFromStack();
-            args.push_back(arg.uString());
+            args.insert(args.begin(), arg.uString());
             nArgs--;
         }
         log(args);

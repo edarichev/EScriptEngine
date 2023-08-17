@@ -78,6 +78,10 @@ void Parser::Statement()
     case Token::Return:
         ReturnStatement();
         break;
+    case Token::Var:
+        VariableDeclBlock();
+        match(Token::Semicolon);
+        break;
     default:
         AnyStatement();
         break;
@@ -173,7 +177,7 @@ void Parser::ForStatement()
     }
     emitIfFalseHeader(exitLabel);  // аналогично заголовку в if-else
     match(Token::Semicolon);
-    _emitter->switchToTempBuffer();
+    _emitter->switchToTempBuffer(); // TODO: этот буфер надо где-то сохранить, иначе на вложенном цикле выведется всё подряд.
     OptionalExpressionList();      // expr3, её вывести в конец
     _emitter->switchToMainBuffer();
     match(Token::RightParenth);
@@ -651,7 +655,7 @@ void Parser::Factor()
         default:
             auto symbol = currentSymbolTable()->find(idText);
             if (!symbol)
-                undeclaredIdentifier();
+                undeclaredIdentifier(idText);
             pushVariable(symbol);
             break; // просто идентификатор
         }
@@ -743,6 +747,7 @@ void Parser::ReturnStatement()
     }
     Expression();
     emitReturn();
+    match(Token::Semicolon);
 }
 
 void Parser::ArrayDeclExpression()
@@ -786,12 +791,14 @@ void Parser::ArrayItemRefExpression()
     match(Token::LeftBracket);
     Expression(); // индекс элемента
     emitPush();
+    popStackValue(); // убрать индекс элемента
     match(Token::RightBracket);
     if (lookahead() == Token::Assign) {
         // присваивание элементу массива
         next();
         Expression(); // новое значение
         emitPush();
+        popStackValue(); // убрать индекс элемента
         auto resultVariable = currentSymbolTable()->addTemp();
         emitCallAOMethod(arrValue, U"set", resultVariable, 2);
         pushVariable(resultVariable);
@@ -870,6 +877,39 @@ void Parser::PostfixOperation()
     emitPop();         // убрать результат inc/dec
     popStackValue();
     pushVariable(tmp);
+}
+
+void Parser::VariableDeclBlock()
+{
+    // три правила в одном: VariableDeclBlock, VariableDeclStatementList,
+    // VariableDeclStatement
+    match(Token::Var); // 1 var на весь блок объявлений
+    do {
+        if (lookahead() == Token::Identifier) {
+            auto idText = tokenText();
+            auto symbol = currentSymbolTable()->findCurrentScopeOnly(idText);
+            if (symbol) // в текущем блоке не должно быть
+                duplicateIdentifier(idText);
+            symbol = currentSymbolTable()->add(idText);
+            next();
+            if (lookahead() == Token::Comma) {
+                next();
+                continue;
+            }
+            if (lookahead() == Token::Assign) {
+                pushBack(Token::Identifier, idText);
+                AssignExpression();
+                popStackValue();
+                continue;
+            }
+        }
+        if (lookahead() == Token::Comma) {
+            next(); // не страшно, пропустить несколько запятых
+            continue;
+        }
+        if (lookahead() == Token::Semicolon)
+            break;
+    } while (lookahead() != Token::Eof);
 }
 
 
@@ -1335,10 +1375,20 @@ void Parser::undeclaredIdentifier()
     error("Undeclared identifier: " + toUtf8(tokenText()));
 }
 
+void Parser::undeclaredIdentifier(const std::u32string &s)
+{
+    error("Undeclared identifier: " + toUtf8(s));
+}
+
 string Parser::toUtf8(const std::u32string &s)
 {
     std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convert;
     return convert.to_bytes(s);
+}
+
+void Parser::duplicateIdentifier(const std::u32string &id)
+{
+    error("Duplicate identifier: " + toUtf8(id));
 }
 
 } // namespace escript

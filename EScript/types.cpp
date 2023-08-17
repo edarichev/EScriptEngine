@@ -45,5 +45,25 @@ std::u32string to_u32string(const SymbolType &t, uint64_t v)
     return std::u32string(s1.begin(), s1.end());
 }
 
+u32string to_u32string(const std::string &ascii)
+{
+    return u32string(ascii.begin(), ascii.end());
+}
+
+u32string to_u32string(int64_t v)
+{
+    return to_u32string(SymbolType::Integer, v);
+}
+
+u32string to_u32string(double v)
+{
+    return to_u32string(SymbolType::Real, v);
+}
+
+u32string to_u32string(bool v)
+{
+    return to_u32string(SymbolType::Boolean, v);
+}
+
 
 } // namespace escript

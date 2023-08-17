@@ -15,5 +15,6 @@
 using namespace escript;
 using namespace std;
 
+extern std::string eol;
 
 #endif // STDAFX_H

@@ -73,6 +73,7 @@ public:
      * @return указатель на nullptr, если не найдено
      */
     std::shared_ptr<Symbol> find(const std::u32string &identifier);
+    std::shared_ptr<Symbol> findCurrentScopeOnly(const std::u32string &identifier);
     /**
      * @brief Добавляет ко всем символам смещение
      * @param offset смещение

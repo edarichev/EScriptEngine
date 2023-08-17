@@ -6,7 +6,7 @@
 
 namespace escript {
 
-std::u32string StackValue::uString() const
+const std::u32string StackValue::uString() const
 {
     return to_u32string(type, value);
 }

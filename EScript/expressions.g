@@ -6,7 +6,7 @@ https://www.epaperpress.com/lexandyacc/if.html
 */
 
 %token Identifier
-%token IntegerNumber
+%token IntegerNumber Var
 %token RealNumber UnaryMinus UnaryPlus
 %token Assign
 %token Equal
@@ -41,7 +41,19 @@ Statement : CompoundStatement
           | FunctionDeclStatement
           | AnyStatement
           | ReturnStatement ';'
+          | VariableDeclBlock ';'
           ;
+
+VariableDeclBlock : Var VariableDeclStatementList
+                  ;
+
+VariableDeclStatementList : VariableDeclStatement
+                          | VariableDeclStatement ',' VariableDeclStatementList
+                          ;
+
+VariableDeclStatement : Identifier
+                      | Identifier Assign Expression
+                      ;
 
 ReturnStatement : Return
                 | Return Expression

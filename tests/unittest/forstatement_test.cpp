@@ -10,6 +10,8 @@ void ForStatement_Test::run()
 {
     initTestCase();
     test_for();
+    test_nestedFor();
+    test_forArray();
     cleanupTestCase();
 }
 
@@ -98,3 +100,62 @@ void ForStatement_Test::test_for()
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(8, record->data));
 }
+
+void ForStatement_Test::test_nestedFor()
+{
+    const string prog1 = R"(
+var x = 0, y = 0;
+for (i = 0; i < 10; i++) {
+    for (j = i + 1; j < 10; j++) {
+        x++;
+    }
+    y++;
+}
+)";
+    const std::u32string code1 = to_u32string(prog1);
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto i = mainTable->find(U"i");
+    auto record = engine.getObjectRecord(i);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(10, record->data));
+
+    auto x = mainTable->find(U"x");
+    record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(45, record->data));
+
+    auto y = mainTable->find(U"y");
+    record = engine.getObjectRecord(y);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(10, record->data));
+}
+
+void ForStatement_Test::test_forArray()
+{
+    const string prog1 = R"(
+a = [1,2,3,4,5];
+var x = 0;
+for (i = 0; i < a.length; i++) {
+    //console.log(x, "+", a[i], "=", x + a[i]);
+    x = x + a[i];
+}
+)";
+    const std::u32string code1 = to_u32string(prog1);
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(1+2+3+4+5, record->data));
+}
+
+

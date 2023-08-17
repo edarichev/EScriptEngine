@@ -77,6 +77,8 @@ void EScript::eval(const std::u32string &strCode)
     translator.translate(newBlock, buffer, objectFile);
     Assembler a(objectFile);
     a.setShowListing(_showDisassembleListing);
+    if (_showDisassembleListing)
+        std::cout << "=== DISASSEMBLING ===" << std::endl;
     a.disassemble(std::cout);
     _machine.load(newBlock, objectFile);
     if (addconsole) {

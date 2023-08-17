@@ -136,6 +136,9 @@ void Processor::ldargs()
     auto item = popFromStack();
     assert(item.type == SymbolType::Integer);
     int nArgs = item.value;
+    // записываем в обратном порядке
+    // (снизу вверх, т.к. переданы они тоже в обратном порядке)
+    ptr += nArgs - 1;
     while (nArgs > 0) {
         auto arg = popFromStack();
         // если тут Variable, то в стеке - ObjectRecord, и сюда заносим
@@ -191,7 +194,7 @@ void Processor::ldargs()
             throw std::domain_error("type not impl.");
         }
         nArgs--;
-        ptr++;
+        ptr--;
     }
     next();
 }

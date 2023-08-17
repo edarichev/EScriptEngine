@@ -27,7 +27,8 @@ PValue Array::get(const std::u32string &index)
 
 void Array::set(int64_t index, PValue value)
 {
-    _items[to_utf8(index)] = value;
+    auto key = to_utf8(index);
+    setKeyValue(key, value);
 }
 
 void Array::set(int64_t index, SymbolType t, uint64_t value)
@@ -37,7 +38,9 @@ void Array::set(int64_t index, SymbolType t, uint64_t value)
 
 void Array::set(const std::u32string &index, PValue value)
 {
-    _items[to_utf8(index)] = value;
+    auto key = to_utf8(index);
+    // TODO: извлечь значение, если это переменная простого типа
+    setKeyValue(key, value);
 }
 
 int64_t Array::length() const { return _items.size(); }
@@ -50,13 +53,26 @@ void Array::add(PValue value)
 std::u32string Array::uString() const
 {
     // TODO: вывести все элементы
-    return U"array";
+    std::u32string s(U"[");
+    for (size_t i = 0; i < _keys.size(); i++) {
+        auto key = _keys[i];
+        auto value = _items.find(key)->second;
+        s += value.uString();
+        if (i < _keys.size() - 1)
+            s.append(U", ");
+    }
+    s += U"]";
+    return s;
 }
 
-} // namespace escript
+void Array::setKeyValue(const std::string &key, const PValue &value)
+{
+    if (_items.find(key) == _items.end())
+        _keys.push_back(key);
+    _items[key] = value;
+}
 
-
-bool escript::Array::call(const std::u32string &method, Processor *p)
+bool Array::call(const std::u32string &method, Processor *p)
 {
     if (BaseClass::call(method, p))
         return true;
@@ -73,7 +89,7 @@ bool escript::Array::call(const std::u32string &method, Processor *p)
         auto arg = p->popFromStack();
         // пусть только переменные типа Integer
         ObjectRecord *rec = (ObjectRecord*)(arg.value);
-        add(PValue((int64_t)rec->data));
+        add(PValue(rec->type, rec->data));
         p->pushToStack(0); // OK
         return true;
     }
@@ -107,9 +123,25 @@ bool escript::Array::call(const std::u32string &method, Processor *p)
             index = rec->data;
         }
         // индекс может не существовать, как ключ он будет добавлен
+        if (argValue.type == SymbolType::Variable) {
+            ObjectRecord *rec = (ObjectRecord*)argValue.value;
+            switch (rec->type) {
+            case SymbolType::Boolean:
+            case SymbolType::Integer:
+            case SymbolType::Real:
+            case SymbolType::String:
+                argValue.type = rec->type;
+                argValue.value = rec->data;
+                break;
+            default:
+                throw std::domain_error("Not supported type of array item");
+            }
+        }
         set(index, argValue.type, argValue.value);
         p->pushToStack(0); // OK
         return true;
     }
     throw std::domain_error("Call of unknown method: array." + to_utf8(method));
 }
+
+} // namespace escript
