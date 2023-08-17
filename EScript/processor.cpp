@@ -166,6 +166,12 @@ void Processor::ldargs()
             rec->data = arg.value;
             *ptr = bit_cast<uint64_t>(rec);
             break;
+        case SymbolType::String:
+            rec = _storage->installRecord(nullptr);
+            rec->type = SymbolType::String;
+            rec->data = arg.value;
+            *ptr = bit_cast<uint64_t>(rec);
+            break;
         case SymbolType::Variable: {
             auto refRec = (ObjectRecord*)arg.value;
             // для простых типов делаем простое копирование
@@ -181,6 +187,12 @@ void Processor::ldargs()
             case SymbolType::Array:
                 rec = _storage->installRecord(nullptr);
                 rec->reference = true;
+                rec->type = refRec->type;
+                rec->data = refRec->data;
+                *ptr = bit_cast<uint64_t>(rec);
+                break;
+            case SymbolType::String:
+                rec = _storage->installRecord(nullptr);
                 rec->type = refRec->type;
                 rec->data = refRec->data;
                 *ptr = bit_cast<uint64_t>(rec);

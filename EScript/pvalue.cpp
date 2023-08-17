@@ -241,6 +241,10 @@ PValue PValue::getValue(ObjectRecord *ptr)
     case SymbolType::Boolean:
         val = ptr->data ? true : false;
         break;
+    case SymbolType::String:
+        val.strValue = (StringObject*)ptr->data;
+        val.type = SymbolType::String;
+        break;
     default:
         throw std::domain_error("Unsupported type: getValue");
     }

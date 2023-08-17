@@ -13,6 +13,8 @@
 
 namespace escript {
 
+class AutomationObject;
+
 /**
  * @brief Хранилище объектов
  */
@@ -37,6 +39,7 @@ public:
         return &_records.emplace_front(s);
     }
     ObjectRecord *findRecord(Symbol *symbol);
+    void removeRecord(AutomationObject *obj);
 };
 
 } // namespace escript

@@ -22,6 +22,13 @@ private:
     bool _showDisassembleListing = false;
     Machine _machine;
     std::shared_ptr<Unit> _unit;
+    // сюда помещаются объекты через функцию detach
+    // перед первым выполнением из этого контейнера объекты извлекаются
+    // и добавляются в глобальную таблицу символов
+    std::vector<std::pair<AutomationObject*, std::u32string> > _deferredObjects;
+    std::vector<std::shared_ptr<Symbol>> _deferredSymbols;
+    // уже запускали?
+    bool _isAlreadyRunned = false;
 public:
     /**
      * @brief Создаёт новый экземпляр скриптового движка
@@ -50,6 +57,8 @@ public:
     void setShowTCode(bool newShowTCode);
     void setShowDisassembleListing(bool newShowDisassembleListing);
     void setOutStream(std::ostream &newOutStream);
+    void attachObject(AutomationObject *obj, const std::u32string &name);
+    void detachObject(AutomationObject *obj);
 };
 
 } // namespace escript

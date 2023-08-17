@@ -28,5 +28,17 @@ ObjectRecord *Storage::findRecord(Symbol *symbol)
     return nullptr;
 }
 
+void Storage::removeRecord(AutomationObject *obj)
+{
+    for (auto it = _records.begin(); it != _records.end(); ++it) {
+        ObjectRecord &r = *it;
+        if (r.type == SymbolType::Object &&
+                r.data == (uint64_t)obj) {
+            _records.erase(it);
+            return;
+        }
+    }
+}
+
 
 } // namespace escript

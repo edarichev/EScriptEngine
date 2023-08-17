@@ -84,7 +84,7 @@ bool Array::call(const std::u32string &method, Processor *p)
         p->pushToStack(p1); // результат или 0
         return true;
     }
-    if (method == U"add") {
+    if (method == U"add" || method == U"push") {
         p->popFromStack(); // число аргументов
         auto arg = p->popFromStack();
         // пусть только переменные типа Integer
