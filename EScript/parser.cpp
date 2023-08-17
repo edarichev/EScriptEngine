@@ -909,6 +909,7 @@ void Parser::VariableDeclBlock()
         }
         if (lookahead() == Token::Semicolon)
             break;
+        error("Syntax error");
     } while (lookahead() != Token::Eof);
 }
 

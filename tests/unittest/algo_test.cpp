@@ -9,6 +9,7 @@ void Algo_Test::run()
     test_sortInt();
     test_sortReal();
     test_bsearchRecursive();
+    test_qsort();
     cleanupTestCase();
 }
 
@@ -122,4 +123,65 @@ i = bsearch_index(arr, v, 0, arr.length-1);
     mainTable = engine.unit()->block()->symbolTable();
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(2, record->data));
+}
+
+void Algo_Test::test_qsort()
+{
+    // пример отсюда:
+    // https://stackoverflow.com/questions/5185864/javascript-quicksort
+    const std::string prog1 = R"(
+var array = [8, 2, 5, 7, 4, 3, 12, 6, 19, 11, 10, 13, 9];
+
+    function quickSort(arr, left, right)
+    {
+
+        var i = left;
+        var j = right;
+        var tmp;
+        pivotidx = (left + right) / 2;
+        var pivot = arr[pivotidx];
+        /* partition */
+        while (i <= j)
+        {
+            while (arr[i] < pivot)
+            i++;
+            while (arr[j] > pivot)
+                j--;
+            if (i <= j)
+            {
+                tmp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = tmp;
+                i++;
+                j--;
+            }
+        }
+
+        /* recursion */
+        if (left < j)
+            quickSort(arr, left, j);
+        if (i < right)
+            quickSort(arr, i, right);
+        return arr;
+    }
+
+    quickSort(array, 0, array.length -1);
+    console.log(array);
+)";
+    const std::u32string code1 = to_u32string(prog1);
+    EScript engine;
+    stringstream ss;
+    engine.setOutStream(ss);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto arr = mainTable->find(U"array");
+    auto record = engine.getObjectRecord(arr);
+    mainTable = engine.unit()->block()->symbolTable();
+    assert(record->type == SymbolType::Array);
+    string s1 = "[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 19]" + eol;
+    assert(s1 == ss.str());
+    ss.clear();
+    ss.str("");
 }
