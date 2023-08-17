@@ -19,6 +19,7 @@ SOURCES += \
         dowhilestatement_test.cpp \
         forstatement_test.cpp \
         functiondeclstatement_test.cpp \
+        functions_test.cpp \
         ifelsestatement_test.cpp \
         incdec_test.cpp \
         lexer_test.cpp \
@@ -47,6 +48,7 @@ HEADERS += \
     dowhilestatement_test.h \
     forstatement_test.h \
     functiondeclstatement_test.h \
+    functions_test.h \
     ifelsestatement_test.h \
     incdec_test.h \
     lexer_test.h \

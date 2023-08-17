@@ -10,16 +10,17 @@ namespace escript {
 
 std::u32string to_u32string(const SymbolType &t, uint64_t v)
 {
+    std::ostringstream strs;
     std::string s1;
     switch (t) {
     case SymbolType::Integer:
-        s1 = std::to_string((int64_t)v);
+        strs << (int64_t)v;
+        s1 = strs.str();
         break;
     case SymbolType::Boolean:
         s1 = v ? "true" : "false";
         break;
     case SymbolType::Real: {
-        std::ostringstream strs;
         strs << std::defaultfloat << bit_cast<double>(v);
         s1 = strs.str();
         break;

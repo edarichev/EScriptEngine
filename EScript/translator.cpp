@@ -181,6 +181,12 @@ void Translator::translateOperation(const TCode &c)
     case OperationType::FunctionStart:  // FNSTART - начало блока функции, op1==Symbol*
         opFunctionStart(c);
         break; // просто как метка
+    case OperationType::StoreActivationRecord:
+        opStoreActivationRecord(c);
+        break;
+    case OperationType::LoadActivationRecord:
+        opLoadActivationRecord(c);
+        break;
     case OperationType::FunctionArgument: // аргумент функции+Symbol*
         opFunctionArgument(c);
         break;
@@ -265,6 +271,7 @@ void Translator::translateFunctionBlock(std::vector<TCode>::const_iterator &it,
     size_t totalLengthOffset = outBuffer.size();
     outBuffer.insert(outBuffer.end(), (uint8_t*)&totalLength,
                      ((uint8_t*)&totalLength) + sizeof (totalLength));
+    // начало блока переменных
     size_t startPointOfData = outBuffer.size();
     // здесь таблица символов
     // сохраняем только символы из блоков кода. Если есть вложенные функции,
@@ -272,6 +279,9 @@ void Translator::translateFunctionBlock(std::vector<TCode>::const_iterator &it,
     // это проверяется в writeAllSymbols
     uint32_t totalRecords = 0;
     writeAllSymbols(_tcodeBlock, outBuffer, totalRecords);
+    size_t endOfSymbols = outBuffer.size();
+    // запомнить границы области для сохранения записи активации
+    _activationRecords.push(std::make_pair(0xFFFFFFFF & startPointOfData, 0xFFFFFFFF & endOfSymbols));
     // число параметров
     int64_t numOfParams = parameters.size();
     outBuffer.insert(outBuffer.end(), (uint8_t*)&numOfParams,
@@ -289,6 +299,8 @@ void Translator::translateFunctionBlock(std::vector<TCode>::const_iterator &it,
         if ((*it).operation == OperationType::FunctionEnd) {
             translateOperation(*it);
             ++it;
+            // убрать запись активации - функция закончилась
+            _activationRecords.pop();
             break;
         }
         translateSelectedOperation(it, inputBuffer, outBuffer);
@@ -336,21 +348,16 @@ void Translator::replaceLabelsToAddresses(std::vector<uint8_t> &outBuffer,
         uint8_t *p = outBuffer.data() + c;
         OpCode opCode = (OpCode) *((OpCodeType*)p);
         auto shift = 0;
-        try {
-            shift = Assembler::instructionSize(opCode);
-        } catch (const std::out_of_range &e) {
-            if (*p == 'F') {
-                if (strncmp((char*)p, fnMarker, 4) == 0) {
-                    p += 4;
-                    c += 4;
-                    int32_t dataLen = *(int32_t*)p;
-                    p += dataLen;
-                    c += dataLen;
-                    continue;
-                }
+        if (*p == 'F') {
+            if (strncmp((char*)p, fnMarker, 4) == 0) {
+                p += 4;
+                c += 4;
+                int32_t dataLen = *(int32_t*)p;
+                c += 4 + 4 + dataLen;
+                continue;
             }
-            throw;
         }
+        shift = Assembler::instructionSize(opCode);
         switch (opCode) {
         case OpCode::IFFALSE_M:
         case OpCode::JMP_M:
@@ -620,6 +627,36 @@ void Translator::opLogNot(const TCode &c)
     }
     a.log_not();
     a.stloc_m(location(c.lvalue));
+}
+
+void Translator::opStoreActivationRecord(const TCode &)
+{
+    if (_activationRecords.empty())
+        return; // мы в глобальной области, это не нужно
+    // мы в функции, записываем адреса:
+    Assembler &a = as();
+    uint64_t currentAddress = a.currentPos();
+    // смещения относительно этой команды
+    uint64_t ar = currentAddress - _activationRecords.top().first;
+    ar <<= 32;
+    ar |= (currentAddress - _activationRecords.top().second);
+    a.st_ar(ar);
+}
+
+void Translator::opLoadActivationRecord(const TCode &)
+{
+    // функции st_ar/ld_ar аналогичны - в параметрах смещение таблицы переменных
+    // относительно текущей позиции (перед самой командой st_ar/ld_ar)
+    if (_activationRecords.empty())
+        return; // мы в глобальной области, это не нужно
+    // мы в функции, записываем адреса:
+    Assembler &a = as();
+    uint64_t currentAddress = a.currentPos();
+    // смещения относительно этой команды
+    uint64_t ar = currentAddress - _activationRecords.top().first;
+    ar <<= 32;
+    ar |= (currentAddress - _activationRecords.top().second);
+    a.ld_ar(ar);
 }
 
 void Translator::emit_ldc(const Operand &operand)

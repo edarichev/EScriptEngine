@@ -56,7 +56,7 @@ bool operator<=(const PValue &lhs, const PValue &rhs)
 
 bool operator==(const PValue &lhs, const PValue &rhs)
 {
-    return !((lhs < rhs) && !(rhs < lhs));
+    return !(lhs < rhs) && !(rhs < lhs);
 }
 
 bool operator>(const PValue &lhs, const PValue &rhs)

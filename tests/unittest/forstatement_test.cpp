@@ -90,7 +90,7 @@ void ForStatement_Test::test_for()
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(12345, record->data));
 
-    const u32string code9 = U"j = 0; i = 0; for (;i < 10; i = i + 1) {if (i == 5) { j = 8; continue; } i = i + 1; }";
+    const u32string code9 = U"j = 0; i = 0; for (;i < 10; i = i + 1) {if (i == 6) { j = 8; continue; } i = i + 1; }";
     engine.eval(code9);
     mainTable = engine.unit()->block()->symbolTable();
     j = mainTable->find(U"j");

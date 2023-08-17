@@ -160,4 +160,20 @@ void Boolean_Test::test_equal()
     record = engine.getObjectRecord(y);
     assert(record->type == SymbolType::Boolean);
     assert(Compare::equals_bool(true, record->data));
+
+    const u32string code4 = U"y = 10 == 0;";
+    engine.eval(code4);
+    mainTable = engine.unit()->block()->symbolTable();
+    y = mainTable->find(U"y");
+    record = engine.getObjectRecord(y);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(false, record->data));
+
+    const u32string code5 = U"a = 0; y = 10 == a;";
+    engine.eval(code5);
+    mainTable = engine.unit()->block()->symbolTable();
+    y = mainTable->find(U"y");
+    record = engine.getObjectRecord(y);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(false, record->data));
 }

@@ -148,6 +148,7 @@ void Processor::ldargs()
             rec = _storage->installRecord(nullptr);
             rec->type = SymbolType::Integer;
             rec->data = arg.value;
+            // записать адрес переменной в секции DATA:
             *ptr = bit_cast<uint64_t>(rec);
             break;
         case SymbolType::Real:
@@ -164,12 +165,19 @@ void Processor::ldargs()
             break;
         case SymbolType::Variable: {
             auto refRec = (ObjectRecord*)arg.value;
-            // для простых типов делаем прстое копирование
+            // для простых типов делаем простое копирование
             switch (refRec->type) {
             case SymbolType::Integer:
             case SymbolType::Boolean:
             case SymbolType::Real:
                 rec = _storage->installRecord(nullptr);
+                rec->type = refRec->type;
+                rec->data = refRec->data;
+                *ptr = bit_cast<uint64_t>(rec);
+                break;
+            case SymbolType::Array:
+                rec = _storage->installRecord(nullptr);
+                rec->reference = true;
                 rec->type = refRec->type;
                 rec->data = refRec->data;
                 *ptr = bit_cast<uint64_t>(rec);
@@ -417,6 +425,47 @@ void Processor::log_not()
 void Processor::modst()
 {
     binaryStackOp(OpCode::MODST);
+}
+
+void Processor::st_ar()
+{
+    // смещения таблицы с перменными относительно адреса текущей команды
+    uint64_t ar = *(uint64_t*)(_p + sizeof (OpCodeType));
+    uint32_t endOfActivationRecord = 0xFFFFFFFF & ar;
+    ar >>= 32;
+    uint32_t startOfActivationRecord = ar;
+    uint64_t *pStartAR = (uint64_t*)(_p - startOfActivationRecord);
+    uint64_t *pEndAR = (uint64_t*)(_p - endOfActivationRecord);
+    // сохранить запись активации - все указатели на переменные и параметры
+    // в прямом порядке
+    while (pStartAR < pEndAR) {
+        _activationRecords.push(*pStartAR);
+        pStartAR++;
+    }
+    next();
+    next(sizeof (uint64_t));
+}
+
+void Processor::ld_ar()
+{
+    // смещения таблицы с перменными относительно адреса текущей команды
+    uint64_t ar = *(uint64_t*)(_p + sizeof (OpCodeType));
+    uint32_t endOfActivationRecord = 0xFFFFFFFF & ar;
+    ar >>= 32;
+    uint32_t startOfActivationRecord = ar;
+    uint64_t *pStartAR = (uint64_t*)(_p - startOfActivationRecord);
+    uint64_t *pEndAR = (uint64_t*)(_p - endOfActivationRecord);
+    // сохранить запись активации - все указатели на переменные и параметры
+    // в обратном порядке
+    pEndAR--;
+    while (pStartAR <= pEndAR) {
+        auto rec = _activationRecords.top();
+        _activationRecords.pop();
+        *pEndAR = rec;
+        pEndAR--;
+    }
+    next();
+    next(sizeof (uint64_t));
 }
 
 void Processor::pushToStack(int64_t value)

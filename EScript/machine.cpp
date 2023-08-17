@@ -94,7 +94,7 @@ void Machine::replaceJMPAddresses(uint64_t startPosition, uint64_t offset)
                 p += 4;
                 c += 4;
                 int32_t dataLen = *(int32_t*)p;
-                c += dataLen;
+                c += 4 + 4 + dataLen;
                 continue;
             }
         }

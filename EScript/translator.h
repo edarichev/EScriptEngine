@@ -38,6 +38,10 @@ private:
     std::multimap<int, uint64_t> _labelReferences;
     // блок, извлекаемый из TCode::type == block
     Block *_tcodeBlock = nullptr;
+    // записи активации: first|second-начало и конец блока переменных в функции
+    // записи действуют только внутри функций, сохраняются в стеке перед CALL
+    // и восстанавливаются сразу же после CALL
+    std::stack<std::pair<uint32_t, uint32_t> > _activationRecords;
 public:
     /**
      * @brief Создаёт новый экземпляр класса Translator
@@ -130,6 +134,8 @@ private:
     void opDecrement(const TCode &c);
     void opBitNot(const TCode &c);
     void opLogNot(const TCode &c);
+    void opStoreActivationRecord(const TCode &c);
+    void opLoadActivationRecord(const TCode &c);
     /**
      * @brief Генерирует вывод команды ldc_*** в зависимотси от типа
      * @param type тип аргумента

@@ -188,6 +188,14 @@ std::string TCode::toString() const
         numberOfOperands = 0;
         opSign = "MOD";
         break;
+    case OperationType::StoreActivationRecord:
+        numberOfOperands = 0;
+        opSign = "ST.AR";
+        break;
+    case OperationType::LoadActivationRecord:
+        numberOfOperands = 0;
+        opSign = "LD.AR";
+        break;
     }
     std::string result;
     if (lvalue)

@@ -22,10 +22,14 @@ ObjectRecord::~ObjectRecord()
     if (data) {
         switch (type) {
         case SymbolType::Array:
-            delete (Array*)data;
+            if (!reference) {
+                delete (Array*)data;
+            }
             break;
         case SymbolType::Function:
-            delete (Function*)data;
+            if (!reference) {
+                delete (Function*)data;
+            }
             break;
         default:
             break;

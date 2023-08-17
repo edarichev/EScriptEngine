@@ -17,7 +17,7 @@ namespace escript {
 class ESCRIPT_EXPORT EScript
 {
 private:
-    std::ostream *_outStream;
+    std::ostream *_outStream = nullptr;
     bool _showTCode = false;
     bool _showDisassembleListing = false;
     Machine _machine;

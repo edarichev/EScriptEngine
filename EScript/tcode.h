@@ -58,6 +58,8 @@ enum class OperationType
     BitNOT,         // ~
     LogNOT,         // !
     Mod,            // %
+    StoreActivationRecord,
+    LoadActivationRecord,
 };
 
 /**

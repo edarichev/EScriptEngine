@@ -12,6 +12,11 @@ class Symbol;
  */
 struct ESCRIPT_EXPORT ObjectRecord
 {
+public:
+    /**
+     * @brief Эте запись ссылкается на другую переменную через член data
+     */
+    bool reference = false;
     /**
      * @brief Cчётчик ссылок
      */
