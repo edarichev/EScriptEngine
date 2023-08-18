@@ -23,6 +23,10 @@ public:
     {
         return false;
     }
+    void release()
+    {
+        delete this;
+    }
 };
 
 #if 0

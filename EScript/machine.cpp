@@ -104,7 +104,6 @@ void Machine::replaceJMPAddresses(uint64_t startPosition, uint64_t offset)
         switch (opCode) {
         case OpCode::IFFALSE_M:
         case OpCode::JMP_M:
-        //case OpCode::CALL:
             c += sizeof (OpCodeType); // размер кода команды
             p += sizeof (OpCodeType);
             addr = *(uint16_t*)p;

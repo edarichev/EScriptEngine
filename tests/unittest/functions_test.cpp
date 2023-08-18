@@ -64,8 +64,13 @@ U"fnRef = function func1(i) { return 123+i; };"
     engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(123+7, record->data));
+
     auto y = mainTable->find(U"y");
-    auto record = engine.getObjectRecord(y);
+    record = engine.getObjectRecord(y);
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(123+45, record->data));
 }

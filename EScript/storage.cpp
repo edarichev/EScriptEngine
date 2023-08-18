@@ -34,6 +34,7 @@ void Storage::removeRecord(AutomationObject *obj)
         ObjectRecord &r = *it;
         if (r.type == SymbolType::Object &&
                 r.data == (uint64_t)obj) {
+            r.data = 0;
             _records.erase(it);
             return;
         }

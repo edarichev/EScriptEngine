@@ -43,6 +43,7 @@ void EScript::detachObject(AutomationObject *obj)
     // если в отложенных, то ещё не добавлено в таблицу символов
     for (auto it = _deferredObjects.begin(); it != _deferredObjects.end(); ++it) {
         if ((*it).first == obj) {
+            (*it).first = nullptr;
             _deferredObjects.erase(it);
             return;
         }
@@ -122,7 +123,9 @@ void EScript::eval(const std::u32string &strCode)
         objRecord->type = SymbolType::Object;
         objRecord->data = (uint64_t)_deferredObjects[i].first;
         _machine.replaceValuePtr(theSymObject, objRecord);
+        _deferredObjects[i].first = nullptr;
     }
+    _deferredObjects.clear();
     uint64_t addr = _machine.addressValueOf(consoleObject);
     ObjectRecord *rec = (ObjectRecord*)addr;
     ((Console*)rec->data)->setOutputStream(*_outStream);

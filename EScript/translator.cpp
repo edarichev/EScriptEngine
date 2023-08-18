@@ -303,9 +303,6 @@ void Translator::translateFunctionBlock(std::vector<TCode>::const_iterator &it,
     std::copy((uint8_t*)&rcAddr,
               ((uint8_t*)&rcAddr) + sizeof (rcAddr),
               outBuffer.begin() + func->location());
-//    funcPtr->setCallAddress(outBuffer.size());
-
-//    func->setLocation(outBuffer.size());
 
     // остальная часть
     while (it < inputBuffer.end()) {

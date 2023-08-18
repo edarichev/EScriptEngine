@@ -31,6 +31,11 @@ ObjectRecord::~ObjectRecord()
                 delete (Function*)data;
             }
             break;
+        case SymbolType::Object:
+            if (!reference) {
+                AutomationObject *obj = (AutomationObject*)data;
+                obj->release();
+            }
         default:
             break;
         }
