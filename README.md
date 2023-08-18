@@ -30,6 +30,7 @@ R"(
     assert(spreadsheet.getCellValue(1, 2) == U"12345");
     assert(spreadsheet.getCellValue(0, 0) == U"Hello, world!!!!");
 ```
+Полный пример - в тестах (`automation_test.cpp`).
 ## Типы данных
 Доступны следуюшие типы данных:
 
@@ -55,7 +56,7 @@ y = "hello";
 z = 123.45;
 console.log("z=", z);
 ```
-Чтобы перенаправить логи в другой поток, отличный от `std::cout`, явно укажите это:
+Чтобы перенаправить вывод в другой поток, отличный от `std::cout`, явно укажите это:
 ```C++
     const std::string macro1 = R"(
         z = 123.45;
@@ -105,10 +106,44 @@ U"function factorial(i) { "
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(3628800, record->data));
 ```
-
-
-
-
+# Ветвления
+if/else используются стандартным образом:
+```javascript
+i = 0;
+if (true) i = 6;
+if (false) i = 7; else i = 11;
+...
+if (false) i = 6;
+else if (false) i = 5;
+else i = 7;
+```
+# Циклы
+Циклы придерживаются в основном общепринятого для C-подобных языков синтаксиса, можно использовать break/continue.
+## while
+```javascript
+i = 0;
+while (i < 10) {
+    i = i + 1;
+    if (i < 3)
+        continue;
+    break;
+}
+```
+## do...while
+```javascript
+i = 0;
+do {
+    i = i + 1;
+    if (i > 5) break;
+} while (true);
+```
+# for
+```javascript
+x = 1;
+for (i = 1; i < 10; i = i + 1) {
+    x = x * i;
+}
+```
 
 
 
