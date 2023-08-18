@@ -7,6 +7,7 @@ class MySpreadSheet : public AutomationObject
     std::vector<std::vector<std::u32string> > _cells;
     static constexpr const int ROWS = 10;
     static constexpr const int COLUMNS = 5;
+    int _id = 0;
 public:
     MySpreadSheet() : _cells(ROWS)
     {
@@ -31,6 +32,9 @@ public:
         checkIndexes(row, col);
         return _cells[row][col];
     }
+    int id() const { return _id;}
+    void setId(int newId) { _id = newId; }
+
 private:
     void checkIndexes(int rowIndex, int columnIndex) const
     {
@@ -45,25 +49,28 @@ bool MySpreadSheet::call(const u32string &method, Processor *p)
 {
     if (BaseClass::call(method, p))
         return true;
+    if (method == U"set_id") {
+        auto argCount = p->popFromStack().value; // число аргументов == 1
+        assert(argCount == 1);
+        auto argId = p->popFromStack(); // новое значение
+        int newId = argId.getIntValue();
+        setId(newId);
+        p->pushToStack(0);
+        return true;
+    }
+    if (method == U"get_id") {
+        auto argCount = p->popFromStack().value; // число аргументов == 0
+        assert(argCount == 0);
+        p->pushToStack(id());
+        return true;
+    }
     if (method == U"getCellValue") {
         auto argCount = p->popFromStack().value; // число аргументов == 2
         assert(argCount == 2);
         auto argColumnIndex = p->popFromStack(); // индекс столбца
         auto argRowIndex = p->popFromStack(); // индекс строки
-        int columnIndex = -1;
-        if (argColumnIndex.type == SymbolType::Integer)
-            columnIndex = argColumnIndex.value;
-        else if (argColumnIndex.type == SymbolType::Variable) {
-            ObjectRecord *rec = (ObjectRecord*)(argColumnIndex.value);
-            columnIndex = rec->data;
-        }
-        int rowIndex = -1;
-        if (argRowIndex.type == SymbolType::Integer)
-            rowIndex = argRowIndex.value;
-        else if (argColumnIndex.type == SymbolType::Variable) {
-            ObjectRecord *rec = (ObjectRecord*)(argRowIndex.value);
-            rowIndex = rec->data;
-        }
+        int columnIndex = argColumnIndex.getIntValue();
+        int rowIndex = argRowIndex.getIntValue();
         std::u32string value = getCellValue(rowIndex, columnIndex);
         StringObject *newString = new StringObject(value);
         p->pushToStack(SymbolType::String, (uint64_t)newString);
@@ -75,20 +82,8 @@ bool MySpreadSheet::call(const u32string &method, Processor *p)
         auto argValue = p->popFromStack(); // сначала значение
         auto argColumnIndex = p->popFromStack(); // индекс столбца
         auto argRowIndex = p->popFromStack(); // индекс строки
-        int columnIndex = -1;
-        if (argColumnIndex.type == SymbolType::Integer)
-            columnIndex = argColumnIndex.value;
-        else if (argColumnIndex.type == SymbolType::Variable) {
-            ObjectRecord *rec = (ObjectRecord*)(argColumnIndex.value);
-            columnIndex = rec->data;
-        }
-        int rowIndex = -1;
-        if (argRowIndex.type == SymbolType::Integer)
-            rowIndex = argRowIndex.value;
-        else if (argColumnIndex.type == SymbolType::Variable) {
-            ObjectRecord *rec = (ObjectRecord*)(argRowIndex.value);
-            rowIndex = rec->data;
-        }
+        int columnIndex = argColumnIndex.getIntValue();
+        int rowIndex = argRowIndex.getIntValue();
         if (argValue.type == SymbolType::Variable) {
             ObjectRecord *rec = (ObjectRecord*)argValue.value;
             switch (rec->type) {
@@ -116,6 +111,7 @@ void Automation_Test::run()
 {
     initTestCase();
     test_auto1();
+    test_autoPropSet();
     cleanupTestCase();
 }
 
@@ -153,6 +149,25 @@ void Automation_Test::test_auto1()
     assert(spreadsheet.getCellValue(1, 3) == U"Hello, world");
     assert(spreadsheet.getCellValue(1, 2) == U"12345");
     assert(spreadsheet.getCellValue(0, 0) == U"Hello, world!!!!");
+}
+
+void Automation_Test::test_autoPropSet()
+{
+    const std::string macro1 = R"(
+    spreadsheet.id = 123;
+    x = spreadsheet.id;
+)";
+    const std::u32string code1 = to_u32string(macro1);
+    MySpreadSheet spreadsheet;
+    EScript engine;
+    engine.attachObject(&spreadsheet, U"spreadsheet");
+    engine.eval(code1);
+    engine.detachObject(&spreadsheet);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(123, record->data));
 }
 
 

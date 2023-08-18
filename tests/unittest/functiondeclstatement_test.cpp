@@ -35,6 +35,8 @@ void FunctionDeclStatement_Test::test_functionDeclOnly()
     assert(Compare::equals_int64(12*12, record->data));
 
     const u32string code2 = U"y = 0; function myFunc(x) { y = x*x; return y; }; z = myFunc(12);";
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code2);
     mainTable = engine.unit()->block()->symbolTable();
     auto z = mainTable->find(U"z");

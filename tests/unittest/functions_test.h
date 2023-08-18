@@ -12,6 +12,7 @@ private:
     void test_byReference();
     void test_recursionFactorial();
     void test_funcAlias();
+    void test_funcAliasAssign();
 };
 
 #endif // FUNCTIONS_TEST_H

@@ -77,6 +77,7 @@ private:
      * @param offset смещение
      */
     void replaceJMPAddresses(uint64_t startPosition, uint64_t offset);
+    void addFunctionsCallAddressOffset(std::shared_ptr<Block> &block, uint64_t offset);
 };
 
 } // namespace escript

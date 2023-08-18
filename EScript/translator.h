@@ -19,6 +19,7 @@ namespace escript {
 class ESCRIPT_EXPORT Translator
 {
 private:
+    Storage &_storage;
     bool _showListing = false;
     std::unique_ptr<Assembler> _asm;
     std::shared_ptr<Block> _block;
@@ -46,7 +47,7 @@ public:
     /**
      * @brief Создаёт новый экземпляр класса Translator
      */
-    Translator();
+    Translator(Storage &s);
     /**
      * @brief Освобождает связанные с этим экземпляром ресурсы
      */

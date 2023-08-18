@@ -27,7 +27,11 @@ struct StackValue
     StackValue(){}
     StackValue(SymbolType t, uint64_t v) : type(t), value(v){}
     const std::u32string uString() const;
-
+    /**
+     * @brief Пытается извлечь целое значение из всех возможных полей
+     * @return Целое значение или исключение.
+     */
+    int64_t getIntValue() const;
 };
 
 

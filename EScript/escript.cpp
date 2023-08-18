@@ -99,7 +99,7 @@ void EScript::eval(const std::u32string &strCode)
     parser.parse(strCode);
     // оптимизатор промежуточного кода будет находиться здесь
     std::vector<uint8_t> objectFile;
-    Translator translator;
+    Translator translator(_machine.storage());
     translator.setShowListing(_showTCode);
     // пока нет вложенных блоков, передаём глобальный блок
     translator.translate(newBlock, buffer, objectFile);

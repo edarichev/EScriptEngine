@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "translator.h"
 #include "pvalue.h"
+#include "function.h"
 
 using std::cout;
 using std::endl;
@@ -19,7 +20,7 @@ void Translator::setShowListing(bool newShowListing)
     _showListing = newShowListing;
 }
 
-Translator::Translator()
+Translator::Translator(Storage &s) : _storage(s)
 {
     if (optypes.empty()) {
         optypes = {
@@ -292,7 +293,19 @@ void Translator::translateFunctionBlock(std::vector<TCode>::const_iterator &it,
                      ((uint8_t*)&numOfVars) + sizeof (numOfVars));
     dataLength = outBuffer.size() - startPointOfData;
     // стартовая точка функции
-    func->setLocation(outBuffer.size());
+    Function *funcPtr = new Function(func);
+    funcPtr->setName(func->name());
+    funcPtr->setCallAddress(outBuffer.size());
+    ObjectRecord *rec = _storage.installRecord(func);
+    uint64_t rcAddr = (uint64_t)rec;
+    rec->type = SymbolType::Function;
+    rec->data = (uint64_t)funcPtr;
+    std::copy((uint8_t*)&rcAddr,
+              ((uint8_t*)&rcAddr) + sizeof (rcAddr),
+              outBuffer.begin() + func->location());
+//    funcPtr->setCallAddress(outBuffer.size());
+
+//    func->setLocation(outBuffer.size());
 
     // остальная часть
     while (it < inputBuffer.end()) {
@@ -487,6 +500,9 @@ void Translator::opAssign(const TCode &c)
     case SymbolType::Array:
         a.ldloc_m(location(c.operand1.variable));
         break;
+    case SymbolType::Function:
+        a.ldloc_m(location(c.operand1.variable));
+        break;
     default:
         throw std::domain_error("Unsupported operand type for assign operation");
     }
@@ -561,7 +577,7 @@ void Translator::opRet([[maybe_unused]]const TCode &c)
 void Translator::opCall(const TCode &c)
 {
     Assembler &a = as();
-    a.call(c.operand1.function->location());
+    a.call(location(c.operand1.function));
 }
 
 void Translator::opCallM(const TCode &)

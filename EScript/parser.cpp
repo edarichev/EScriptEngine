@@ -833,8 +833,19 @@ void Parser::DotOperation()
         _argumentsCountStack.pop();
         match(Token::RightParenth);
     } else {
-        // это свойство
-        methodName = U"get_" + methodName;
+        // это свойство; какое: get/set?
+        if (lookahead() == Token::Assign) {
+            // setter
+            methodName = U"set_" + methodName;
+            next();
+            Expression(); // вычислить выражение для параметра метода
+            emitPush();   // результат - 1 аргумент поместить в стек
+            nArgs = 1;
+            popStackValue(); // убрать выражение разбора
+        } else {
+            // getter
+            methodName = U"get_" + methodName;
+        }
     }
     emitCallAOMethod(symbol, methodName, resultVariable, nArgs);
     pushVariable(resultVariable);
@@ -1321,7 +1332,7 @@ void Parser::exitToUpLevelBlock()
 
 int Parser::nextLabel()
 {
-    return _lableCounter++;
+    return _labelCounter++;
 }
 
 void Parser::pushJumpLabels(int startLabelId, int exitLabelId)

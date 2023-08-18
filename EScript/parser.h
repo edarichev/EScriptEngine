@@ -37,7 +37,7 @@ private:
     // тексты лексем для возврата
     std::deque<std::u32string> _tokenTextsQueue;
     // счётчик меток
-    int _lableCounter = 0;
+    int _labelCounter = 0;
     // стеки меток для поддержки break/continue
     std::stack<int> _startLabels;
     std::stack<int> _exitLabels;
@@ -45,9 +45,8 @@ private:
     std::stack<int> _argumentsCountStack;
     // для return - функции, return - к ближайшей функции
     std::stack<std::shared_ptr<Symbol> > _returnStack;
+    // стек значений
     std::stack<Operand> _values;
-    // стек для типа обнаруженного символа
-    //std::stack<SymbolType> _types;
 public:
     /**
      * @brief Создаёт новый экземпляр класса Parser

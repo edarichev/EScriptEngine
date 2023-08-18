@@ -38,7 +38,6 @@ int main()
     CodeGen_Test().run();
     OpCode_Test().run();
     Assembler_Test().run();
-    Automation_Test().run();
     Boolean_Test().run();
     IfElseStatement_Test().run();
     WhileStatement_Test().run();
@@ -57,6 +56,7 @@ int main()
     VariableDecl_Test().run();
     Algo_Test().run();
     ForReadme_Test().run();
+    Automation_Test().run();
     cout << "Tests OK" << endl;
     return 0;
 }

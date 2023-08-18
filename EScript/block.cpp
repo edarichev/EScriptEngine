@@ -65,7 +65,7 @@ std::shared_ptr<Block> Block::addBlock()
     return newBlock;
 }
 
-const std::vector<std::shared_ptr<Block> > &Block::blocks() const
+std::vector<std::shared_ptr<Block> > &Block::blocks()
 {
     return _blocks;
 }

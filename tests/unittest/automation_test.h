@@ -10,6 +10,7 @@ private:
     void initTestCase();
     void cleanupTestCase();
     void test_auto1();
+    void test_autoPropSet();
 };
 
 #endif // AUTOMATION_TEST_H

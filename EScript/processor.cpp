@@ -6,6 +6,7 @@
 #include "processor.h"
 #include "pvalue.h"
 #include "stringobject.h"
+#include "function.h"
 
 namespace escript {
 
@@ -221,7 +222,12 @@ void Processor::ret()
 void Processor::call()
 {
     next();
-    PtrIntType addr = *(PtrIntType*)_p;
+//    PtrIntType addr = *(PtrIntType*)_p;
+    Symbol *symbol;
+    auto rec = readRecord(symbol);
+    assert(rec->type == SymbolType::Function);
+    Function *fn = (Function*)rec->data;
+    uint64_t addr = fn->callAddress();
     next(sizeof (uint64_t)); // сначала сдвинуть
     _pcStack.push(_pc);      // теперь сохранить адрес возврата
     setPC(addr);             // перейти к функции
@@ -707,6 +713,9 @@ void Processor::stloc_m()
             // здесь нужно заменить само значение указателя в секции DATA
             // а не просто сменить значение, теперь переменная указывает на
             // нужный объект, а тот оказывается в мусоре
+            *(uint64_t*)(_memory + symbol->location()) = (uint64_t)ptrRValue;
+            break;
+        case SymbolType::Function:
             *(uint64_t*)(_memory + symbol->location()) = (uint64_t)ptrRValue;
             break;
         default:

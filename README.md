@@ -212,7 +212,26 @@ console.log(x);
     EScript engine;
     engine.eval(code1);
 ```
-Вы можете использовать рекурсию:
+
+Можно присвоить функцию переменной:
+
+```javascript
+function func1(i) {
+    return 123+i;
+}
+fnRef = func1;
+y = fnRef(45);
+```
+
+Или так:
+
+```javascript
+fnRef = function func1(i) { return 123+i; };
+x = func1(7);
+y = fnRef(45);
+```
+
+Пример рекурсивного вызова:
 ```C++
     const u32string code1 =
 U"function factorial(i) { "
@@ -286,32 +305,14 @@ bool MySpreadSheet::call(const u32string &method, Processor *p)
     if (BaseClass::call(method, p))
         return true;
     if (method == U"getCellValue") {
-        // первым всегда идёт число аргументов, здесь == 2
-        auto argCount = p->popFromStack().value;
+        auto argCount = p->popFromStack().value; // число аргументов == 2
         assert(argCount == 2);
         auto argColumnIndex = p->popFromStack(); // индекс столбца
-        auto argRowIndex = p->popFromStack();    // индекс строки
-        // извлекаем №№строки и столбца в зависимости от типа аргумента
-        int columnIndex = -1;
-        if (argColumnIndex.type == SymbolType::Integer)
-            columnIndex = argColumnIndex.value;
-        else if (argColumnIndex.type == SymbolType::Variable) {
-            // для простоты считаем, что он целый, но нужно обязательно проверить rec->type
-            // или преобразовать, например, String|Real -> Integer
-            ObjectRecord *rec = (ObjectRecord*)(argColumnIndex.value);
-            columnIndex = rec->data;
-        }
-        int rowIndex = -1;
-        if (argRowIndex.type == SymbolType::Integer)
-            rowIndex = argRowIndex.value;
-        else if (argColumnIndex.type == SymbolType::Variable) {
-            ObjectRecord *rec = (ObjectRecord*)(argRowIndex.value);
-            rowIndex = rec->data;
-        }
+        auto argRowIndex = p->popFromStack(); // индекс строки
+        int columnIndex = argColumnIndex.getIntValue();
+        int rowIndex = argRowIndex.getIntValue();
         std::u32string value = getCellValue(rowIndex, columnIndex);
-        // не беспокойтесь об удалении - строка будет удалена после завершения работы
         StringObject *newString = new StringObject(value);
-        // возвращаемый результат
         p->pushToStack(SymbolType::String, (uint64_t)newString);
         return true;
     }
@@ -321,6 +322,7 @@ bool MySpreadSheet::call(const u32string &method, Processor *p)
 
 Можно делать не только методы, но и свойства. Технически свойство - это тоже метод. Соглашение таково: 
 * свойство для чтения - это метод без параметров, начинающийся с `get_` и возвращающий результат
+* свойство для записи - это метод с одним параметром, начинающийся с `set_` и возвращающий произвольный результат, например, 0.
 
 Пример:
 

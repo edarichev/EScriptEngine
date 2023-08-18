@@ -7,6 +7,7 @@
 #include "opcode.h"
 #include "assembler.h"
 #include "block.h"
+#include "function.h"
 
 namespace escript {
 
@@ -50,16 +51,13 @@ StringContainer &Machine::strings()
     return _strings;
 }
 
-void Machine::load([[maybe_unused]] std::shared_ptr<Block> block,
+void Machine::load(std::shared_ptr<Block> block,
                    const std::vector<uint8_t> &objectFile)
 {
     uint64_t currentPos = _memory.size();
     auto blockSymbolTable = block->symbolTable();
     // корректируем все символы в блоке, ставим действительный адрес
     block->addOffset(currentPos);
-    // теперь перемещаем глобальную таблицу символов в главный блок
-    auto globalSymbolTable = block->globalBlock()->symbolTable();
-    globalSymbolTable->addRange(std::move(blockSymbolTable));
 
     // первый JMP
     _memory.insert(_memory.end(), objectFile.begin(), objectFile.begin() + sizeof(OpCodeType));
@@ -74,6 +72,10 @@ void Machine::load([[maybe_unused]] std::shared_ptr<Block> block,
     uint64_t fromPos = _memory.size();
     _memory.insert(_memory.end(), objectFile.begin() + codeOffset, objectFile.end());
     uint64_t offset = currentPos;
+    addFunctionsCallAddressOffset(block, currentPos);
+    // теперь перемещаем глобальную таблицу символов в главный блок
+    auto globalSymbolTable = block->globalBlock()->symbolTable();
+    globalSymbolTable->addRange(std::move(blockSymbolTable));
     // нужно исправить все условные и безусловные переходы
     replaceJMPAddresses(fromPos, offset);
 }
@@ -102,7 +104,7 @@ void Machine::replaceJMPAddresses(uint64_t startPosition, uint64_t offset)
         switch (opCode) {
         case OpCode::IFFALSE_M:
         case OpCode::JMP_M:
-        case OpCode::CALL:
+        //case OpCode::CALL:
             c += sizeof (OpCodeType); // размер кода команды
             p += sizeof (OpCodeType);
             addr = *(uint16_t*)p;
@@ -116,6 +118,25 @@ void Machine::replaceJMPAddresses(uint64_t startPosition, uint64_t offset)
             c += shift;
             break;
         }
+    }
+}
+
+void Machine::addFunctionsCallAddressOffset(std::shared_ptr<Block> &block, uint64_t offset)
+{
+    auto symTable = block->symbolTable();
+    for (auto &c : *symTable) {
+        uint64_t addr = *(uint64_t*)(_memory.data() + c->location());
+        if (!addr)
+            continue;
+        // у функций всегда здесь задан адрес, у других переменных - 0
+        ObjectRecord *rec = (ObjectRecord*)addr;
+        if (rec->type != SymbolType::Function)
+            continue;
+        Function *fnPtr = (Function*)rec->data;
+        fnPtr->addOffset(offset);
+    }
+    for (auto &b : block->blocks()) {
+        addFunctionsCallAddressOffset(b, offset);
     }
 }
 

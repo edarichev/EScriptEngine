@@ -58,7 +58,7 @@ public:
      * @param offset смещение
      */
     void addOffset(uint64_t offset);
-    const std::vector<std::shared_ptr<Block> > &blocks() const;
+    std::vector<std::shared_ptr<Block> > &blocks();
     const std::shared_ptr<Block> &parentBlock() const;
     BlockType type() const;
     void setType(BlockType newType);

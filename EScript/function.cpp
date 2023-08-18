@@ -4,11 +4,6 @@
 namespace escript {
 
 
-Function::Function()
-{
-
-}
-
 Function::~Function()
 {
 
@@ -32,6 +27,11 @@ const std::u32string &Function::name() const
 void Function::setName(const std::u32string &newName)
 {
     _name = newName;
+}
+
+void Function::addOffset(int64_t offset)
+{
+    _callAddress += offset;
 }
 
 
