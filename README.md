@@ -9,30 +9,30 @@ Linux, x64, C++17.
 ## Пример
 ```C++
 const std::string macro1 =
-R"(
-    function updateCell(row, col, v) {
-        spreadsheet.setCellValue(row, col, v);
-    }
-    updateCell(1, 3, "Hello, world");
-    updateCell(1, 2, 12345);
-    s = spreadsheet.getCellValue(1, 3);
-    s += "!!!!";
-    updateCell(0, 0, s);
-)";
-    const std::u32string code1 = to_u32string(macro1);
-    // Предположим, в нашей программе есть какая-то таблица, как LibreOffice.Calc
-    MySpreadSheet spreadsheet; // объект, с которым нужно работать
-    EScript engine;            // скриптовый движок
-    // добавляем переменную в таблицу символов, например, под именем "spreadsheet"
-    engine.attachObject(&spreadsheet, U"spreadsheet");
-    // выполняем макрос macro1
-    engine.eval(code1);
-    // отсоединяем объект, т.к. он был создан статически
-    engine.detachObject(&spreadsheet);
-    // проверяем результат
-    assert(spreadsheet.getCellValue(1, 3) == U"Hello, world");
-    assert(spreadsheet.getCellValue(1, 2) == U"12345");
-    assert(spreadsheet.getCellValue(0, 0) == U"Hello, world!!!!");
+    R"(
+        function updateCell(row, col, v) {
+            spreadsheet.setCellValue(row, col, v);
+        }
+        updateCell(1, 3, "Hello, world");
+        updateCell(1, 2, 12345);
+        s = spreadsheet.getCellValue(1, 3);
+        s += "!!!!";
+        updateCell(0, 0, s);
+    )";
+const std::u32string code1 = to_u32string(macro1);
+// Предположим, в нашей программе есть какая-то таблица, как LibreOffice.Calc
+MySpreadSheet spreadsheet; // объект, с которым нужно работать
+EScript engine;            // скриптовый движок
+// добавляем переменную в таблицу символов, например, под именем "spreadsheet"
+engine.attachObject(&spreadsheet, U"spreadsheet");
+// выполняем макрос macro1
+engine.eval(code1);
+// отсоединяем объект, т.к. он был создан статически
+engine.detachObject(&spreadsheet);
+// проверяем результат
+assert(spreadsheet.getCellValue(1, 3) == U"Hello, world");
+assert(spreadsheet.getCellValue(1, 2) == U"12345");
+assert(spreadsheet.getCellValue(0, 0) == U"Hello, world!!!!");
 ```
 Полный пример - в тестах (`automation_test.cpp`).
 ## Типы данных
@@ -79,20 +79,20 @@ console.log("z=", z);
 ```
 Чтобы перенаправить вывод в другой поток, отличный от `std::cout`, явно укажите это:
 ```C++
-    const std::string macro1 = R"(
-        z = 123.45;
-        console.log("z=", z);
-        )";
-    const std::u32string code1 = to_u32string(macro1);
-    std::stringstream ss; // например, в строковый поток
-    EScript engine;
-    engine.setOutStream(ss); // установить выходной поток
-    engine.eval(code1);
-    std::cout << ss.rdbuf();
-    ss.clear();
-    ss.str(""); // сброс
+const std::string macro1 = R"(
+    z = 123.45;
+    console.log("z=", z);
+    )";
+const std::u32string code1 = to_u32string(macro1);
+std::stringstream ss; // например, в строковый поток
+EScript engine;
+engine.setOutStream(ss); // установить выходной поток
+engine.eval(code1);
+std::cout << ss.rdbuf();
+ss.clear();
+ss.str(""); // сброс
 ```
-Объект `console` ведёт себя как и в JavaScript (или, точнее, как в nodejs), вставляя пробел между выводимыми значениями и символ переноса строки в конце.
+Данные выводятся в кодировке UTF-8. Объект `console` ведёт себя как и в JavaScript (или, точнее, как в nodejs), вставляя пробел между выводимыми значениями и символ переноса строки в конце.
 
 ## Ветвления
 ### if/else
