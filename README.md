@@ -1,9 +1,12 @@
 # EScriptEngine Version 0.1 alpha
-Это встраиваемый движок ECMAScript-подобного языка с динамической типизацией для программ на C++.
+Это встраиваемый движок C-подобного языка подмножества ECMAScript с динамической типизацией для программ на C++.
 
 Его можно использовать для написания скриптов, макросов и задач для расширения функциональности основной программы.
 
-Пример:
+## Целевая платформа
+Linux, x64, C++17.
+
+## Пример
 ```C++
 const std::string macro1 =
 R"(
@@ -17,6 +20,7 @@ R"(
     updateCell(0, 0, s);
 )";
     const std::u32string code1 = to_u32string(macro1);
+    // Предположим, в нашей программе есть какая-то таблица, как LibreOffice.Calc
     MySpreadSheet spreadsheet; // объект, с которым нужно работать
     EScript engine;            // скриптовый движок
     // добавляем переменную в таблицу символов, например, под именем "spreadsheet"
@@ -73,7 +77,109 @@ console.log("z=", z);
 ```
 Объект `console` ведёт себя как и в JavaScript (или, точнее, как в nodejs), вставляя пробел между выводимыми значениями и символ переноса строки в конце.
 
-# Функции
+## Ветвления
+### if/else
+if/else используются стандартным образом:
+```javascript
+i = 0;
+if (true) i = 6;
+if (false) i = 7; else i = 11;
+...
+if (false) i = 6;
+else if (false) i = 5;
+else i = 7;
+```
+## Циклы
+Циклы придерживаются в основном общепринятого для C-подобных языков синтаксиса, можно использовать break/continue.
+### while
+```javascript
+i = 0;
+while (i < 10) {
+    i = i + 1;
+    if (i < 3)
+        continue;
+    break;
+}
+```
+### do...while
+```javascript
+i = 0;
+do {
+    i = i + 1;
+    if (i > 5) break;
+} while (true);
+```
+### for
+```javascript
+x = 1;
+for (i = 1; i < 10; i = i + 1) {
+    x = x * i;
+}
+```
+## Массивы
+Массивы могут содержать числа, строки. Индекс массива - это строка. Даже если используется целое число, оно переводится в строку и служит в качестве ключа. Таким образом, массив является ассоциативным. Следующие примеры обращения к элементам допустимы:
+```javascript
+a = [];
+a[0] = "hello";
+var x = a[0];
+```
+
+```javascript
+a = [];
+a["key1"] = 123;
+var x = a["key1"];
+```
+
+Даже вещественные числа могут быть ключом (хотя для совместимости с кодом JavaScript/ECMAScript это можно не делать, но тем не менее):
+```javascript
+a = [];
+a[10.5] = "hello";
+var x = a[10.5];
+```
+### Пример работы с массивом: сортировка
+Пример взят [отсюда](https://stackoverflow.com/questions/5185864/javascript-quicksort).
+
+Заметим, что все округления убраны: движок пытается по возможности сохранить тип Integer, тогда как при делении JavaScript переводит всё в вещественные.
+```javascript
+var array = [8, 2, 5, 7, 4, 3, 12, 6, 19, 11, 10, 13, 9];
+
+function quickSort(arr, left, right)
+{
+    var i = left;
+    var j = right;
+    var tmp;
+    pivotidx = (left + right) / 2;
+    var pivot = arr[pivotidx];
+    /* partition */
+    while (i <= j)
+    {
+        while (arr[i] < pivot)
+        i++;
+        while (arr[j] > pivot)
+            j--;
+        if (i <= j)
+        {
+            tmp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = tmp;
+            i++;
+            j--;
+        }
+    }
+
+    /* recursion */
+    if (left < j)
+        quickSort(arr, left, j);
+    if (i < right)
+        quickSort(arr, i, right);
+    return arr;
+}
+
+quickSort(array, 0, array.length -1);
+console.log(array);
+```
+
+## Функции
 Функции объявляются с помощью ключевого слова `function`:
 ```C++
     const std::string macro1 = R"(
@@ -105,44 +211,6 @@ U"function factorial(i) { "
     auto record = engine.getObjectRecord(y);
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(3628800, record->data));
-```
-# Ветвления
-if/else используются стандартным образом:
-```javascript
-i = 0;
-if (true) i = 6;
-if (false) i = 7; else i = 11;
-...
-if (false) i = 6;
-else if (false) i = 5;
-else i = 7;
-```
-# Циклы
-Циклы придерживаются в основном общепринятого для C-подобных языков синтаксиса, можно использовать break/continue.
-## while
-```javascript
-i = 0;
-while (i < 10) {
-    i = i + 1;
-    if (i < 3)
-        continue;
-    break;
-}
-```
-## do...while
-```javascript
-i = 0;
-do {
-    i = i + 1;
-    if (i > 5) break;
-} while (true);
-```
-# for
-```javascript
-x = 1;
-for (i = 1; i < 10; i = i + 1) {
-    x = x * i;
-}
 ```
 
 
