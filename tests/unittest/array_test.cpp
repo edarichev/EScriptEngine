@@ -11,6 +11,10 @@ void Array_Test::run()
     test_arrayItemSwap();
     test_arrayItemAdd();
     test_arrayIfElse();
+    test_arrayStringKeys();
+    test_arrayStringValues();
+    test_arrayRealKeys();
+    test_arrayRealValues();
     cleanupTestCase();
 }
 
@@ -160,4 +164,88 @@ i = fx(arr, v);
     mainTable = engine.unit()->block()->symbolTable();
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(1, record->data));
+}
+
+void Array_Test::test_arrayStringKeys()
+{
+    const string prog1 = R"(
+a = [];
+a["key1"] = 123;
+var x = a["key1"];
+
+)";
+    const std::u32string code1 = to_u32string(prog1);
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(123, record->data));
+}
+
+void Array_Test::test_arrayStringValues()
+{
+    const string prog1 = R"(
+a = [];
+a[0] = "hello";
+var x = a[0];
+
+)";
+    const std::u32string code1 = to_u32string(prog1);
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::String);
+    assert(U"hello" == ((StringObject*)record->data)->uString());
+}
+
+void Array_Test::test_arrayRealKeys()
+{
+    const string prog1 = R"(
+a = [];
+a[10.5] = "hello";
+var x = a[10.5];
+
+)";
+    const std::u32string code1 = to_u32string(prog1);
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::String);
+    assert(U"hello" == ((StringObject*)record->data)->uString());
+}
+
+void Array_Test::test_arrayRealValues()
+{
+    const string prog1 = R"(
+a = [];
+a[10.5] = 14.5;
+var x = a[10.5];
+
+)";
+    const std::u32string code1 = to_u32string(prog1);
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::Real);
+    assert(Compare::equals_double(14.5, record->data));
 }

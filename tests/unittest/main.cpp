@@ -25,6 +25,7 @@
 #include "functions_test.h"
 #include "variabledecl_test.h"
 #include "algo_test.h"
+#include "forreadme_test.h"
 
 using namespace std;
 
@@ -55,6 +56,7 @@ int main()
     Functions_Test().run();
     VariableDecl_Test().run();
     Algo_Test().run();
+    ForReadme_Test().run();
     cout << "Tests OK" << endl;
     return 0;
 }

@@ -7,6 +7,7 @@ void Functions_Test::run()
     initTestCase();
     test_byReference();
     test_recursionFactorial();
+    test_funcAlias();
     cleanupTestCase();
 }
 
@@ -48,4 +49,23 @@ void Functions_Test::test_recursionFactorial()
     auto record = engine.getObjectRecord(y);
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(3628800, record->data));
+}
+
+void Functions_Test::test_funcAlias()
+{ // пока не нужно
+#if 0
+    const u32string code1 =
+U"function func1(i) { return 123+i; }"
+ "fnRef = func1;"
+ "y = fnRef(45);";
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto y = mainTable->find(U"y");
+    auto record = engine.getObjectRecord(y);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(123+45, record->data));
+#endif
 }

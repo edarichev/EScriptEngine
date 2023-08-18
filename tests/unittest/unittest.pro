@@ -18,6 +18,7 @@ SOURCES += \
         console_test.cpp \
         conversions_test.cpp \
         dowhilestatement_test.cpp \
+        forreadme_test.cpp \
         forstatement_test.cpp \
         functiondeclstatement_test.cpp \
         functions_test.cpp \
@@ -49,6 +50,7 @@ HEADERS += \
     console_test.h \
     conversions_test.h \
     dowhilestatement_test.h \
+    forreadme_test.h \
     forstatement_test.h \
     functiondeclstatement_test.h \
     functions_test.h \

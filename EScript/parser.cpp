@@ -827,7 +827,8 @@ void Parser::DotOperation()
         // это метод
         match(Token::LeftParenth);
         _argumentsCountStack.push(0);
-        ArgumentList();
+        if (lookahead() != Token::RightParenth)
+            ArgumentList();
         nArgs = _argumentsCountStack.top();
         _argumentsCountStack.pop();
         match(Token::RightParenth);

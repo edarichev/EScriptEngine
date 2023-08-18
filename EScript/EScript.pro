@@ -82,4 +82,6 @@ unix {
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
+    ../LICENSE \
+    ../README.md \
     expressions.g

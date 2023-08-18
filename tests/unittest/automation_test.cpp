@@ -19,10 +19,7 @@ public:
     virtual bool call(const u32string &method, Processor *p) override;
     void setCellValue(int row, int col, std::u32string str)
     {
-        if (row < 0 || row >= ROWS)
-            throw std::out_of_range("row index is out of range");
-        if (col < 0 || col >= COLUMNS)
-            throw std::out_of_range("column index is out of range");
+        checkIndexes(row, col);
         _cells[row][col] = std::move(str);
     }
     void setCellValue(int row, int col, const StackValue &value)
@@ -31,11 +28,16 @@ public:
     }
     const std::u32string getCellValue(int row, int col) const
     {
-        if (row < 0 || row >= ROWS)
-            throw std::out_of_range("row index is out of range");
-        if (col < 0 || col >= COLUMNS)
-            throw std::out_of_range("column index is out of range");
+        checkIndexes(row, col);
         return _cells[row][col];
+    }
+private:
+    void checkIndexes(int rowIndex, int columnIndex) const
+    {
+        if (rowIndex < 0 || rowIndex >= ROWS)
+            throw std::out_of_range("row index is out of range");
+        if (columnIndex < 0 || columnIndex >= COLUMNS)
+            throw std::out_of_range("column index is out of range");
     }
 };
 
@@ -130,15 +132,15 @@ void Automation_Test::cleanupTestCase()
 void Automation_Test::test_auto1()
 {
     const std::string macro1 = R"(
-function updateCell(row, col, v) {
-    spreadsheet.setCellValue(row, col, v);
-}
+    function updateCell(row, col, v) {
+        spreadsheet.setCellValue(row, col, v);
+    }
 
-updateCell(1, 3, "Hello, world");
-updateCell(1, 2, 12345);
-s = spreadsheet.getCellValue(1, 3);
-s += "!!!!";
-updateCell(0, 0, s);
+    updateCell(1, 3, "Hello, world");
+    updateCell(1, 2, 12345);
+    s = spreadsheet.getCellValue(1, 3);
+    s += "!!!!";
+    updateCell(0, 0, s);
 
 )";
     const std::u32string code1 = to_u32string(macro1);

@@ -16,5 +16,6 @@
 #include <stack>
 #include <set>
 #include <sstream>
+#include <algorithm>
 
 #endif // STDAFX_H

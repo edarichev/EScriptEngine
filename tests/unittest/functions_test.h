@@ -11,6 +11,7 @@ private:
     void cleanupTestCase();
     void test_byReference();
     void test_recursionFactorial();
+    void test_funcAlias();
 };
 
 #endif // FUNCTIONS_TEST_H

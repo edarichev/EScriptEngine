@@ -24,7 +24,8 @@ StringObject *StringContainer::add(const std::u32string &s)
 
 StringObject *StringContainer::add(StringObject *s)
 {
-    _strings.push_back(s);
+    if (std::find(_strings.begin(), _strings.end(), s) == _strings.end())
+        _strings.push_back(s);
     return s;
 }
 
