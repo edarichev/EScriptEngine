@@ -171,7 +171,7 @@ function quickSort(arr, left, right)
     while (i <= j)
     {
         while (arr[i] < pivot)
-        i++;
+            i++;
         while (arr[j] > pivot)
             j--;
         if (i <= j)
@@ -229,8 +229,128 @@ U"function factorial(i) { "
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(3628800, record->data));
 ```
+## Объекты автоматизации
+Для написания каких-то макросов и выполнения полезной работы нужно создать класс, производный от `escript::AutomationObject`. В частности, сам объект `console` и строка являются производными от этого класса и ничем в работе не отличаются. Хотя строки - это отдельная сущность, хранящаяся в таблице строк отдельно от объектов, работа с ними аналогична работе с любым производным от `AutomationObject`.
 
+Каждый класс, производный от `AutomationObject`, может переопределить метод `call`. "Может", т.к. новых методов у него может и не быть.
 
+В методе `call` мы получаем прямой доступ к процессору и стеку, из которого требуется извлечь аргументы в нужном количестве. число аргументов в скриптах не гарантируется - метод объекта автоматизации сам решает, сколько параметров ему нужно, и может менять их назначение в зависимости от их количества.
+
+Однако, метод ***обязан вытащить из стека все аргументы и затолкать туда после вызова один результат*** (можно просто поместить 0).
+
+Вот набросок для объекта автоматизации:
+
+```C++
+class MySpreadSheet : public AutomationObject
+{
+    using BaseClass = AutomationObject;
+    std::vector<std::vector<std::u32string> > _cells;
+    static constexpr const int ROWS = 10;
+    static constexpr const int COLUMNS = 5;
+public:
+    MySpreadSheet() : _cells(ROWS)
+    {
+        for (size_t row = 0; row < _cells.size(); row++) {
+            _cells[row].resize(COLUMNS);
+        }
+    }
+    // AutomationObject interface
+public:
+    virtual bool call(const u32string &method, Processor *p) override;
+    void setCellValue(int row, int col, std::u32string str)
+    {
+        checkIndexes(row, col);
+        _cells[row][col] = std::move(str);
+    }
+    void setCellValue(int row, int col, const StackValue &value)
+    {
+        setCellValue(row, col, value.uString());
+    }
+    const std::u32string getCellValue(int row, int col) const
+    {
+        checkIndexes(row, col);
+        return _cells[row][col];
+    }
+private:
+    void checkIndexes(int rowIndex, int columnIndex) const
+    {
+        if (rowIndex < 0 || rowIndex >= ROWS)
+            throw std::out_of_range("row index is out of range");
+        if (columnIndex < 0 || columnIndex >= COLUMNS)
+            throw std::out_of_range("column index is out of range");
+    }
+};
+
+bool MySpreadSheet::call(const u32string &method, Processor *p)
+{
+    if (BaseClass::call(method, p))
+        return true;
+    if (method == U"getCellValue") {
+        // первым всегда идёт число аргументов, здесь == 2
+        auto argCount = p->popFromStack().value;
+        assert(argCount == 2);
+        auto argColumnIndex = p->popFromStack(); // индекс столбца
+        auto argRowIndex = p->popFromStack();    // индекс строки
+        // извлекаем №№строки и столбца в зависимости от типа аргумента
+        int columnIndex = -1;
+        if (argColumnIndex.type == SymbolType::Integer)
+            columnIndex = argColumnIndex.value;
+        else if (argColumnIndex.type == SymbolType::Variable) {
+            // для простоты считаем, что он целый, но нужно обязательно проверить rec->type
+            // или преобразовать, например, String|Real -> Integer
+            ObjectRecord *rec = (ObjectRecord*)(argColumnIndex.value);
+            columnIndex = rec->data;
+        }
+        int rowIndex = -1;
+        if (argRowIndex.type == SymbolType::Integer)
+            rowIndex = argRowIndex.value;
+        else if (argColumnIndex.type == SymbolType::Variable) {
+            ObjectRecord *rec = (ObjectRecord*)(argRowIndex.value);
+            rowIndex = rec->data;
+        }
+        std::u32string value = getCellValue(rowIndex, columnIndex);
+        // не беспокойтесь об удалении - строка будет удалена после завершения работы
+        StringObject *newString = new StringObject(value);
+        // возвращаемый результат
+        p->pushToStack(SymbolType::String, (uint64_t)newString);
+        return true;
+    }
+    throw std::domain_error("Call of unknown method: MySpreadSheet." + to_utf8(method));
+}
+```
+
+Можно делать не только методы, но и свойства. Технически свойство - это тоже метод. Соглашение таково: 
+* свойство для чтения - это метод без параметров, начинающийся с `get_` и возвращающий результат
+
+Пример:
+
+```C++
+bool Array::call(const std::u32string &method, Processor *p)
+{
+    if (BaseClass::call(method, p))
+        return true;
+    if (method == U"get_length") {
+        // вытащить из стека аргументы
+        // число аргументов, здесь должен быть 0, поэтому просто пропустить
+        p->popFromStack();
+        int64_t p1 = length();
+        p->pushToStack(p1); // результат
+        return true;
+    }
+    // прочий код...
+}
+```
+Использование в скрипте:
+```javascript
+a = [1,2,3];
+x = a.length;
+```
+
+Однако, ни что не мешает вызвать метод прямо так:
+```javascript
+a = [1,2,3];
+x = a.get_length();
+```
 
 
 
