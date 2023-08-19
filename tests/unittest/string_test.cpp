@@ -102,13 +102,12 @@ void String_Test::test_callMethodOfStringLiteral()
 
 void String_Test::test_callMethodOfBQStringLiteral()
 {
-    const u32string code1 = U"s = `hello, 🌏`.substring(1, 3);";
+    const u32string code1 = U"x = `hello, 🌏`.length;";
     EScript engine;
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
-    auto s = mainTable->find(U"s");
-    auto record = engine.getObjectRecord(s);
-    assert(record->type == SymbolType::String);
-    auto str = (StringObject*)record->data;
-    assert(*str == U"el");
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(8, record->data));
 }
