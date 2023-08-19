@@ -9,6 +9,7 @@ private:
     void initTestCase();
     void cleanupTestCase();
     void test_objectsWork();
+    void test_clear();
 };
 
 #endif // CODEUNIT_TEST_H

@@ -9,6 +9,7 @@ void Functions_Test::run()
     test_recursionFactorial();
     test_funcAlias();
     test_funcAliasAssign();
+    test_functionAsParameter();
     cleanupTestCase();
 }
 
@@ -90,4 +91,28 @@ U"function func1(i) { return 123+i; }"
     auto record = engine.getObjectRecord(y);
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(123+45, record->data));
+}
+
+void Functions_Test::test_functionAsParameter()
+{
+    const std::string macro1 = R"(
+function testFunc(x) { return 2 * x; };
+func = testFunc;
+function fnTest(pFn, x) {
+    return pFn(x);
+}
+
+y = fnTest(func, 12);
+
+)";
+    const u32string code1 = to_u32string(macro1);
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto y = mainTable->find(U"y");
+    auto record = engine.getObjectRecord(y);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(12*2, record->data));
 }

@@ -55,7 +55,7 @@ void Processor::jmp_m()
     next();
     uint64_t jumpTo = *(uint64_t*)_p;
     setPC(jumpTo);
-    // не считывать - здесь уже новое значение PC
+    // не считывать, т.к. здесь уже новое значение PC
 }
 
 void Processor::ldc_bool_data8()
@@ -108,6 +108,7 @@ void Processor::steq()
 
 void Processor::ldargs()
 {
+    // сдвинем в конце, т.к. для отсчёта нужен этот адрес
     // это первая команда в функции, переменные расположена сразу перед ней.
     // двигаемся по 8 байт назад, пока == 0 (там нули везде)
     PtrIntType *ptr = (PtrIntType*)_p;
@@ -198,6 +199,13 @@ void Processor::ldargs()
                 rec->data = refRec->data;
                 *ptr = bit_cast<uint64_t>(rec);
                 break;
+            case SymbolType::Function:
+                rec = _storage->installRecord(nullptr);
+                rec->reference = true;
+                rec->type = refRec->type;
+                rec->data = refRec->data;
+                *ptr = bit_cast<uint64_t>(rec);
+                break;
             default:
                 throw std::domain_error("Not supported (parameter type)");
             }
@@ -222,7 +230,6 @@ void Processor::ret()
 void Processor::call()
 {
     next();
-//    PtrIntType addr = *(PtrIntType*)_p;
     Symbol *symbol;
     auto rec = readRecord(symbol);
     assert(rec->type == SymbolType::Function);
@@ -256,6 +263,9 @@ void Processor::callm()
             break;
         case SymbolType::Array:
             obj = (Array*)rec->data;
+            break;
+        case SymbolType::Function:
+            obj = (Function*)rec->data;
             break;
         case SymbolType::Object:
             obj = (AutomationObject*)rec->data;
@@ -471,6 +481,7 @@ void Processor::ld_ar()
 {
     // смещения таблицы с перменными относительно адреса текущей команды
     uint64_t ar = *(uint64_t*)(_p + sizeof (OpCodeType));
+    // |...32bit start of AR...|...32bit end of AR...|
     uint32_t endOfActivationRecord = 0xFFFFFFFF & ar;
     ar >>= 32;
     uint32_t startOfActivationRecord = ar;

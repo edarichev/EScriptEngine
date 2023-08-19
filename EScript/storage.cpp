@@ -19,6 +19,11 @@ Storage::~Storage()
 
 }
 
+void Storage::clear()
+{
+    _records.clear();
+}
+
 ObjectRecord *Storage::findRecord(Symbol *symbol)
 {
     for (ObjectRecord &r : _records) {

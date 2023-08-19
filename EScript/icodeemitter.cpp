@@ -178,7 +178,8 @@ void ICodeEmitter::fnEmptyReturn(std::shared_ptr<Symbol> &func)
 void ICodeEmitter::call(std::shared_ptr<Symbol> &func, int nArgs,
                         std::shared_ptr<Symbol> &resultVariable)
 {
-    // сохранить запись активации, если не в функции, транслятор отбросит команду
+    // сохранить запись активации в любом случае,
+    // если не в функции, то транслятор отбросит эту команду
     TCode codeSTAR;
     codeSTAR.operation = OperationType::StoreActivationRecord;
     _buffer->push_back(codeSTAR);
@@ -195,13 +196,14 @@ void ICodeEmitter::call(std::shared_ptr<Symbol> &func, int nArgs,
     codeFunc.operand1.function = func.get();
     _buffer->push_back(codeFunc);
 
-    // загрузить запись активации, если не в функции, транслятор отбросит команду
+    // загрузить запись активации в любом случае,
+    // если не в функции, то транслятор отбросит эту команду
     TCode codeLDAR;
     codeLDAR.operation = OperationType::LoadActivationRecord;
     _buffer->push_back(codeLDAR);
 
     // извлечение результата:
-    pop(resultVariable);
+    pop(resultVariable); // он всегда должен быть
 }
 
 void ICodeEmitter::startBlock(std::shared_ptr<Block> &block)

@@ -8,6 +8,7 @@ void CodeUnit_Test::run()
 {
     initTestCase();
     test_objectsWork();
+    test_clear();
     cleanupTestCase();
 }
 
@@ -33,4 +34,22 @@ void CodeUnit_Test::test_objectsWork()
     v1->setType(SymbolType::Integer);
     // должен измениться тип
     assert(v1->type() == SymbolType::Integer);
+}
+
+void CodeUnit_Test::test_clear()
+{
+    // должно быть выполнено просто без ошибок
+    const std::u32string code1 = U"x = 10; y = 'hello'; z = [1,2,3];";
+    EScript engine;
+    engine.eval(code1);
+    auto unit = engine.unit();
+    auto mainBlock = unit->block();
+    auto mainTable = mainBlock->symbolTable();
+
+    engine.clear();
+    const std::u32string code2 = U"t = 10; f = 'hello'; j = [1,2,3];";
+    engine.eval(code2);
+    unit = engine.unit();
+    mainBlock = unit->block();
+    mainTable = mainBlock->symbolTable();
 }

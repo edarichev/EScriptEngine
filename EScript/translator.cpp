@@ -120,8 +120,7 @@ void Translator::writeAllSymbols(Block *block,
         // все записи в этой области представляют собой указатели
         // на объекты в списке объектов
         // забиваем здесь место под размеры этих указателей
-        // записать смещение
-        symbol->setLocation(outBuffer.size());
+        symbol->setLocation(outBuffer.size()); // запомнить смещение символа
         outBuffer.insert(outBuffer.end(),
                          (uint8_t*)&empty,
                          (uint8_t*)&empty + sizeof (empty));
@@ -729,8 +728,7 @@ bool Translator::tryCalcBinaryOp(const TCode &c)
     }
     // это должно быть гарантировано, если это не так, пусть вылетит
     auto its = optypes.find(c.operation);
-    if (its == optypes.end())
-        throw std::domain_error("Operation not found");
+    assert(its != optypes.end());
     ArithmeticOperation op = its->second;
     // эта часть почти совпадает с void Processor::binaryStackOp(OpCode opCode)
     PValue result = PValue::binaryOpValues(value1, value2, op);

@@ -37,6 +37,10 @@ public:
      * @brief Освобождает связанные с этим экземпляром ресурсы
      */
     virtual ~Machine();
+    /**
+     * @brief Удаляет память, строки, объекты.
+     */
+    void clear();
     Storage &storage();
     StringContainer &strings();
     /**
@@ -70,14 +74,14 @@ public:
     void replaceValuePtr(std::shared_ptr<Symbol> &symbol, StringObject *s);
 
 private:
-    size_t startOffsetOf(const std::vector<uint8_t> &objectFile);
+    size_t offsetOfStartPoint(const std::vector<uint8_t> &objectFile);
     /**
      * @brief Добавляет смещения к операндам всех команд перехода.
      * @param startPosition стартовая позиция кода в сегменте CODE.
      * @param offset смещение
      */
     void replaceJMPAddresses(uint64_t startPosition, uint64_t offset);
-    void addFunctionsCallAddressOffset(std::shared_ptr<Block> &block, uint64_t offset);
+    void addCallAddressOffsetToFunctions(std::shared_ptr<Block> &block, uint64_t offset);
 };
 
 } // namespace escript

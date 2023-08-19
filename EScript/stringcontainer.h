@@ -24,6 +24,10 @@ public:
      */
     virtual ~StringContainer();
     /**
+     * @brief Удаляет все строки
+     */
+    void clear();
+    /**
      * @brief Добавляет строку и возвращает её индекс
      * @param s
      * @return

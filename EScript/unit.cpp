@@ -20,7 +20,8 @@ Unit::~Unit()
 
 void Unit::clear()
 {
-
+    _block->clear();
+    _block.reset();
 }
 
 std::shared_ptr<Block> Unit::block()

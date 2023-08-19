@@ -25,7 +25,7 @@ bool StringObject::call(const std::u32string &method, Processor *p)
         // вытащить из стека аргументы
         // число аргументов, пока не нужно, просто пропустить
         p->popFromStack();
-        int64_t param1 = p->popFromStack().value;
+        int64_t param1 = p->popFromStack().getIntValue();
         int64_t c = at(param1);
         p->pushToStack(c); // результат или 0
         return true;
@@ -34,15 +34,15 @@ bool StringObject::call(const std::u32string &method, Processor *p)
         // метод с аргументами
         // вытащить из стека аргументы
         // число аргументов, пока не нужно, просто пропустить
-        auto countOfArgs = p->popFromStack().value;
+        auto countOfArgs = p->popFromStack().getIntValue();
         int64_t param2 = _s.length(), param1 = 0;
         // аргументы вытаскиваются в обратном порядке
         // сначала последний
         if (countOfArgs == 1) {
-            param1 = p->popFromStack().value;
+            param1 = p->popFromStack().getIntValue();
         } else if (countOfArgs == 2) {
-            param2 = p->popFromStack().value;
-            param1 = p->popFromStack().value;
+            param2 = p->popFromStack().getIntValue();
+            param1 = p->popFromStack().getIntValue();
         }
         int64_t fromIndex = param1, toIndex = param2;
         StringObject *newString = substring(fromIndex, toIndex);

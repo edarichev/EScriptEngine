@@ -84,7 +84,9 @@ std::string TokenName::toString(Token token)
 {
     static std::map<Token, std::string> tokens;
     if (tokens.empty()) {
-        int n = sizeof (_values) / sizeof (Token);
+        const int m = sizeof (_names) / sizeof (char*);
+        const int n = sizeof (_values) / sizeof (Token);
+        static_assert (m == n);
         for (int i = 0; i < n; i++) {
             tokens[_values[i]] = _names[i];
         }

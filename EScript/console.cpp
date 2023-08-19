@@ -4,6 +4,16 @@
 
 namespace escript {
 
+bool Console::separateWithSpace() const
+{
+    return _separateWithSpace;
+}
+
+void Console::setSeparateWithSpace(bool newSeparateWithSpace)
+{
+    _separateWithSpace = newSeparateWithSpace;
+}
+
 Console::Console()
 {
     setOutputStream(std::cout);
@@ -19,8 +29,10 @@ void Console::log(std::vector<std::u32string> &args)
     std::ostream &s = _outStream ? *_outStream : std::cout;
     for (size_t i = 0; i < args.size(); i++) {
         s << to_utf8(args[i]);
-        if (i < args.size() - 1)
-            s << " ";
+        if (separateWithSpace()) {
+            if (i < args.size() - 1)
+                s << " ";
+        }
     }
     s << std::endl;
 }

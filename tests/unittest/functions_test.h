@@ -13,6 +13,7 @@ private:
     void test_recursionFactorial();
     void test_funcAlias();
     void test_funcAliasAssign();
+    void test_functionAsParameter();
 };
 
 #endif // FUNCTIONS_TEST_H

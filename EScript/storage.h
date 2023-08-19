@@ -32,6 +32,10 @@ public:
      */
     virtual ~Storage();
     /**
+     * @brief Удаляет все записи об объектах
+     */
+    void clear();
+    /**
      * @brief Добавить пустую запись
      */
     ObjectRecord *installRecord(Symbol *s)

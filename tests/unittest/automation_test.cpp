@@ -112,6 +112,7 @@ void Automation_Test::run()
     initTestCase();
     test_auto1();
     test_autoPropSet();
+    test_autoAddAfterFirstRun();
     cleanupTestCase();
 }
 
@@ -160,6 +161,28 @@ void Automation_Test::test_autoPropSet()
     const std::u32string code1 = to_u32string(macro1);
     MySpreadSheet spreadsheet;
     EScript engine;
+    engine.attachObject(&spreadsheet, U"spreadsheet");
+    engine.eval(code1);
+    engine.detachObject(&spreadsheet);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(123, record->data));
+}
+
+void Automation_Test::test_autoAddAfterFirstRun()
+{
+    // тест добавления объекта не в первом заходе
+    EScript engine;
+    engine.eval(U"i = 123;");
+
+    const std::string macro1 = R"(
+    spreadsheet.id = 123;
+    x = spreadsheet.id;
+)";
+    const std::u32string code1 = to_u32string(macro1);
+    MySpreadSheet spreadsheet;
     engine.attachObject(&spreadsheet, U"spreadsheet");
     engine.eval(code1);
     engine.detachObject(&spreadsheet);

@@ -220,7 +220,6 @@ private:
     void unexpected(Token unexpectedToken);
     void undeclaredIdentifier();
     void undeclaredIdentifier(const std::u32string &s);
-    static std::string toUtf8(const std::u32string &s);
     void duplicateIdentifier(const std::u32string &id);
 };
 

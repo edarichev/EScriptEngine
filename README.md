@@ -248,6 +248,20 @@ U"function factorial(i) { "
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(3628800, record->data));
 ```
+
+Можно передавать функции как аргументы в другую функцию:
+```javascript
+function testFunc(x) {
+    return 2 * x;
+}
+func = testFunc;
+function fnTest(pFn, x) {
+    return pFn(x);
+}
+
+y = fnTest(func, 12);
+```
+
 ## Объекты автоматизации
 Для написания каких-то макросов и выполнения полезной работы нужно создать класс, производный от `escript::AutomationObject`. В частности, сам объект `console` и строка являются производными от этого класса и ничем в работе не отличаются. Хотя строки - это отдельная сущность, хранящаяся в таблице строк отдельно от объектов, работа с ними аналогична работе с любым производным от `AutomationObject`.
 

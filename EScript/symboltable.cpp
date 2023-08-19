@@ -22,6 +22,11 @@ SymbolTable::~SymbolTable()
 
 }
 
+void SymbolTable::clear()
+{
+    _orderedSymbols.clear();
+}
+
 std::shared_ptr<Symbol> SymbolTable::add(const std::u32string &identifier,
                                          SymbolType type)
 {

@@ -40,6 +40,7 @@ public:
      * @brief Освобождает связанные с этим экземпляром ресурсы
      */
     virtual ~SymbolTable();
+    void clear();
     std::vector<std::shared_ptr<Symbol>>::iterator begin()
     {
         return _orderedSymbols.begin();

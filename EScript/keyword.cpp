@@ -112,8 +112,9 @@ Token KeyWord::checkKeyWord(const std::u32string &str)
     static std::map<std::u32string, Token> keyWordsHash;
     if (keyWordsHash.empty()) {
         int i = 0;
+        // мы гарантируем, что размер обоих массивов одинаковый
+        static_assert(sizeof (keyWords) / sizeof(char32_t*) == sizeof(tokenKeywords) / sizeof (Token));
         for (auto &t : tokenKeywords) {
-            // мы гарантируем, что размер обоих массивов одинаковый
             keyWordsHash[keyWords[i++]] = t;
         }
     }

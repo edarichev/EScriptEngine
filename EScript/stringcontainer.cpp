@@ -11,9 +11,15 @@ StringContainer::StringContainer()
 
 StringContainer::~StringContainer()
 {
+    clear();
+}
+
+void StringContainer::clear()
+{
     for (auto &c : _strings) {
         delete c;
     }
+    _strings.clear();
 }
 
 StringObject *StringContainer::add(const std::u32string &s)

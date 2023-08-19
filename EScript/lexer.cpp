@@ -351,9 +351,9 @@ bool Lexer::isSpace(int charCode) const
 {
     switch (charCode) {
     case 0x0020: // пробел, наиболее вероятно
-    case 0x0009: // TAB
     case '\r':
     case '\n':
+    case 0x0009: // TAB
     case 0x00A0:
     case 0x1680:
     case 0x180E:

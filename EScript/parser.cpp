@@ -105,17 +105,17 @@ void Parser::IfElseStatement()
 {
     match(Token::If);
     match(Token::LeftParenth);
-    Expression(); // теперь в стеке что-то есть
+    Expression();                  // теперь в стеке что-то есть
     match(Token::RightParenth);
     int falseLabel = nextLabel();
     emitIfFalseHeader(falseLabel); // if_false tmp_var метка_false
-    OptionalStatement(); // ветка true
+    OptionalStatement();           // ветка true
     if (lookahead() == Token::Else) {
         next();
         int exitLabel = nextLabel();
         emitGoto(exitLabel);
         emitLabel(falseLabel);
-        OptionalStatement(); // ветка false
+        OptionalStatement();       // ветка false
         emitLabel(exitLabel);
     } else {
         emitLabel(falseLabel);
@@ -159,26 +159,26 @@ void Parser::DoWhileStattement()
 
 void Parser::ForStatement()
 {
-    match(Token::For);
+    match(Token::For);            // for (expr1; expr2; expr3) stmt;
     match(Token::LeftParenth);
-    OptionalExpressionList();      // expr1
+    OptionalExpressionList();     // expr1
     match(Token::Semicolon);
-    int startLabel = nextLabel();  // метка возврата в начало цикла
-    int exitLabel = nextLabel();   // метка выхода
+    int startLabel = nextLabel(); // метка возврата в начало цикла
+    int exitLabel = nextLabel();  // метка выхода
     // в этом цикле expr3 находится в конце, поэтому переход
     // по continue должен идти не назад, а вперёд до expr3
-    int nextIterationLabel = nextLabel();
+    int nextIterationLabel = nextLabel(); // метка expr3
     pushJumpLabels(nextIterationLabel, exitLabel); // для break/continue
     emitLabel(startLabel);
     if (lookahead() != Token::Semicolon) // условия может и не быть
-        Expression();                    // expr2, логическое условие
+        Expression();             // expr2, логическое условие
     else { // иначе это эквивалентно while (true), поэтому
-        pushBoolean(true);               // помещаем в стек true
+        pushBoolean(true);        // помещаем в стек true
     }
-    emitIfFalseHeader(exitLabel);  // аналогично заголовку в if-else
+    emitIfFalseHeader(exitLabel); // аналогично заголовку в if-else
     match(Token::Semicolon);
-    _emitter->switchToTempBuffer(); // TODO: этот буфер надо где-то сохранить, иначе на вложенном цикле выведется всё подряд.
-    OptionalExpressionList();      // expr3, её вывести в конец
+    _emitter->switchToTempBuffer();
+    OptionalExpressionList();     // expr3, её вывести в конец
     _emitter->switchToMainBuffer();
     match(Token::RightParenth);
     OptionalStatement();
@@ -268,7 +268,7 @@ void Parser::ExpressionList()
     do {
         Expression();
         popStackValue(); // убрать всё, т.к. присвоить результат невозможно
-                         // или оставить результат последнего выражения?
+                         // или всё же оставить результат последнего выражения?
         switch (lookahead()) {
         case Token::Comma:
             next();
@@ -292,15 +292,15 @@ void Parser::AssignExpression()
     Variable();
     auto lvalueSymbol = _values.top().variable;
     popStackValue(); // результат в lvalueSymbol, просто вынем из стека
-    // выбрать оператор присваивания
-    OperationType op;
+
+    OperationType op; // выбрать оператор присваивания
     switch (lookahead()) {
     case Token::Assign: {
         match(Token::Assign);
         Expression();
         emitAssign(lvalueSymbol);
-        // поскольку присваивание само является выражением, нужно поместить в стек
-        // результат вычислений
+        // поскольку присваивание само является выражением,
+        // нужно поместить в стек результат вычислений
         pushVariable(lvalueSymbol);
         return;
     }
@@ -342,6 +342,7 @@ void Parser::AssignExpression()
         return;
     }
     next();
+    // здесь оператор присваивания с вычислением
     // левая часть должна существовать
     if (!symbol)
         undeclaredIdentifier();
@@ -355,7 +356,8 @@ void Parser::AssignExpression()
 
 void Parser::FunctionDeclExpression()
 {
-    // метка для прыжка через функцию, если
+    // функция может располагаться в любом месте объектного файла,
+    // поэтому нужна метка для прыжка через функцию, если
     // идёт последовательное выполнение кода
     int labelEnd = nextLabel();
     emitGoto(labelEnd);
@@ -411,7 +413,6 @@ void Parser::Expression()
         }
         // вернуть идентификатор (прямой порядок, это очередь)
         pushBack(token0, std::move(tokenText0));
-        // перейти в SimpleExpression
         break;
     }
     case Token::Function:
@@ -565,7 +566,6 @@ void Parser::LogicalOrNCOExpression()
 
 void Parser::Term()
 {
-    // временная переменная, нужна для генерации инструкции и помещения её в стек
     Factor();
     // в стеке находится результат вызова Factor(), например, число.
     do {
@@ -580,7 +580,7 @@ void Parser::Term()
             Factor();
             emitBinaryOp(OperationType::Div);
             continue;
-        case Token::Percent: // по модулю
+        case Token::Percent: // деление по модулю
             next();
             Factor();
             emitBinaryOp(OperationType::Mod);
@@ -710,7 +710,7 @@ void Parser::FunctionCallExpression()
 void Parser::ArgumentList()
 {
     do {
-        // выражение вставляет в стек аргумент
+        // выражение вставляет в стек очередной аргумент
         Expression();
         _argumentsCountStack.top()++;
         emitPush();
@@ -739,7 +739,7 @@ void Parser::AnyStatement()
 void Parser::ReturnStatement()
 {
     if (_returnStack.empty())
-        error("return allowed only inside of function");
+        error("The [return] keyword allowed only inside of function");
     match(Token::Return);
     if (lookahead() == Token::Semicolon) {
         emitEmptyReturn();
@@ -762,7 +762,7 @@ void Parser::ArrayDeclExpression()
         next();
         return;
     }
-    // ArrayDeclItems - здесь, не в отдельном правиле
+    // ArrayDeclItems располагаем здесь, не в отдельном правиле
     do {
         if (lookahead() == Token::RightBracket)
             break;
@@ -789,25 +789,28 @@ void Parser::ArrayItemRefExpression()
     auto arrValue = currentSymbolTable()->find(id);
     match(Token::Identifier);
     match(Token::LeftBracket);
-    Expression(); // индекс элемента
+    Expression(); // индекс, он же ключ элемента
     emitPush();
     popStackValue(); // убрать индекс элемента
     match(Token::RightBracket);
+    auto resultVariable = currentSymbolTable()->addTemp();
+    std::u32string methodName;
+    int nArgs = 0;
     if (lookahead() == Token::Assign) {
         // присваивание элементу массива
         next();
         Expression(); // новое значение
         emitPush();
         popStackValue(); // убрать индекс элемента
-        auto resultVariable = currentSymbolTable()->addTemp();
-        emitCallAOMethod(arrValue, U"set", resultVariable, 2);
-        pushVariable(resultVariable);
+        methodName = U"set";
+        nArgs = 2;
     } else {
         // получение значения элемента массива
-        auto resultVariable = currentSymbolTable()->addTemp();
-        emitCallAOMethod(arrValue, U"get", resultVariable, 1);
-        pushVariable(resultVariable);
+        methodName = U"get";
+        nArgs = 1;
     }
+    emitCallAOMethod(arrValue, methodName, resultVariable, nArgs);
+    pushVariable(resultVariable);
 }
 
 void Parser::DotOperation()
@@ -853,7 +856,7 @@ void Parser::DotOperation()
 
 void Parser::PostfixOperation()
 {
-    void (Parser::*pfn)();
+    void (Parser::*pfn)(); // объявим указатель и выберем нужную функцию
     switch (lookahead()) {
     case Token::PlusPlus:
         pfn = &Parser::emitIncrement;
@@ -900,7 +903,7 @@ void Parser::VariableDeclBlock()
         if (lookahead() == Token::Identifier) {
             auto idText = tokenText();
             auto symbol = currentSymbolTable()->findCurrentScopeOnly(idText);
-            if (symbol) // в текущем блоке не должно быть
+            if (symbol) // в текущем блоке не должно быть с тем же именем
                 duplicateIdentifier(idText);
             symbol = currentSymbolTable()->add(idText);
             next();
@@ -1385,23 +1388,17 @@ void Parser::unexpected(Token unexpectedToken)
 
 void Parser::undeclaredIdentifier()
 {
-    error("Undeclared identifier: " + toUtf8(tokenText()));
+    undeclaredIdentifier(tokenText());
 }
 
 void Parser::undeclaredIdentifier(const std::u32string &s)
 {
-    error("Undeclared identifier: " + toUtf8(s));
-}
-
-string Parser::toUtf8(const std::u32string &s)
-{
-    std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convert;
-    return convert.to_bytes(s);
+    error("Undeclared identifier: " + to_utf8(s));
 }
 
 void Parser::duplicateIdentifier(const std::u32string &id)
 {
-    error("Duplicate identifier: " + toUtf8(id));
+    error("Duplicate identifier: " + to_utf8(id));
 }
 
 } // namespace escript

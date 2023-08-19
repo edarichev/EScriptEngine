@@ -30,6 +30,14 @@ Block::~Block()
 
 }
 
+void Block::clear()
+{
+    _symbolTable->clear();
+    for (auto &c : _blocks) {
+        c->clear();
+    }
+}
+
 const std::shared_ptr<Block> &Block::parentBlock() const
 {
     return _parentBlock;

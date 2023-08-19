@@ -22,13 +22,14 @@ private:
     bool _showDisassembleListing = false;
     Machine _machine;
     std::shared_ptr<Unit> _unit;
-    // сюда помещаются объекты через функцию detach
+    // сюда помещаются объекты через функцию attachObject;
     // перед первым выполнением из этого контейнера объекты извлекаются
     // и добавляются в глобальную таблицу символов
     std::vector<std::pair<AutomationObject*, std::u32string> > _deferredObjects;
     std::vector<std::shared_ptr<Symbol>> _deferredSymbols;
     // уже запускали?
     bool _isAlreadyRunned = false;
+    std::map<std::u32string, AutomationObject*> _standardObjects;
 public:
     /**
      * @brief Создаёт новый экземпляр скриптового движка
@@ -47,7 +48,7 @@ public:
      * @brief Возвращает указатель на программный модуль.
      * @return
      */
-    Unit *unit();
+    std::shared_ptr<Unit> unit();
     /**
      * @brief Сбрасывает движок в первоначальное состояние.
      */
@@ -59,6 +60,19 @@ public:
     void setOutStream(std::ostream &newOutStream);
     void attachObject(AutomationObject *obj, const std::u32string &name);
     void detachObject(AutomationObject *obj);
+private:
+    /**
+     * @brief Регистрирует в глобальной таблице символов стандартные объекты,
+     *        например, "console".
+     */
+    void registerStandardObjects(std::shared_ptr<Block> &firstBlock);
+    /**
+     * @brief Создаёт и добавляет после первой трансляции стандартные объекты
+     *        в секцию DATA первого блока.
+     */
+    void addStandardObjects();
+    void registerDeferredObjects(std::shared_ptr<Block> &objectFileBlock);
+    void addDeferredObjects();
 };
 
 } // namespace escript

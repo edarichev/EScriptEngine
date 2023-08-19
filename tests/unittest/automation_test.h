@@ -11,6 +11,7 @@ private:
     void cleanupTestCase();
     void test_auto1();
     void test_autoPropSet();
+    void test_autoAddAfterFirstRun();
 };
 
 #endif // AUTOMATION_TEST_H

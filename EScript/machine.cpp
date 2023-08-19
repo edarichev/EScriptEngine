@@ -41,6 +41,13 @@ Machine::~Machine()
 
 }
 
+void Machine::clear()
+{
+    _memory.clear();
+    _strings.clear();
+    _storage.clear();
+}
+
 Storage &Machine::storage()
 {
     return _storage;
@@ -72,7 +79,7 @@ void Machine::load(std::shared_ptr<Block> block,
     uint64_t fromPos = _memory.size();
     _memory.insert(_memory.end(), objectFile.begin() + codeOffset, objectFile.end());
     uint64_t offset = currentPos;
-    addFunctionsCallAddressOffset(block, currentPos);
+    addCallAddressOffsetToFunctions(block, currentPos);
     // теперь перемещаем глобальную таблицу символов в главный блок
     auto globalSymbolTable = block->globalBlock()->symbolTable();
     globalSymbolTable->addRange(std::move(blockSymbolTable));
@@ -120,7 +127,8 @@ void Machine::replaceJMPAddresses(uint64_t startPosition, uint64_t offset)
     }
 }
 
-void Machine::addFunctionsCallAddressOffset(std::shared_ptr<Block> &block, uint64_t offset)
+void Machine::addCallAddressOffsetToFunctions(
+        std::shared_ptr<Block> &block, uint64_t offset)
 {
     auto symTable = block->symbolTable();
     for (auto &c : *symTable) {
@@ -135,11 +143,11 @@ void Machine::addFunctionsCallAddressOffset(std::shared_ptr<Block> &block, uint6
         fnPtr->addOffset(offset);
     }
     for (auto &b : block->blocks()) {
-        addFunctionsCallAddressOffset(b, offset);
+        addCallAddressOffsetToFunctions(b, offset);
     }
 }
 
-size_t Machine::startOffsetOf(const std::vector<uint8_t> &objectFile)
+size_t Machine::offsetOfStartPoint(const std::vector<uint8_t> &objectFile)
 {
     // TODO: убрать повторяющийся код: см. assembler.cpp
     size_t i = 0;
