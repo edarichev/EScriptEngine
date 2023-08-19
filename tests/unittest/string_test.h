@@ -14,6 +14,8 @@ private:
     void test_stringLength();
     void test_stringAt();
     void test_stringSubstring();
+    void test_callMethodOfStringLiteral();
+    void test_callMethodOfBQStringLiteral();
 };
 
 #endif // STRING_TEST_H

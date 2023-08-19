@@ -9,6 +9,8 @@ void String_Test::run()
     test_stringLength();
     test_stringAt();
     test_stringSubstring();
+    test_callMethodOfStringLiteral();
+    test_callMethodOfBQStringLiteral();
     cleanupTestCase();
 }
 
@@ -80,6 +82,32 @@ void String_Test::test_stringSubstring()
     auto mainTable = engine.unit()->block()->symbolTable();
     auto i = mainTable->find(U"i");
     auto record = engine.getObjectRecord(i);
+    assert(record->type == SymbolType::String);
+    auto str = (StringObject*)record->data;
+    assert(*str == U"el");
+}
+
+void String_Test::test_callMethodOfStringLiteral()
+{
+    const u32string code1 = U"s = 'hello, 🌏'.substring(1, 3);";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto s = mainTable->find(U"s");
+    auto record = engine.getObjectRecord(s);
+    assert(record->type == SymbolType::String);
+    auto str = (StringObject*)record->data;
+    assert(*str == U"el");
+}
+
+void String_Test::test_callMethodOfBQStringLiteral()
+{
+    const u32string code1 = U"s = `hello, 🌏`.substring(1, 3);";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto s = mainTable->find(U"s");
+    auto record = engine.getObjectRecord(s);
     assert(record->type == SymbolType::String);
     auto str = (StringObject*)record->data;
     assert(*str == U"el");

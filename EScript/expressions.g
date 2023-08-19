@@ -7,7 +7,7 @@ https://www.epaperpress.com/lexandyacc/if.html
 
 %token Identifier
 %token IntegerNumber Var
-%token RealNumber UnaryMinus UnaryPlus
+%token RealNumber QuotedString UnaryMinus UnaryPlus
 %token Assign
 %token Equal
 %token While Do For Break Continue Return
@@ -204,11 +204,17 @@ Grouping : Literals
 Literals : Identifier
          | IntegerNumber
          | RealNumber
+         | QuotedString
          ;
 
+LeftDotPart : Identifier
+            | QuotedString
+            ;
+
 // правая часть операции обращения к функции-члену
-DotOperation : Identifier '.' Identifier '(' ')'
-             | Identifier '.' Identifier '(' ExpressionList ')'
+DotOperation : LeftDotPart '.' Identifier '(' ')'
+             | LeftDotPart '.' Identifier '(' ArgumentList ')'
+             | LeftDotPart '.' Identifier
              ;
 
 ArrayItemRefExpression : Identifier '[' Expression ']'

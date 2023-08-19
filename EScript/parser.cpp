@@ -601,7 +601,8 @@ void Parser::Term()
 
 void Parser::Factor()
 { // Здесь объединены правила Literals, Grouping, CallOrAccess, PostfixOperation
-    switch (lookahead()) {
+    auto t = lookahead(); // понадобится ниже
+    switch (t) {
     case Token::LeftParenth:
         // круглые скобки
         next();
@@ -685,9 +686,18 @@ void Parser::Factor()
         next();
         break;
     case Token::QuotedString:
-        pushString(_lexer->tokenText());
+    case Token::BackQuotedString: {
+        auto str = tokenText();
         next();
+        if (lookahead() == Token::Dot) {
+            pushBack(t, str);
+            DotOperation();
+            return;
+        } else {
+            pushString(str);
+        }
         break;
+    }
     default: // ошибка, нужен терминал в виде числа, идентификатора и т.п.
         expected(Token::Identifier);
     }
@@ -824,7 +834,18 @@ void Parser::DotOperation()
 {
     // пока только одноуровневые: id.свойство, а не id.prop1.prop2.prop3
     auto variableName = tokenText();
-    match(Token::Identifier);
+    if (lookahead() == Token::QuotedString ||
+            lookahead() == Token::BackQuotedString) {
+        // вызываем метод у строкового литерала, поэтому нужно сначала
+        // создать временную переменную
+        auto tmpStrValue = currentSymbolTable()->addTemp();
+        pushString(tokenText());
+        emitAssign(tmpStrValue.get());
+        variableName = tmpStrValue->name();
+        next();
+    } else {
+        match(Token::Identifier);
+    }
     auto symbol = currentSymbolTable()->find(variableName);
     if (!symbol)
         undeclaredIdentifier();

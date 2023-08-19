@@ -59,7 +59,7 @@ public:
      * @param type тип данных
      * @return объект Symbol
      */
-    std::shared_ptr<Symbol> add(const std::u32string &identifier, SymbolType type = SymbolType::Undefined);
+    std::shared_ptr<Symbol> add(const std::u32string &identifier);
     void addRange(std::shared_ptr<SymbolTable> &&otherTable);
     /**
      * @brief Добавляет временную переменную в таблицу

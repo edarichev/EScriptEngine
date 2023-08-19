@@ -27,10 +27,9 @@ void SymbolTable::clear()
     _orderedSymbols.clear();
 }
 
-std::shared_ptr<Symbol> SymbolTable::add(const std::u32string &identifier,
-                                         SymbolType type)
+std::shared_ptr<Symbol> SymbolTable::add(const std::u32string &identifier)
 {
-    std::shared_ptr<Symbol> symbol = std::make_shared<Symbol>(identifier, type);
+    std::shared_ptr<Symbol> symbol = std::make_shared<Symbol>(identifier);
     if (_symbols.find(identifier) != _symbols.end())
         throw std::domain_error("duplicate identifier");
     _symbols[identifier] = symbol;

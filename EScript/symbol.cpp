@@ -23,9 +23,8 @@ void Symbol::addOffset(uint64_t offset)
     _location += offset;
 }
 
-Symbol::Symbol(const std::u32string &id,
-               SymbolType dataType)
-    : _name(id), _type(dataType)
+Symbol::Symbol(const std::u32string &id)
+    : _name(id)
 {
 
 }
@@ -43,24 +42,6 @@ const std::u32string &Symbol::name() const
 const std::string Symbol::utf8Name() const
 {
     return to_utf8(_name);
-}
-
-SymbolType Symbol::type() const
-{
-    return _type;
-}
-
-void Symbol::setType(SymbolType newType)
-{
-    if (_type != newType) {
-        _type = newType;
-        switch (_type) {
-        case SymbolType::Integer:
-            break;
-        default:
-            throw std::domain_error("Unsupported data type");
-        }
-    }
 }
 
 } // namespace escript

@@ -15,13 +15,14 @@ class Unit;
 
 /**
  * @brief Запись в таблице символов
+ * @details Схема такова:
+ * команда_процессора параметр=Symbol* -- запись в секции DATA
+ * -- ObjectRecord.data -- Object*
  */
 class ESCRIPT_EXPORT Symbol
 {
 private:
     const std::u32string _name;
-    // тип данных
-    SymbolType _type { SymbolType::Undefined };
     // При трансляции: размещение области памяти этой переменной
     // относительно начала объектного файла.
     uint64_t _location = 0;
@@ -29,21 +30,11 @@ public:
     /**
      * @brief Создаёт новый экземпляр класса Symbol
      */
-    Symbol(const std::u32string &id,
-           SymbolType dataType = SymbolType::Undefined);
+    Symbol(const std::u32string &id);
     /**
      * @brief Освобождает связанные с этим экземпляром ресурсы
      */
     virtual ~Symbol();
-    /**
-     * @brief Возвращает тип данных
-     */
-    SymbolType type() const;
-    /**
-     * @brief Устанавливает тип данных
-     * @param newType новый тип данных
-     */
-    void setType(SymbolType newType);
     const std::u32string &name() const;
     const std::string utf8Name() const;
     /**
