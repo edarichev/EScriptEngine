@@ -10,6 +10,7 @@ void Functions_Test::run()
     test_funcAlias();
     test_funcAliasAssign();
     test_functionAsParameter();
+    test_unnamedFuncAssign();
     cleanupTestCase();
 }
 
@@ -96,7 +97,9 @@ U"function func1(i) { return 123+i; }"
 void Functions_Test::test_functionAsParameter()
 {
     const std::string macro1 = R"(
-function testFunc(x) { return 2 * x; };
+function testFunc(x) {
+    return 2 * x;
+}
 func = testFunc;
 function fnTest(pFn, x) {
     return pFn(x);
@@ -115,4 +118,33 @@ y = fnTest(func, 12);
     auto record = engine.getObjectRecord(y);
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(12*2, record->data));
+
+    const u32string code2 = U"z = fnTest(testFunc, 14);";
+    engine.eval(code2);
+    auto z = mainTable->find(U"z");
+    record = engine.getObjectRecord(z);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(14*2, record->data));
+}
+
+void Functions_Test::test_unnamedFuncAssign()
+{
+    const std::string macro1 = R"(
+testFunc = function(x) {
+    return 2 * x;
+};
+
+y = testFunc(7);
+
+)";
+    const u32string code1 = to_u32string(macro1);
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto y = mainTable->find(U"y");
+    auto record = engine.getObjectRecord(y);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(14, record->data));
 }

@@ -14,6 +14,7 @@ private:
     void test_funcAlias();
     void test_funcAliasAssign();
     void test_functionAsParameter();
+    void test_unnamedFuncAssign();
 };
 
 #endif // FUNCTIONS_TEST_H

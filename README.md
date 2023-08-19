@@ -231,6 +231,16 @@ x = func1(7);
 y = fnRef(45);
 ```
 
+Ещё способ:
+
+```javascript
+testFunc = function(x) {
+    return 2 * x;
+};
+
+y = testFunc(7);
+```
+
 Пример рекурсивного вызова:
 ```C++
     const u32string code1 =
@@ -258,8 +268,8 @@ func = testFunc;
 function fnTest(pFn, x) {
     return pFn(x);
 }
-
 y = fnTest(func, 12);
+z = fnTest(testFunc, 14);
 ```
 
 ## Объекты автоматизации

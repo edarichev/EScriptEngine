@@ -363,11 +363,18 @@ void Parser::FunctionDeclExpression()
     emitGoto(labelEnd);
     match(Token::Function);
     // временная переменная для функции
-    std::shared_ptr<Symbol> func = currentSymbolTable()->add(tokenText());
+    std::shared_ptr<Symbol> func;
+    if (lookahead() == Token::Identifier) {
+        func = currentSymbolTable()->add(tokenText());
+        match(Token::Identifier);
+    } else if (lookahead() == Token::LeftParenth)
+        func = currentSymbolTable()->addTemp();
+    else
+        expected(Token::Identifier);
+
     _returnStack.push(func);
     addAndEntrySubBlock();
     emitFnStart(func);
-    match(Token::Identifier);
     match(Token::LeftParenth);
     OptionalParameterDeclList();
     match(Token::RightParenth);
