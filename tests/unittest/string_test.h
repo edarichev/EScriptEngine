@@ -35,6 +35,7 @@ private:
     void test_trimStart();
     void test_callMethodOfStringLiteral();
     void test_callMethodOfBQStringLiteral();
+    void test_comparisonOperators();
 };
 
 #endif // STRING_TEST_H

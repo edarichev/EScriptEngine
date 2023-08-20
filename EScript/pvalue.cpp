@@ -330,14 +330,28 @@ PValue PValue::binaryOpValues(const PValue &value1, const PValue &value2, Arithm
     default:
         break;
     }
-    if (op == ArithmeticOperation::Add) {
-        // всё остальное переводим в строку как получится
+    // всё остальное переводим в строку как получится
+    switch (op) {
+    case ArithmeticOperation::Add: {
         auto str = value1.uString() + value2.uString();
         StringObject *newString = new StringObject(str);
         PValue ret;
         ret.strValue = newString;
         ret.type = SymbolType::String;
         return ret;
+    }
+    case ArithmeticOperation::BoolLess:
+        return PValue(value1.uString() < value2.uString());
+    case ArithmeticOperation::BoolLessOrEqual:
+        return PValue(value1.uString() <= value2.uString());
+    case ArithmeticOperation::BoolGreater:
+        return PValue(value1.uString() > value2.uString());
+    case ArithmeticOperation::BoolGreaterOrEqual:
+        return PValue(value1.uString() >= value2.uString());
+    case ArithmeticOperation::BoolEqual:
+        return PValue(value1.uString() == value2.uString());
+    default:
+        break;
     }
     throw std::domain_error("Unsupported binary operation for specified types");
 }

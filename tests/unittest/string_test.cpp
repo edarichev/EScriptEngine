@@ -22,6 +22,7 @@ void String_Test::run()
     test_replace();
     test_replaceAll();
     test_slice();
+    test_split();
     test_startsWith();
     test_substring();
     test_toLowerCase();
@@ -29,7 +30,7 @@ void String_Test::run()
     test_trim();
     test_trimEnd();
     test_trimStart();
-    test_split();
+    test_comparisonOperators();
     cleanupTestCase();
 }
 
@@ -562,4 +563,60 @@ void String_Test::test_callMethodOfBQStringLiteral()
     auto record = engine.getObjectRecord(x);
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(8, record->data));
+}
+
+void String_Test::test_comparisonOperators()
+{
+    const char32_t *code1 = UR"(
+a = "Hello" < "hello";
+b = "hello" < "HELLO";
+c = 'hello' <= 'hello';
+d = 'hello' == 'hello';
+e = 'Tastatur' >= 'Maus';
+f = 'Lautsprecher' >= 'Apfel';
+g = 'Apfel' <= 'Lautsprecher';
+h = 'Apfel' >= 'Lautsprecher';
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto a = mainTable->find(U"a");
+    auto record = engine.getObjectRecord(a);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(true, record->data));
+
+    auto b = mainTable->find(U"b");
+    record = engine.getObjectRecord(b);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(false, record->data));
+
+    auto c = mainTable->find(U"c");
+    record = engine.getObjectRecord(c);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(true, record->data));
+
+    auto d = mainTable->find(U"d");
+    record = engine.getObjectRecord(d);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(true, record->data));
+
+    auto e = mainTable->find(U"e");
+    record = engine.getObjectRecord(e);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(true, record->data));
+
+    auto f = mainTable->find(U"f");
+    record = engine.getObjectRecord(f);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(true, record->data));
+
+    auto g = mainTable->find(U"g");
+    record = engine.getObjectRecord(g);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(true, record->data));
+
+    auto h = mainTable->find(U"h");
+    record = engine.getObjectRecord(h);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(false, record->data));
 }
