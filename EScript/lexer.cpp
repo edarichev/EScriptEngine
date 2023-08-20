@@ -419,6 +419,7 @@ void Lexer::readNumber(int firstChar)
     bool hasExpNum = false;         // есть ли число после E
     PUSH(firstChar);
     int c;
+    decltype (_p) curPos = _p;
     while ((c = read()) > 0) {
         if (std::isdigit(c)) {
             if (hasExpE)
@@ -471,12 +472,17 @@ void Lexer::readNumber(int firstChar)
         _token = Token::Dot;
         return;
     }
-    if (isReal) {
-        _lastRealNumber = toReal(_tokenText);
-        _token = Token::RealNumber;
-    } else {
-        _lastIntegerNumber = toLongInteger(_tokenText);
-        _token = Token::IntegerNumber;
+    try {
+        if (isReal) {
+            _lastRealNumber = toReal(_tokenText);
+            _token = Token::RealNumber;
+        } else {
+            _lastIntegerNumber = toLongInteger(_tokenText);
+            _token = Token::IntegerNumber;
+        }
+    } catch (const std::invalid_argument &e) {
+        while (_p != curPos)
+            back();
     }
 }
 

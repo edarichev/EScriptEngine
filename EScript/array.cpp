@@ -90,7 +90,7 @@ bool Array::call(const std::u32string &method, Processor *p)
         // пусть только переменные типа Integer
         ObjectRecord *rec = (ObjectRecord*)(arg.value);
         add(PValue(rec->type, rec->data));
-        p->pushToStack(0); // OK
+        p->pushToStack((int64_t)0); // OK
         return true;
     }
     if (method == U"get") {
@@ -138,7 +138,7 @@ bool Array::call(const std::u32string &method, Processor *p)
             }
         }
         set(index, argValue.type, argValue.value);
-        p->pushToStack(0); // OK
+        p->pushToStack((int64_t)0); // OK
         return true;
     }
     throw std::domain_error("Call of unknown method: array." + to_utf8(method));

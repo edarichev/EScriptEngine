@@ -59,7 +59,7 @@ bool escript::Console::call(const std::u32string &method, Processor *p)
             nArgs--;
         }
         log(args);
-        p->pushToStack(0); // OK
+        p->pushStringToStack((int64_t)0); // OK
         return true;
     }
     throw std::domain_error("Call of unknown method: console." + to_utf8(method));

@@ -32,6 +32,8 @@ public:
      * @brief Освобождает связанные с этим экземпляром ресурсы
      */
     virtual ~Array();
+    std::map<std::string, PValue>::iterator begin() { return _items.begin(); }
+    std::map<std::string, PValue>::iterator end() { return _items.end(); }
     PValue get(int64_t index);
     PValue get(const std::u32string &index);
     void set(int64_t index, PValue value);

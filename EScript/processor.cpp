@@ -298,6 +298,21 @@ void Processor::callm()
     case SymbolType::String:
         _strings->add((StringObject*)result.value);
         break;
+    case SymbolType::Array: {
+        // Сначала установить сам массив.
+        // Затем надо перебрать каждый элемент.
+        // Если это строка - установить в таблицу строк
+        auto rec = _storage->installRecord(nullptr);
+        rec->type = SymbolType::Array;
+        rec->data = result.value;
+        Array *arr = (Array*)result.value;
+        for (auto &c : *arr) {
+            if (c.second.type == SymbolType::String) {
+                _strings->add(c.second.strValue);
+            }
+        }
+        break;
+    }
     default: // ничего не делать
         break;
     }
@@ -505,6 +520,26 @@ void Processor::pushToStack(int64_t value)
     pushToStack(SymbolType::Integer, value);
 }
 
+void Processor::pushBooleanToStack(bool value)
+{
+    pushToStack(SymbolType::Boolean, (uint64_t)value);
+}
+
+void Processor::pushToStack(const std::u32string &value)
+{
+    pushToStack(SymbolType::String, (uint64_t)new StringObject(value));
+}
+
+void Processor::pushStringToStack(StringObject *strValue)
+{
+    pushToStack(SymbolType::String, (uint64_t)strValue);
+}
+
+void Processor::pushArrayToStack(Array *arrValue)
+{
+    pushToStack(SymbolType::Array, (uint64_t)arrValue);
+}
+
 void Processor::binaryStackOp(OpCode opCode)
 {
     next();
@@ -697,6 +732,11 @@ void Processor::stloc_m()
     case SymbolType::String:
         ptrLValue->type = SymbolType::String;
         ptrLValue->data = item.value;
+        break;
+    case SymbolType::Array:
+        ptrLValue->type = SymbolType::Array;
+        ptrLValue->data = item.value;
+        ptrLValue->reference = true; // TODO: нужно проверить все присваивания
         break;
     case SymbolType::Variable:
         // здесь находится указатель на запись в таблице объектов

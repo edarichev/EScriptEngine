@@ -55,7 +55,7 @@ bool MySpreadSheet::call(const u32string &method, Processor *p)
         auto argId = p->popFromStack(); // новое значение
         int newId = argId.getIntValue();
         setId(newId);
-        p->pushToStack(0);
+        p->pushToStack((int64_t)0);
         return true;
     }
     if (method == U"get_id") {
@@ -73,7 +73,7 @@ bool MySpreadSheet::call(const u32string &method, Processor *p)
         int rowIndex = argRowIndex.getIntValue();
         std::u32string value = getCellValue(rowIndex, columnIndex);
         StringObject *newString = new StringObject(value);
-        p->pushToStack(SymbolType::String, (uint64_t)newString);
+        p->pushStringToStack(newString);
         return true;
     }
     if (method == U"setCellValue") {

@@ -2,7 +2,7 @@
 #define ESCRIPT_AUTOMATIONOBJECT_H
 
 #include "EScript_global.h"
-
+#include "stackvalue.h"
 
 namespace escript {
 
@@ -27,6 +27,7 @@ public:
     {
         delete this;
     }
+    std::stack<StackValue> loadArguments(Processor *p) const;
 };
 
 

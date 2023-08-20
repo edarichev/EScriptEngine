@@ -11,7 +11,7 @@
 
 namespace escript {
 
-const std::u32string consoleId = U"console";
+static const char32_t *consoleId = U"console";
 
 EScript::EScript()
 {
@@ -32,10 +32,12 @@ std::shared_ptr<Unit> EScript::unit()
 
 void EScript::clear()
 {
+    _standardObjects.clear();
     if (_unit) {
         _unit->clear();
         _unit.reset();
     }
+    _isAlreadyRunned = false;
     _machine.clear();
 }
 

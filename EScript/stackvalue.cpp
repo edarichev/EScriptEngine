@@ -32,6 +32,8 @@ int64_t to_int64(const std::u32string &s)
         break;
     }
     std::string sd(s.begin(), it);
+    if (sd.empty())
+        return 0;
     return std::stoll(sd);
 }
 
