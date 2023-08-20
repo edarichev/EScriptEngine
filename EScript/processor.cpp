@@ -530,6 +530,11 @@ void Processor::pushToStack(const std::u32string &value)
     pushToStack(SymbolType::String, (uint64_t)new StringObject(value));
 }
 
+void Processor::pushToStack(std::u32string &&value)
+{
+    pushToStack(SymbolType::String, (uint64_t)new StringObject(std::move(value)));
+}
+
 void Processor::pushStringToStack(StringObject *strValue)
 {
     pushToStack(SymbolType::String, (uint64_t)strValue);

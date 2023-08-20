@@ -27,6 +27,7 @@ SOURCES += \
         lexer_test.cpp \
         logical_test.cpp \
         main.cpp \
+        math_test.cpp \
         opcode_test.cpp \
         pvalue_test.cpp \
         shift_test.cpp \
@@ -58,6 +59,7 @@ HEADERS += \
     incdec_test.h \
     lexer_test.h \
     logical_test.h \
+    math_test.h \
     opcode_test.h \
     pvalue_test.h \
     shift_test.h \

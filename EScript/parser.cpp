@@ -7,6 +7,7 @@
 #include "unit.h"
 #include "stringcontainer.h"
 #include "automationobject.h"
+#include "mathobject.h"
 
 using namespace std;
 
@@ -852,6 +853,14 @@ void Parser::DotOperation()
     match(Token::Dot);
     auto methodName = tokenText();
     match(Token::Identifier);
+    if (variableName == U"Math") {
+        double v;
+        if (Math::getConstant(methodName, v)) {
+            // можно вставить сразу константу
+            pushReal(v);
+            return;
+        }
+    }
     auto resultVariable = currentSymbolTable()->addTemp();
     int nArgs = 0;
     if (lookahead() == Token::LeftParenth) {

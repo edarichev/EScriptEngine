@@ -37,7 +37,7 @@ public:
     std::u32string replace(const std::u32string &what, const std::u32string &with) const;
     std::u32string replaceAll(const std::u32string &what, const std::u32string &with) const;
     std::u32string slice(int64_t from, int64_t to) const;
-    bool startsWith(const std::u32string &s) const;
+    bool startsWith(const std::u32string &s, int64_t from) const;
     std::u32string toLowerCase() const;
     std::u32string toUpperCase() const;
     std::u32string trim() const;
@@ -56,7 +56,7 @@ public:
     const std::u32string &uString() const;
 
     static StringObject *concat(StringObject *s1, StringObject *s2);
-    StringObject *substring(int64_t fromIndex, int64_t toIndex) const;
+    std::u32string substring(int64_t fromIndex, int64_t toIndex) const;
 private:
     void call_get_length(Processor *p);
     void call_at(Processor *p);

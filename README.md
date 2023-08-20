@@ -204,6 +204,7 @@ console.log(array);
 
 Поддерживаются следующие методы: 
 `at, charAt, charCodeAt, endsWith, get_length, includes, indexOf, lastIndexOf, padEnd, padStart, repeat, replace, replaceAll, slice, split, startsWith, substring, toLowerCase, toUpperCase, trim, trimEnd, trimStart`
+и операторы сравнения: `<, <=, ==, >=, >`.
 
 У литерала можно вызывать методы:
 

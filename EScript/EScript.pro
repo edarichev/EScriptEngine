@@ -22,6 +22,7 @@ SOURCES += \
     keyword.cpp \
     lexer.cpp \
     machine.cpp \
+    mathobject.cpp \
     objectrecord.cpp \
     operand.cpp \
     parser.cpp \
@@ -54,6 +55,7 @@ HEADERS += \
     keyword.h \
     lexer.h \
     machine.h \
+    mathobject.h \
     objectrecord.h \
     opcode.h \
     operand.h \

@@ -8,10 +8,12 @@
 #include "translator.h"
 #include "storage.h"
 #include "console.h"
+#include "mathobject.h"
 
 namespace escript {
 
 static const char32_t *consoleId = U"console";
+static const char32_t *mathId = U"Math";
 
 EScript::EScript()
 {
@@ -83,6 +85,9 @@ void EScript::registerStandardObjects(std::shared_ptr<Block> &firstBlock)
     auto consoleObject = unit()->block()->symbolTable()->find(consoleId);
     if (!consoleObject)
         consoleObject = firstBlock->symbolTable()->add(consoleId);
+    auto mathObject = unit()->block()->symbolTable()->find(mathId);
+    if (!mathObject)
+        mathObject = firstBlock->symbolTable()->add(mathId);
 }
 
 void EScript::addStandardObjects()
@@ -96,6 +101,14 @@ void EScript::addStandardObjects()
     _standardObjects[consoleId] = console;
     consoleRecord->data = (uint64_t)console;
     _machine.replaceValuePtr(consoleSymbol, consoleRecord);
+
+    auto mathSymbol = unit()->block()->symbolTable()->find(mathId);
+    auto mathRecord = _machine.storage().installRecord(mathSymbol.get());
+    mathRecord->type = SymbolType::Object;
+    Math *math = new Math();
+    _standardObjects[mathId] = math;
+    mathRecord->data = (uint64_t)math;
+    _machine.replaceValuePtr(mathSymbol, mathRecord);
 }
 
 void EScript::registerDeferredObjects(std::shared_ptr<Block> &objectFileBlock)

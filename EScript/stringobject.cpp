@@ -180,9 +180,9 @@ std::u32string StringObject::slice(int64_t from, int64_t to) const
     return _s.substr(from, to - from);
 }
 
-bool StringObject::startsWith(const std::u32string &s) const
+bool StringObject::startsWith(const std::u32string &s, int64_t from) const
 {
-    return _s.find(s) == 0;
+    return _s.find(s, from) == 0;
 }
 
 std::u32string StringObject::toLowerCase() const
@@ -306,20 +306,20 @@ StringObject *StringObject::concat(StringObject *s1, StringObject *s2)
     return newString;
 }
 
-StringObject *StringObject::substring(int64_t fromIndex, int64_t toIndex) const
+std::u32string StringObject::substring(int64_t fromIndex, int64_t toIndex) const
 {
     if (fromIndex < 0)
         fromIndex = 0;
     if (toIndex > (int64_t) _s.length() || toIndex < fromIndex)
         toIndex = _s.length();
-    return new StringObject(_s.substr(fromIndex, toIndex - fromIndex));
+    return _s.substr(fromIndex, toIndex - fromIndex);
 }
 
 void StringObject::call_get_length(Processor *p)
 {
     // вытащить из стека аргументы
     // число аргументов, здесь д.б. 0, просто пропустить
-    p->popFromStack();
+    auto args = loadArguments(p);
     int64_t p1 = length();
     p->pushToStack(p1); // результат или 0
 }
@@ -329,8 +329,8 @@ void StringObject::call_at(Processor *p)
     // метод с аргументами
     // вытащить из стека аргументы
     // число аргументов, пока не нужно, просто пропустить
-    p->popFromStack();
-    int64_t param1 = p->popFromStack().getIntValue();
+    auto args = loadArguments(p);
+    int64_t param1 = args.empty() ? 0 : args.top().getIntValue();
     int64_t c = at(param1);
     p->pushToStack(c); // результат или 0
 }
@@ -340,11 +340,9 @@ void StringObject::call_charAt(Processor *p)
     // метод с аргументами
     // вытащить из стека аргументы
     // число аргументов, пока не нужно, просто пропустить
-    p->popFromStack();
-    int64_t param1 = p->popFromStack().getIntValue();
-    std::u32string s = charAt(param1);
-    StringObject *newString = new StringObject(s);
-    p->pushStringToStack(newString);
+    auto args = loadArguments(p);
+    int64_t param1 = args.empty() ? 0 : args.top().getIntValue();
+    p->pushToStack(charAt(param1));
 }
 
 void StringObject::call_charCodeAt(Processor *p)
@@ -352,42 +350,58 @@ void StringObject::call_charCodeAt(Processor *p)
     // метод с аргументами
     // вытащить из стека аргументы
     // число аргументов, пока не нужно, просто пропустить
-    p->popFromStack();
-    int64_t param1 = p->popFromStack().getIntValue();
+    auto args = loadArguments(p);
+    int64_t param1 = args.empty() ? 0 : args.top().getIntValue();
     int64_t c = at(param1);
     p->pushToStack(c); // результат или 0
 }
 
 void StringObject::call_endsWith(Processor *p)
 {
-    p->popFromStack();
-    auto value = p->popFromStack().uString();
-    bool result = endsWith(value);
-    p->pushBooleanToStack(result);
+    auto args = loadArguments(p);
+    if (!args.empty()) {
+        auto value = args.top().uString();
+        bool result = endsWith(value);
+        p->pushBooleanToStack(result);
+    } else {
+        p->pushBooleanToStack(false);
+    }
 }
 
 void StringObject::call_includes(Processor *p)
 {
-    p->popFromStack();
-    auto value = p->popFromStack().uString();
-    bool result = includes(value);
-    p->pushBooleanToStack(result);
+    auto args = loadArguments(p);
+    if (!args.empty()) {
+        auto value = args.top().uString();
+        bool result = includes(value);
+        p->pushBooleanToStack(result);
+    } else {
+        p->pushBooleanToStack(false);
+    }
 }
 
 void StringObject::call_indexOf(Processor *p)
 {
-    p->popFromStack();
-    auto value = p->popFromStack().uString();
-    int64_t result = indexOf(value);
-    p->pushToStack(result);
+    auto args = loadArguments(p);
+    if (!args.empty()) {
+        auto value = args.top().uString();
+        int64_t result = indexOf(value);
+        p->pushToStack(result);
+    } else {
+        p->pushToStack(-1);
+    }
 }
 
 void StringObject::call_lastIndexOf(Processor *p)
 {
-    p->popFromStack();
-    auto value = p->popFromStack().uString();
-    int64_t result = lastIndexOf(value);
-    p->pushToStack(result);
+    auto args = loadArguments(p);
+    if (!args.empty()) {
+        auto value = args.top().uString();
+        int64_t result = lastIndexOf(value);
+        p->pushToStack(result);
+    } else {
+        p->pushToStack(-1);
+    }
 }
 
 void StringObject::call_padEnd(Processor *p)
@@ -404,14 +418,12 @@ void StringObject::call_padEnd(Processor *p)
     int64_t width = args.top().getIntValue();
     args.pop();
     std::u32string fill = args.empty() ? U" " : args.top().uString();
-    std::u32string s = padEnd(width, fill);
-    StringObject *newString = new StringObject(s);
-    p->pushStringToStack(newString);
+    p->pushToStack(padEnd(width, fill));
 }
 
 void StringObject::call_padStart(Processor *p)
 {
-    std::stack<StackValue> args = loadArguments(p);
+    auto args = loadArguments(p);
     if (args.empty()) {
         p->pushToStack(_s);
         return;
@@ -423,8 +435,7 @@ void StringObject::call_padStart(Processor *p)
     int64_t width = args.top().getIntValue();
     args.pop();
     std::u32string fill = args.empty() ? U" " : args.top().uString();
-    std::u32string s = padStart(width, fill);
-    p->pushToStack(s);
+    p->pushToStack(padStart(width, fill));
 }
 
 void StringObject::call_repeat(Processor *p)
@@ -479,41 +490,39 @@ void StringObject::call_slice(Processor *p)
 
 void StringObject::call_split(Processor *p)
 {
-    auto args =loadArguments(p);
+    auto args = loadArguments(p);
     if (args.empty()) {
         p->pushArrayToStack(split());
         return;
     }
-    Array *arr = split(args.top().uString());
-    p->pushArrayToStack(arr);
+    p->pushArrayToStack(split(args.top().uString()));
 }
 
 void StringObject::call_startsWith(Processor *p)
 {
-    p->popFromStack();
-    auto value = p->popFromStack().uString();
-    bool result = startsWith(value);
-    p->pushBooleanToStack(result);
+    auto args = loadArguments(p);
+    if (!args.empty()) {
+        auto value = args.top().uString();
+        args.pop();
+        int64_t from = args.empty() ? 0 : args.top().getIntValue();
+        p->pushBooleanToStack(startsWith(value, from));
+    } else {
+        p->pushBooleanToStack(false);
+    }
 }
 
 void StringObject::call_substring(Processor *p)
 {
-    // метод с аргументами
-    // вытащить из стека аргументы
-    // число аргументов, пока не нужно, просто пропустить
-    auto countOfArgs = p->popFromStack().getIntValue();
-    int64_t param2 = _s.length(), param1 = 0;
-    // аргументы вытаскиваются в обратном порядке
-    // сначала последний
-    if (countOfArgs == 1) {
-        param1 = p->popFromStack().getIntValue();
-    } else if (countOfArgs == 2) {
-        param2 = p->popFromStack().getIntValue();
-        param1 = p->popFromStack().getIntValue();
+    auto args = loadArguments(p);
+    int64_t fromIndex = 0, toIndex = _s.length();
+    if (!args.empty()) {
+        fromIndex = args.top().getIntValue();
+        args.pop();
     }
-    int64_t fromIndex = param1, toIndex = param2;
-    StringObject *newString = substring(fromIndex, toIndex);
-    p->pushStringToStack(newString);
+    if (!args.empty()) {
+        toIndex = args.top().getIntValue();
+    }
+    p->pushToStack(substring(fromIndex, toIndex));
 }
 
 void StringObject::call_toLowerCase(Processor *p)
