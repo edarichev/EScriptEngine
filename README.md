@@ -202,6 +202,9 @@ console.log(array);
 
 Однажды созданная строка не изменяется, при операциях создаются новые строки. Однако, одинаковые строки при случае могут повторно использоваться.
 
+Поддерживаются следующие методы: 
+`at, charAt, charCodeAt, endsWith, get_length, includes, indexOf, lastIndexOf, padEnd, padStart, repeat, replace, replaceAll, slice, split, startsWith, substring, toLowerCase, toUpperCase, trim, trimEnd, trimStart`
+
 У литерала можно вызывать методы:
 
 ```javascript
