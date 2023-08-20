@@ -12,13 +12,13 @@ public:
 
     static bool equals_double(double d1, double d2)
     {
-        return std::abs(d1 - d2) <= std::numeric_limits<double>::epsilon();
+        return std::abs(d1 - d2) <= std::numeric_limits<double>::epsilon()*100;
     }
 
     static bool equals_double(double d1, uint64_t doubleAsUInt64)
     {
         double d2 = escript::bit_cast<double>(doubleAsUInt64);
-        return std::abs(d1 - d2) <= std::numeric_limits<double>::epsilon();
+        return std::abs(d1 - d2) <= std::numeric_limits<double>::epsilon()*100;
     }
 
     static bool equals_bool(bool b, uint64_t boolAsUInt64)

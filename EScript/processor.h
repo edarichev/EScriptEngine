@@ -366,6 +366,7 @@ public:
     void pushArrayToStack(Array *arrValue);
     void pushToStack(SymbolType type, uint64_t value);
     void pushToStack(StackValue value);
+    void pushRealToStack(double value);
     StackValue popFromStack();
 
 private:

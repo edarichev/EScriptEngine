@@ -32,6 +32,7 @@ struct StackValue
      * @return Целое значение или исключение.
      */
     int64_t getIntValue() const;
+    double getRealValue() const;
 };
 
 

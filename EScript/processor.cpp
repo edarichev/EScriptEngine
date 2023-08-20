@@ -700,6 +700,11 @@ void Processor::pushToStack(StackValue value)
     _stack.push(value);
 }
 
+void Processor::pushRealToStack(double value)
+{
+    pushToStack(SymbolType::Real, bit_cast<uint64_t>(value));
+}
+
 void Processor::stloc_m()
 {
     next();

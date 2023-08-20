@@ -1344,11 +1344,11 @@ bool Parser::popBoolean()
     return lastBool;
 }
 
-IntType Parser::popReal()
+RealType Parser::popReal()
 {
-    RealType lastInt = _values.top().realValue;
+    RealType lastReal = _values.top().realValue;
     _values.pop();
-    return lastInt;
+    return lastReal;
 }
 
 std::shared_ptr<Block> Parser::currentBlock() const

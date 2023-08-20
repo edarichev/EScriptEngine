@@ -201,7 +201,7 @@ private:
     void pushBack(Token t, std::u32string &&str);
     IntType popInt();
     bool popBoolean();
-    IntType popReal();
+    RealType popReal();
 
     std::shared_ptr<Block> currentBlock() const;
     /**

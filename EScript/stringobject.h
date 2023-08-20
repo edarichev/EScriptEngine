@@ -80,7 +80,7 @@ private:
     void call_trim(Processor *p);
     void call_trimStart(Processor *p);
     void call_trimEnd(Processor *p);
-    void buildFunctionsMap();
+    static void buildFunctionsMap();
 };
 
 } // namespace escript
