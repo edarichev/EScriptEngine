@@ -71,7 +71,7 @@ y = "hello";
 `<, >, ==, <=, >=`
 
 
-## Отладочная печать
+## console: Отладочная печать
 Объект для отладочной печати - `console`, как и в JavaScript:
 ```javascript
 z = 123.45;
@@ -293,6 +293,10 @@ function fnTest(pFn, x) {
 y = fnTest(func, 12);
 z = fnTest(testFunc, 14);
 ```
+
+## Math
+
+У класса Math реализованы следующие функции: `abs, acos, acosh, asin, asinh, atan, atan2, atanh, cbrt, ceil, clz32, cos, cosh, exp, expm1, floor, fround, hypot, imul, log, log10, log1p, log2, max, min, pow, random, round, sign, sin, sinh, sqrt, tan, tanh, trunc`.
 
 ## Объекты автоматизации
 Для написания каких-то макросов и выполнения полезной работы нужно создать класс, производный от `escript::AutomationObject`. В частности, сам объект `console` и строка являются производными от этого класса и ничем в работе не отличаются. Хотя строки - это отдельная сущность, хранящаяся в таблице строк отдельно от объектов, работа с ними аналогична работе с любым производным от `AutomationObject`.
