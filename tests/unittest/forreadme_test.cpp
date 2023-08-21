@@ -9,6 +9,7 @@ void ForReadme_Test::run()
     test_functionDecl();
     test_functionRecursionExample();
     test_arrLengthGet();
+    test_forTmp();
     cleanupTestCase();
 }
 
@@ -70,6 +71,17 @@ U"a = [1,2,3]; x = a.get_length();";
     auto record = engine.getObjectRecord(x);
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(3, record->data));
+}
+
+void ForReadme_Test::test_forTmp()
+{
+    const std::u32string code1 = UR"(
+s = 'Hello';
+s[1] = 'a'; // Hello -> Hallo
+//console.log(s);
+)";
+    EScript engine;
+    engine.eval(code1);
 }
 
 void ForReadme_Test::test_consoleLog()

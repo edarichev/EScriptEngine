@@ -15,6 +15,7 @@ private:
     void test_functionDecl();
     void test_functionRecursionExample();
     void test_arrLengthGet();
+    void test_forTmp();
 };
 
 #endif // FORREADME_TEST_H
