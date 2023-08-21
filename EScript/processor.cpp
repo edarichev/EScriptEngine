@@ -39,6 +39,15 @@ Processor::Processor()
     }
 }
 
+std::stack<StackValue> Processor::loadArguments()
+{
+    int64_t nArgs = popFromStack().getIntValue();
+    std::stack<StackValue> args;
+    while (nArgs-- > 0)
+        args.push(popFromStack());
+    return args;
+}
+
 void Processor::neg()
 {
     next();

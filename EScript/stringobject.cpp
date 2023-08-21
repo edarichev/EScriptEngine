@@ -360,7 +360,7 @@ void StringObject::call_endsWith(Processor *p)
 {
     auto args = loadArguments(p);
     if (!args.empty()) {
-        auto value = args.top().uString();
+        auto value = args.top().getString();
         bool result = endsWith(value);
         p->pushBooleanToStack(result);
     } else {
@@ -372,7 +372,7 @@ void StringObject::call_includes(Processor *p)
 {
     auto args = loadArguments(p);
     if (!args.empty()) {
-        auto value = args.top().uString();
+        auto value = args.top().getString();
         bool result = includes(value);
         p->pushBooleanToStack(result);
     } else {
@@ -384,7 +384,7 @@ void StringObject::call_indexOf(Processor *p)
 {
     auto args = loadArguments(p);
     if (!args.empty()) {
-        auto value = args.top().uString();
+        auto value = args.top().getString();
         int64_t result = indexOf(value);
         p->pushToStack(result);
     } else {
@@ -396,7 +396,7 @@ void StringObject::call_lastIndexOf(Processor *p)
 {
     auto args = loadArguments(p);
     if (!args.empty()) {
-        auto value = args.top().uString();
+        auto value = args.top().getString();
         int64_t result = lastIndexOf(value);
         p->pushToStack(result);
     } else {
@@ -417,7 +417,7 @@ void StringObject::call_padEnd(Processor *p)
     }
     int64_t width = args.top().getIntValue();
     args.pop();
-    std::u32string fill = args.empty() ? U" " : args.top().uString();
+    std::u32string fill = args.empty() ? U" " : args.top().getString();
     p->pushToStack(padEnd(width, fill));
 }
 
@@ -434,7 +434,7 @@ void StringObject::call_padStart(Processor *p)
     // первый - это ширина, второй - заполнитель
     int64_t width = args.top().getIntValue();
     args.pop();
-    std::u32string fill = args.empty() ? U" " : args.top().uString();
+    std::u32string fill = args.empty() ? U" " : args.top().getString();
     p->pushToStack(padStart(width, fill));
 }
 
@@ -456,9 +456,9 @@ void StringObject::call_replace(Processor *p)
         p->pushToStack(_s);
         return;
     }
-    auto what = args.top().uString();
+    auto what = args.top().getString();
     args.pop();
-    auto with = args.empty() ? U"undefined" : args.top().uString();
+    auto with = args.empty() ? U"undefined" : args.top().getString();
     p->pushToStack(replace(what, with));
 }
 
@@ -469,9 +469,9 @@ void StringObject::call_replaceAll(Processor *p)
         p->pushToStack(_s);
         return;
     }
-    auto what = args.top().uString();
+    auto what = args.top().getString();
     args.pop();
-    auto with = args.empty() ? U"undefined" : args.top().uString();
+    auto with = args.empty() ? U"undefined" : args.top().getString();
     p->pushToStack(replaceAll(what, with));
 }
 
@@ -495,14 +495,14 @@ void StringObject::call_split(Processor *p)
         p->pushArrayToStack(split());
         return;
     }
-    p->pushArrayToStack(split(args.top().uString()));
+    p->pushArrayToStack(split(args.top().getString()));
 }
 
 void StringObject::call_startsWith(Processor *p)
 {
     auto args = loadArguments(p);
     if (!args.empty()) {
-        auto value = args.top().uString();
+        auto value = args.top().getString();
         args.pop();
         int64_t from = args.empty() ? 0 : args.top().getIntValue();
         p->pushBooleanToStack(startsWith(value, from));

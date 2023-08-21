@@ -25,7 +25,7 @@ public:
     }
     void setCellValue(int row, int col, const StackValue &value)
     {
-        setCellValue(row, col, value.uString());
+        setCellValue(row, col, value.getString());
     }
     const std::u32string getCellValue(int row, int col) const
     {
@@ -62,6 +62,13 @@ bool MySpreadSheet::call(const u32string &method, Processor *p)
         auto argCount = p->popFromStack().value; // число аргументов == 0
         assert(argCount == 0);
         p->pushToStack(id());
+        return true;
+    }
+    if (method == U"acceptArray") {
+        auto args = loadArguments(p);
+        assert(args.size());
+        Array *a = args.top().getArrayValue();
+        p->pushToStack(a->length()); // вернуть длину
         return true;
     }
     if (method == U"getCellValue") {
@@ -113,6 +120,8 @@ void Automation_Test::run()
     test_auto1();
     test_autoPropSet();
     test_autoAddAfterFirstRun();
+    test_acceptArray();
+    test_acceptArrayVariable();
     cleanupTestCase();
 }
 
@@ -191,6 +200,41 @@ void Automation_Test::test_autoAddAfterFirstRun()
     auto record = engine.getObjectRecord(x);
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(123, record->data));
+}
+
+void Automation_Test::test_acceptArray()
+{
+    const std::u32string code1 = UR"(
+x = spreadsheet.acceptArray([1,2,3,7]);
+)";
+    EScript engine;
+    MySpreadSheet spreadsheet;
+    engine.attachObject(&spreadsheet, U"spreadsheet");
+    engine.eval(code1);
+    engine.detachObject(&spreadsheet);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(4, record->data));//length==4 штуки
+}
+
+void Automation_Test::test_acceptArrayVariable()
+{
+    const std::u32string code1 = UR"(
+a = [1,2,3,7,11,11122];
+x = spreadsheet.acceptArray(a);
+)";
+    EScript engine;
+    MySpreadSheet spreadsheet;
+    engine.attachObject(&spreadsheet, U"spreadsheet");
+    engine.eval(code1);
+    engine.detachObject(&spreadsheet);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(6, record->data));//length==6
 }
 
 

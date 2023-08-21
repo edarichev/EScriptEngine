@@ -9,6 +9,8 @@
 
 namespace escript {
 
+class Array;
+
 /**
  * @brief Значение, хранимое в стеке машины во время выполнения
  */
@@ -26,13 +28,19 @@ struct StackValue
 
     StackValue(){}
     StackValue(SymbolType t, uint64_t v) : type(t), value(v){}
-    const std::u32string uString() const;
+    /**
+     * @brief Возвращает либо строку, содержащуюся в экземпляре StringObject,
+     *        либо преобразует в строку содержимое.
+     * @return
+     */
+    const std::u32string getString() const;
     /**
      * @brief Пытается извлечь целое значение из всех возможных полей
      * @return Целое значение или исключение.
      */
-    int64_t getIntValue() const;
-    double getRealValue() const;
+    int64_t getIntValue() const noexcept(false);
+    double getRealValue() const noexcept(false);
+    Array *getArrayValue() const noexcept(false);
 };
 
 

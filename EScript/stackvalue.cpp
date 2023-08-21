@@ -5,10 +5,11 @@
 #include "array.h"
 #include <cmath>
 #include <utility>
+#include "array.h"
 
 namespace escript {
 
-const std::u32string StackValue::uString() const
+const std::u32string StackValue::getString() const
 {
     return to_u32string(type, value);
 }
@@ -97,6 +98,21 @@ double doubleValue(SymbolType type, uint64_t value)
     }
 }
 
+Array *arrayValue(SymbolType type, uint64_t value)
+{
+    Array *a = nullptr;
+    if (type == SymbolType::Array)
+        a = (Array*)value;
+    else if (type == SymbolType::Variable) {
+        ObjectRecord *rec = (ObjectRecord*)value;
+        if (rec->type == SymbolType::Array)
+            a = (Array*)rec->data;
+    }
+    if (a == nullptr)
+        throw std::domain_error("The value does not contains Array object");
+    return a;
+}
+
 int64_t StackValue::getIntValue() const
 {
     return intValue(type, value);
@@ -105,6 +121,11 @@ int64_t StackValue::getIntValue() const
 double StackValue::getRealValue() const
 {
     return doubleValue(type, value);
+}
+
+Array *StackValue::getArrayValue() const
+{
+    return arrayValue(type, value);
 }
 
 

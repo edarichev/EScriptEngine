@@ -12,6 +12,8 @@ private:
     void test_auto1();
     void test_autoPropSet();
     void test_autoAddAfterFirstRun();
+    void test_acceptArray();
+    void test_acceptArrayVariable();
 };
 
 #endif // AUTOMATION_TEST_H

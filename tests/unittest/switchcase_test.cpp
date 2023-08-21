@@ -75,8 +75,8 @@ switch (x) {
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -96,8 +96,8 @@ case 1:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -116,8 +116,8 @@ case 1:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -140,8 +140,8 @@ case 2:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -163,8 +163,8 @@ case 2:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -185,8 +185,8 @@ case 2:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -209,8 +209,8 @@ case 1:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -232,8 +232,8 @@ case 1:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -254,8 +254,8 @@ case 1:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -278,8 +278,8 @@ case 3:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -301,8 +301,8 @@ case 3:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -324,8 +324,8 @@ case 3:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -346,8 +346,8 @@ case 3:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -373,8 +373,8 @@ case 3:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -399,8 +399,8 @@ case 3:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -425,8 +425,8 @@ case 3:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -451,8 +451,8 @@ case 3:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -476,8 +476,8 @@ case 3:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -501,8 +501,8 @@ case 3:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -526,8 +526,8 @@ case 3:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -553,8 +553,8 @@ case 3:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -579,8 +579,8 @@ case 3:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -605,8 +605,8 @@ case 3:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -631,8 +631,8 @@ case 3:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -656,8 +656,8 @@ case 3:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -681,8 +681,8 @@ case 3:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -706,8 +706,8 @@ case 3:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -730,8 +730,8 @@ case 3:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -751,8 +751,8 @@ default:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -771,8 +771,8 @@ default:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -795,8 +795,8 @@ default:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -818,8 +818,8 @@ default:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -841,8 +841,8 @@ default:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -863,8 +863,8 @@ default:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -887,8 +887,8 @@ default:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -910,8 +910,8 @@ default:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -933,8 +933,8 @@ default:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -955,8 +955,8 @@ default:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -979,8 +979,8 @@ case 1:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -1002,8 +1002,8 @@ case 1:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -1025,8 +1025,8 @@ case 1:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -1049,8 +1049,8 @@ case 0:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -1072,8 +1072,8 @@ case 0:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -1095,8 +1095,8 @@ case 0:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -1117,8 +1117,8 @@ case 0:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -1144,8 +1144,8 @@ case 1:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");
@@ -1170,8 +1170,8 @@ case 1:
 }
 )";
     EScript engine;
-    engine.setShowDisassembleListing(true);
-    engine.setShowTCode(true);
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
     auto x = mainTable->find(U"x");

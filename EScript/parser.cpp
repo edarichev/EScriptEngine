@@ -987,14 +987,12 @@ void Parser::SwitchStatement()
     int labelFallThroughToNextCase = nextLabel();
     int nextComparisonLabel = nextLabel();
     bool defaultEmitted = false; // если default уже был, то true
-    bool caseEmitted = false;
     int defaultLabel = nextLabel();
     emitGoto(nextComparisonLabel); // чтобы не попасть в default, если он сверху
     do {
         switch (lookahead()) {
         case Token::Case: {
             match(Token::Case);
-            caseEmitted = true;
             emitLabel(nextComparisonLabel);
             nextComparisonLabel = nextLabel();
             Expression(); // можно всё, что угодно, лишь бы что-то возвращало
