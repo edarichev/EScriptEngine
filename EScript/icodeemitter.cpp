@@ -294,7 +294,7 @@ void ICodeEmitter::writeTempBuffer()
 }
 
 
-void ICodeEmitter::callAOMethod(std::shared_ptr<Symbol> &leftVariable,
+void ICodeEmitter::callAOMethod(Symbol *leftVariable,
                                 StringObject *propName,
                                 std::shared_ptr<Symbol> &resultVariable,
                                 int nArgs)
@@ -306,7 +306,7 @@ void ICodeEmitter::callAOMethod(std::shared_ptr<Symbol> &leftVariable,
     // сверху - имя метода
     pushString(propName);
     // выше - сам объект
-    pushVariable(leftVariable.get());
+    pushVariable(leftVariable);
     // теперь вызов метода объекта автоматизации
     TCode code;
     code.operation = OperationType::CallM;

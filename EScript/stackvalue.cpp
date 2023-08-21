@@ -9,7 +9,7 @@
 
 namespace escript {
 
-const std::u32string StackValue::getString() const
+const std::u32string StackValue::getStringValue() const
 {
     return to_u32string(type, value);
 }
@@ -113,6 +113,24 @@ Array *arrayValue(SymbolType type, uint64_t value)
     return a;
 }
 
+bool boolValue(SymbolType type, uint64_t value)
+{
+    switch (type) {
+    case SymbolType::Boolean:
+    case SymbolType::Integer:
+    case SymbolType::Real:
+        return (bool)value;
+    case SymbolType::String:
+        return ((StringObject*)value)->uString() == U"true";
+    case SymbolType::Variable: {
+        ObjectRecord *rec = (ObjectRecord*)value;
+        return boolValue(rec->type, rec->data);
+    }
+    default:
+        return false;
+    }
+}
+
 int64_t StackValue::getIntValue() const
 {
     return intValue(type, value);
@@ -126,6 +144,11 @@ double StackValue::getRealValue() const
 Array *StackValue::getArrayValue() const
 {
     return arrayValue(type, value);
+}
+
+double StackValue::getBoolValue() const noexcept(false)
+{
+    return boolValue(type, value);
 }
 
 

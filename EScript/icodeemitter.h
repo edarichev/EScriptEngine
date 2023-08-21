@@ -64,7 +64,7 @@ public:
      * @param resultVariable (временная) переменная, куда пометсить результат
      * @param nArgs число аргементов (0 для свойства)
      */
-    void callAOMethod(std::shared_ptr<Symbol> &leftVariable, StringObject *propName, std::shared_ptr<Symbol> &resultVariable, int nArgs);
+    void callAOMethod(Symbol *leftVariable, StringObject *propName, std::shared_ptr<Symbol> &resultVariable, int nArgs);
     void allocArray(std::shared_ptr<Symbol> &arrVariable);
     /**
      * @brief извлечь из стека, увеличить, засунуть обратно

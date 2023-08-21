@@ -99,6 +99,7 @@ private:
     void ReturnStatement();
     void ArrayDeclExpression();
     void ArrayItemRefExpression();
+    void OptionalArrayItemRefExpression();
     void DotOperation();
     void PostfixOperation();
     void VariableDeclBlock();
@@ -174,7 +175,7 @@ private:
     void emitReturn();
     void emitCall(std::shared_ptr<Symbol> &func, int nArgs, std::shared_ptr<Symbol> &resultVariable);
     void emitFnEnd();
-    void emitCallAOMethod(std::shared_ptr<Symbol> &leftVariable,
+    void emitCallAOMethod(Symbol *leftVariable,
                           const std::u32string &propName,
                           std::shared_ptr<Symbol> &resultVariable,
                           int nArgs);

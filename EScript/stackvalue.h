@@ -33,7 +33,7 @@ struct StackValue
      *        либо преобразует в строку содержимое.
      * @return
      */
-    const std::u32string getString() const;
+    const std::u32string getStringValue() const noexcept(false);
     /**
      * @brief Пытается извлечь целое значение из всех возможных полей
      * @return Целое значение или исключение.
@@ -41,6 +41,7 @@ struct StackValue
     int64_t getIntValue() const noexcept(false);
     double getRealValue() const noexcept(false);
     Array *getArrayValue() const noexcept(false);
+    double getBoolValue() const noexcept(false);
 };
 
 

@@ -15,6 +15,9 @@ void Array_Test::run()
     test_arrayStringValues();
     test_arrayRealKeys();
     test_arrayRealValues();
+    test_callAccessOfFuncExpression();
+    test_callAccessOfParenthExpression();
+    test_callAccessOfArrayDeclExpression();
     cleanupTestCase();
 }
 
@@ -248,4 +251,65 @@ var x = a[10.5];
     auto record = engine.getObjectRecord(x);
     assert(record->type == SymbolType::Real);
     assert(Compare::equals_double(14.5, record->data));
+}
+
+void Array_Test::test_callAccessOfFuncExpression()
+{
+    const u32string code1 = UR"(
+function fa() {
+    a = [1,2,3,4,5];
+    return a;
+}
+
+x = fa()[2];
+)";
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(3, record->data));
+}
+
+void Array_Test::test_callAccessOfParenthExpression()
+{
+    const u32string code1 = UR"(
+function fa() {
+    a = [1,2,3,4,5];
+    return a;
+}
+
+x = (fa())[2];
+)";
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(3, record->data));
+}
+
+void Array_Test::test_callAccessOfArrayDeclExpression()
+{
+    const u32string code1 = UR"(
+x = [1,2,3,4,5][2];
+)";
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(3, record->data));
 }

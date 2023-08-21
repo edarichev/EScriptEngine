@@ -615,6 +615,7 @@ void Parser::Factor()
         next();
         Expression();
         match(Token::RightParenth);
+        OptionalArrayItemRefExpression();
         break;
     case Token::Plus:
         // унарный плюс, ничего не делаем
@@ -656,12 +657,23 @@ void Parser::Factor()
             // это вызов функции
             pushBack(Token::Identifier, idText);
             FunctionCallExpression();
+            OptionalArrayItemRefExpression();
             break;
-        case Token::LeftBracket:
+        case Token::LeftBracket: {
             // обращение к элементу массива
+#if 0
             pushBack(Token::Identifier, idText);
             ArrayItemRefExpression();
+#else
+            auto id = tokenText();
+            auto arrValue = currentSymbolTable()->find(idText);
+            if (!arrValue)
+                undeclaredIdentifier(idText);
+            pushVariable(arrValue);
+            OptionalArrayItemRefExpression();
+#endif
             break;
+        }
         case Token::Dot:
             // DotOperation: здесь важно различить: это слева от = или справа
             pushBack(Token::Identifier, idText);
@@ -797,7 +809,7 @@ void Parser::ArrayDeclExpression()
         emitPush();
         // в результате вызова всегда что-то есть, даже 0
         auto resultVariable = currentSymbolTable()->addTemp();
-        emitCallAOMethod(arrValue, U"add", resultVariable, 1);
+        emitCallAOMethod(arrValue.get(), U"add", resultVariable, 1);
         pushVariable(resultVariable);
         if (lookahead() == Token::RightBracket)
             break;
@@ -805,6 +817,7 @@ void Parser::ArrayDeclExpression()
     } while (lookahead() != Token::Eof);
     match(Token::RightBracket);
     pushVariable(arrValue);
+    OptionalArrayItemRefExpression();
 }
 
 void Parser::ArrayItemRefExpression()
@@ -812,6 +825,46 @@ void Parser::ArrayItemRefExpression()
     auto id = tokenText();
     auto arrValue = currentSymbolTable()->find(id);
     match(Token::Identifier);
+    match(Token::LeftBracket);
+    Expression(); // индекс, он же ключ элемента
+    emitPush();
+    popStackValue(); // убрать индекс элемента
+    match(Token::RightBracket);
+    auto resultVariable = currentSymbolTable()->addTemp();
+    std::u32string methodName;
+    int nArgs = 0;
+    if (lookahead() == Token::Assign) {
+        // присваивание элементу массива
+        next();
+        Expression(); // новое значение
+        emitPush();
+        popStackValue(); // убрать индекс элемента
+        methodName = U"set";
+        nArgs = 2;
+    } else {
+        // получение значения элемента массива
+        methodName = U"get";
+        nArgs = 1;
+    }
+    emitCallAOMethod(arrValue.get(), methodName, resultVariable, nArgs);
+    pushVariable(resultVariable);
+}
+
+void Parser::OptionalArrayItemRefExpression()
+{
+    // это необязательное выражение, поэтому выходим
+    if (lookahead() != Token::LeftBracket)
+        return;
+    if (_values.empty())
+        error("Expected expression before [] operation");
+    switch (_values.top().type) {
+    case SymbolType::Variable:
+        break; // здесь должна быть некая временная переменная
+    default:
+        error("Expected variable before [] operation");
+    }
+    auto arrValue = _values.top().variable;
+    _values.pop();
     match(Token::LeftBracket);
     Expression(); // индекс, он же ключ элемента
     emitPush();
@@ -893,7 +946,7 @@ void Parser::DotOperation()
             methodName = U"get_" + methodName;
         }
     }
-    emitCallAOMethod(symbol, methodName, resultVariable, nArgs);
+    emitCallAOMethod(symbol.get(), methodName, resultVariable, nArgs);
     pushVariable(resultVariable);
 }
 
@@ -1290,7 +1343,7 @@ void Parser::emitFnEnd()
     _emitter->fnEnd();
 }
 
-void Parser::emitCallAOMethod(std::shared_ptr<Symbol> &leftVariable,
+void Parser::emitCallAOMethod(Symbol *leftVariable,
                               const std::u32string &propName,
                               std::shared_ptr<Symbol> &resultVariable,
                               int nArgs)

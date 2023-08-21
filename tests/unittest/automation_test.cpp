@@ -25,7 +25,7 @@ public:
     }
     void setCellValue(int row, int col, const StackValue &value)
     {
-        setCellValue(row, col, value.getString());
+        setCellValue(row, col, value.getStringValue());
     }
     const std::u32string getCellValue(int row, int col) const
     {

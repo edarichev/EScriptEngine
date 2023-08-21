@@ -19,6 +19,9 @@ private:
     void test_arrayStringValues();
     void test_arrayRealKeys();
     void test_arrayRealValues();
+    void test_callAccessOfFuncExpression();
+    void test_callAccessOfParenthExpression();
+    void test_callAccessOfArrayDeclExpression();
 };
 
 #endif // ARRAY_TEST_H
