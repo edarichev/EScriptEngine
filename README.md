@@ -451,7 +451,7 @@ typedef void (MyClass::*pFn)(Processor *p);
 static std::map<std::u32string, pFn> _fn;
 
 // .cpp:
-std::map<std::u32string, MyClass::pFn> Math::_fn;
+std::map<std::u32string, MyClass::pFn> MyClass::_fn;
 ```
 3. Добавьте в класс метод, который будет выполнять задачу:
 ```C++

@@ -11,6 +11,7 @@
 *.dylib
 
 y.tab.c
+book
 
 # Qt-es
 object_script.*.Release
