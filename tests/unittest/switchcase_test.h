@@ -57,6 +57,7 @@ private:
     void test_switchCaseFalseDefaultCaseTrue();
     void test_switchCaseFalseDefaultCaseTrueDefaultFallThrough();
     void test_mixedCases();
+    void test_expressionsInCases();
 };
 
 #endif // SWITCHCASE_TEST_H

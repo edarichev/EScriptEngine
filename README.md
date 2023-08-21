@@ -106,6 +106,29 @@ if (false) i = 6;
 else if (false) i = 5;
 else i = 7;
 ```
+
+### switch/case
+В блоках `case` условием выступают любые выражения.
+```javascript
+x = 'hello, world';
+y = 6;
+a = [4, 11, 3, ', world'];
+switch (x) {
+    case a[0] + y:
+        x = 1;
+        break;
+    default:
+        x = 15;
+        break;
+    case 'hello' + a[3]: { // x == 'hello, world'
+        x = 2;
+        break;
+    }
+}
+```
+
+Допускается проход из одного блока `case` или `default` в следующий после него `case/default`, т.е. `break` не является обязательным.
+
 ## Циклы
 Циклы придерживаются в основном общепринятого для C-подобных языков синтаксиса, можно использовать break/continue.
 ### while

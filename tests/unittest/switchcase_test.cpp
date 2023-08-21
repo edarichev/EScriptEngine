@@ -53,6 +53,7 @@ void SwitchCase_Test::run()
     test_switchCaseFalseDefaultCaseTrue();
     test_switchCaseFalseDefaultCaseTrueDefaultFallThrough();
     test_mixedCases();
+    test_expressionsInCases();
     cleanupTestCase();
 }
 
@@ -1214,4 +1215,32 @@ switch (x) {
     auto record = engine.getObjectRecord(x);
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(15, record->data));
+}
+
+void SwitchCase_Test::test_expressionsInCases()
+{
+    const std::u32string code1 = UR"(
+x = 'hello, world';
+y = 6;
+a = [4, 11, 3, ', world'];
+switch (x) {
+    case a[0] + y:
+        x = 1;
+        break;
+    default:
+        x = 15;
+        break;
+    case 'hello' + a[3]: { // x == 'hello, world'
+        x = 2;
+        break;
+    }
+}
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(2, record->data));
 }
