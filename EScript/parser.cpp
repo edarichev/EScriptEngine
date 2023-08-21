@@ -615,7 +615,7 @@ void Parser::Factor()
         next();
         Expression();
         match(Token::RightParenth);
-        OptionalArrayItemRefExpression();
+        OptionalDotOrBracketExpression();
         break;
     case Token::Plus:
         // унарный плюс, ничего не делаем
@@ -657,7 +657,7 @@ void Parser::Factor()
             // это вызов функции
             pushBack(Token::Identifier, idText);
             FunctionCallExpression();
-            OptionalArrayItemRefExpression();
+            OptionalDotOrBracketExpression();
             break;
         case Token::LeftBracket: {
             // обращение к элементу массива
@@ -670,15 +670,28 @@ void Parser::Factor()
             if (!arrValue)
                 undeclaredIdentifier(idText);
             pushVariable(arrValue);
-            OptionalArrayItemRefExpression();
+            OptionalDotOrBracketExpression();
 #endif
             break;
         }
-        case Token::Dot:
+        case Token::Dot: {
             // DotOperation: здесь важно различить: это слева от = или справа
+#if 0
             pushBack(Token::Identifier, idText);
             DotOperation();
+#else
+            if (idText == U"Math") {
+                if (resolveMathConstant())
+                    return;
+            }
+            auto opValue = currentSymbolTable()->find(idText);
+            if (!opValue)
+                undeclaredIdentifier(idText);
+            pushVariable(opValue);
+            OptionalDotOrBracketExpression();
+#endif
             break;
+        }
         default:
             auto symbol = currentSymbolTable()->find(idText);
             if (!symbol)
@@ -717,7 +730,7 @@ void Parser::Factor()
             pushString(str);
             emitAssign(tmpStr.get());
             pushVariable(tmpStr);
-            OptionalArrayItemRefExpression();
+            OptionalDotOrBracketExpression();
             return;
         } else {
             pushString(str);
@@ -824,7 +837,7 @@ void Parser::ArrayDeclExpression()
     } while (lookahead() != Token::Eof);
     match(Token::RightBracket);
     pushVariable(arrValue);
-    OptionalArrayItemRefExpression();
+    OptionalDotOrBracketExpression();
 }
 
 void Parser::ArrayItemRefExpression()
@@ -960,6 +973,53 @@ void Parser::DotOperation()
         }
     }
     emitCallAOMethod(symbol.get(), methodName, resultVariable, nArgs);
+    pushVariable(resultVariable);
+}
+
+void Parser::OptionalDotOperation()
+{
+    if (lookahead() != Token::Dot)
+        return;
+    if (_values.empty())
+        error("Expected expression before [] operation");
+    switch (_values.top().type) {
+    case SymbolType::Variable:
+        break; // здесь должна быть некая временная переменная
+    default:
+        error("Expected variable before [] operation");
+    }
+    match(Token::Dot);
+    auto methodName = tokenText();
+    match(Token::Identifier);
+    auto symbol = _values.top().variable;
+    _values.pop();
+    auto resultVariable = currentSymbolTable()->addTemp();
+    int nArgs = 0;
+    if (lookahead() == Token::LeftParenth) {
+        // это метод
+        match(Token::LeftParenth);
+        _argumentsCountStack.push(0);
+        if (lookahead() != Token::RightParenth)
+            ArgumentList();
+        nArgs = _argumentsCountStack.top();
+        _argumentsCountStack.pop();
+        match(Token::RightParenth);
+    } else {
+        // это свойство; какое: get/set?
+        if (lookahead() == Token::Assign) {
+            // setter
+            methodName = U"set_" + methodName;
+            next();
+            Expression(); // вычислить выражение для параметра метода
+            emitPush();   // результат - 1 аргумент поместить в стек
+            nArgs = 1;
+            popStackValue(); // убрать выражение разбора
+        } else {
+            // getter
+            methodName = U"get_" + methodName;
+        }
+    }
+    emitCallAOMethod(symbol, methodName, resultVariable, nArgs);
     pushVariable(resultVariable);
 }
 
@@ -1111,6 +1171,43 @@ void Parser::SwitchStatement()
     emitLabel(labelFallThroughToNextCase);
     emitLabel(_exitLabels.top());
     _exitLabels.pop();
+}
+
+void Parser::OptionalDotOrBracketExpression()
+{
+    // наивысший приоритет
+    // операция точка или обращение к элементу[]
+    // это необязательное правило и применяется в особых местах
+    // перед этим в стек должна быть помещена переменная
+    // но только если сейчас токены "." или "["
+    do {
+        switch (lookahead()) {
+        case Token::Dot:
+            OptionalDotOperation();
+            break;
+        case Token::LeftBracket:
+            OptionalArrayItemRefExpression();
+            break;
+        default:
+            return;
+        }
+    } while (lookahead() != Token::Eof);
+}
+
+bool Parser::resolveMathConstant()
+{
+    match(Token::Dot);
+    auto methodName = tokenText();
+    double v;
+    if (Math::getConstant(methodName, v)) {
+        // можно вставить сразу константу
+        pushReal(v);
+        next();
+        return true;
+    } else {
+        pushBack(Token::Dot, U".");
+    }
+    return false;
 }
 
 //////////////////////// перемещение по потоку  /////////////////////////////

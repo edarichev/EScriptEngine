@@ -28,6 +28,7 @@ private:
     void test_array3DGetItem();
     void test_array3DDeclGetItem();
     void test_array3DSetItem();
+    void test_arrayFuncRetArrayGetItem();
 };
 
 #endif // ARRAY_TEST_H

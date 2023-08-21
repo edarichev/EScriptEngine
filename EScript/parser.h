@@ -101,9 +101,15 @@ private:
     void ArrayItemRefExpression();
     void OptionalArrayItemRefExpression();
     void DotOperation();
+    void OptionalDotOperation();
     void PostfixOperation();
     void VariableDeclBlock();
     void SwitchStatement();
+    void OptionalDotOrBracketExpression();
+
+    // некоторые подстановки для уменьшения длины методов
+private:
+    bool resolveMathConstant();
     // перемещение по потоку
 private:
     /**

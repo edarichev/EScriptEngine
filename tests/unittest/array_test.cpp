@@ -24,6 +24,7 @@ void Array_Test::run()
     test_array3DGetItem();
     test_array3DDeclGetItem();
     test_array3DSetItem();
+    test_arrayFuncRetArrayGetItem();
     cleanupTestCase();
 }
 
@@ -458,4 +459,22 @@ x = a[1][0][2];
     auto record = engine.getObjectRecord(x);
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(512, record->data));
+}
+
+void Array_Test::test_arrayFuncRetArrayGetItem()
+{
+    const std::u32string code1 = UR"(
+function fn() { return "Hello"; }
+x = fn()[1];
+)";
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::String);
+    assert(U"e" == ((StringObject*)record->data)->uString());
 }
