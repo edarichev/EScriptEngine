@@ -39,9 +39,9 @@ assert(spreadsheet.getCellValue(0, 0) == U"Hello, world!!!!");
 Движок принимает исполняемый скрипт в виде строки `std::u32string`, поэтому вы можете использовать:
 
 * литералы `U"32-битная строка"`;
-* литералы `RU"(многострочная 32-битная строка)"`;
+* литералы `UR"(многострочная 32-битная строка)"`;
 * вспомогательную функцию `escript::to_u32string()`;
-* другие средства преобразования в std::u32string.
+* другие средства преобразования в `std::u32string`.
 
 ## Типы данных
 Доступны следуюшие типы данных:
@@ -304,7 +304,7 @@ z = fnTest(testFunc, 14);
 
 ## Math
 
-У класса Math реализованы следующие функции: `abs, acos, acosh, asin, asinh, atan, atan2, atanh, cbrt, ceil, clz32, cos, cosh, exp, expm1, floor, fround, hypot, imul, log, log10, log1p, log2, max, min, pow, random, round, sign, sin, sinh, sqrt, tan, tanh, trunc`.
+У класса Math реализованы следующие методы: `abs, acos, acosh, asin, asinh, atan, atan2, atanh, cbrt, ceil, clz32, cos, cosh, exp, expm1, floor, fround, hypot, imul, log, log10, log1p, log2, max, min, pow, random, round, sign, sin, sinh, sqrt, tan, tanh, trunc`.
 
 ## console: Отладочная печать
 Объект для отладочной печати - `console`, как и в JavaScript:
@@ -330,6 +330,9 @@ ss.str(""); // сброс
 Данные выводятся в кодировке UTF-8. Объект `console` ведёт себя как и в JavaScript (или, точнее, как в nodejs), вставляя пробел между выводимыми значениями и символ переноса строки в конце.
 
 ## Объекты автоматизации
+
+### Общая концепция
+
 Для написания каких-то макросов и выполнения полезной работы нужно создать класс, производный от `escript::AutomationObject`. В частности, сам объект `console` и строка являются производными от этого класса и ничем в работе не отличаются. Хотя строки - это отдельная сущность, хранящаяся в таблице строк отдельно от объектов, работа с ними аналогична работе с любым производным от `AutomationObject`.
 
 Каждый класс, производный от `AutomationObject`, может переопределить метод `call`. "Может", т.к. новых методов у него может и не быть.
@@ -435,7 +438,57 @@ a = [1,2,3];
 x = a.get_length();
 ```
 
+### Создание методов, доступных для вызова из скрипта
 
+Вызов метода объекта автоматизации производится по его имени, поэтому если методов много, лучше сделать их вызов через хэш-таблицу, чем сооружать гигантские блоки if/else. Для этого:
+1. Добавьте в ваш класс, производный от `AutomationObject` объявление указателя на функцию-член:
+```C++
+typedef void (MyClass::*pFn)(Processor *p);
+```
+2. Добавьте в класс статическую переменную-хэш таблицу, например:
+```C++
+// .h:
+static std::map<std::u32string, pFn> _fn;
+
+// .cpp:
+std::map<std::u32string, MyClass::pFn> Math::_fn;
+```
+3. Добавьте в класс метод, который будет выполнять задачу:
+```C++
+void MyClass::call_acos(Processor *p)
+{
+    auto args = loadArguments(p);
+    if (args.empty())
+        p->pushRealToStack(std::numeric_limits<double>::signaling_NaN());
+    else
+        p->pushRealToStack(acos(args.top().getRealValue()));
+}
+```
+Вспомогательная функция `AutomationObject::loadArguments` вынимает из стека все аргументы и разворачивает их в прямом порядке. Стек будет очищен, сколько бы агрументов ни было передано. Хотя вынимать агрументы можно вручную, вы можете использовать этот метод как более удобный.
+
+4. Создайте функцию для заполнения хэш-таблицы:
+```C++
+void MyClass::buildFunctionsMap()
+{
+    if (!_fn.empty())
+        return;
+    _fn[U"acos"] = &MyClass::call_acos;
+    // добавьте таким же образом все остальные методы
+```
+5. Переопределите функцию `call` следующим образом:
+```C++
+bool MyClass::call(const std::u32string &method, Processor *p)
+{
+    if (BaseClass::call(method, p))
+        return true;
+    auto ptrToMethod = _fn.find(method);
+    if (ptrToMethod == _fn.end())
+        throw std::domain_error("Call of unknown method: MyClass." + to_utf8(method));
+    (this->*ptrToMethod->second)(p);
+    return true;
+}
+```
+Теперь метод `acos` будет доступен в скрипте.
 
 
 

@@ -89,7 +89,7 @@ bool Math::call(const std::u32string &method, Processor *p)
         return true;
     auto ptrToMethod = _fn.find(method);
     if (ptrToMethod == _fn.end())
-        throw std::domain_error("Call of unknown method: string." + to_utf8(method));
+        throw std::domain_error("Call of unknown method: Math." + to_utf8(method));
     (this->*ptrToMethod->second)(p);
     return true;
 }
