@@ -36,7 +36,6 @@ assert(spreadsheet.getCellValue(1, 2) == U"12345");
 assert(spreadsheet.getCellValue(0, 0) == U"Hello, world!!!!");
 ```
 
-Полный пример - в тестах (`automation_test.cpp`).
 
 Движок принимает исполняемый скрипт в виде строки `std::u32string`, поэтому вы можете использовать:
 

@@ -311,13 +311,17 @@ void Processor::callm()
         // Сначала установить сам массив.
         // Затем надо перебрать каждый элемент.
         // Если это строка - установить в таблицу строк
-        auto rec = _storage->installRecord(nullptr);
-        rec->type = SymbolType::Array;
-        rec->data = result.value;
-        Array *arr = (Array*)result.value;
-        for (auto &c : *arr) {
-            if (c.second.type == SymbolType::String) {
-                _strings->add(c.second.strValue);
+        auto rec = _storage->findRecord(result.value);
+        if (!rec) {
+            // создать новый массив
+            rec = _storage->installRecord(nullptr);
+            rec->type = SymbolType::Array;
+            rec->data = result.value;
+            Array *arr = (Array*)result.value;
+            for (auto &c : *arr) {
+                if (c.second.type == SymbolType::String) {
+                    _strings->add(c.second.strValue);
+                }
             }
         }
         break;

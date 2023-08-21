@@ -33,6 +33,15 @@ ObjectRecord *Storage::findRecord(Symbol *symbol)
     return nullptr;
 }
 
+ObjectRecord *Storage::findRecord(uint64_t dataOrPointer)
+{
+    for (ObjectRecord &r : _records) {
+        if (r.data == dataOrPointer)
+            return &r;
+    }
+    return nullptr;
+}
+
 void Storage::removeRecord(AutomationObject *obj)
 {
     for (auto it = _records.begin(); it != _records.end(); ++it) {

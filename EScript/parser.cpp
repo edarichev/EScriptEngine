@@ -870,31 +870,37 @@ void Parser::OptionalArrayItemRefExpression()
     default:
         error("Expected variable before [] operation");
     }
-    auto arrValue = _values.top().variable;
-    _values.pop();
-    match(Token::LeftBracket);
-    Expression(); // индекс, он же ключ элемента
-    emitPush();
-    popStackValue(); // убрать индекс элемента
-    match(Token::RightBracket);
-    auto resultVariable = currentSymbolTable()->addTemp();
-    std::u32string methodName;
-    int nArgs = 0;
-    if (lookahead() == Token::Assign) {
-        // присваивание элементу массива
-        next();
-        Expression(); // новое значение
+    do {
+        auto arrValue = _values.top().variable;
+        _values.pop();
+        match(Token::LeftBracket);
+        Expression(); // индекс, он же ключ элемента
         emitPush();
         popStackValue(); // убрать индекс элемента
-        methodName = U"set";
-        nArgs = 2;
-    } else {
-        // получение значения элемента массива
-        methodName = U"get";
-        nArgs = 1;
-    }
-    emitCallAOMethod(arrValue, methodName, resultVariable, nArgs);
-    pushVariable(resultVariable);
+        match(Token::RightBracket);
+        auto resultVariable = currentSymbolTable()->addTemp();
+        std::u32string methodName;
+        int nArgs = 0;
+        if (lookahead() == Token::Assign) {
+            // присваивание элементу массива
+            next();
+            Expression(); // новое значение
+            emitPush();
+            popStackValue(); // убрать индекс элемента
+            methodName = U"set";
+            nArgs = 2;
+        } else {
+            // получение значения элемента массива
+            methodName = U"get";
+            nArgs = 1;
+        }
+        emitCallAOMethod(arrValue, methodName, resultVariable, nArgs);
+        pushVariable(resultVariable);
+        // если можно несколько раз применить [], то делаем, пока не закончатся
+        // такое возможно, если это массив массивов или массив строк
+        if (lookahead() != Token::LeftBracket)
+            break;
+    } while (lookahead() != Token::Eof);
 }
 
 void Parser::DotOperation()

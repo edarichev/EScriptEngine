@@ -43,6 +43,7 @@ public:
         return &_records.emplace_front(s);
     }
     ObjectRecord *findRecord(Symbol *symbol);
+    ObjectRecord *findRecord(uint64_t dataOrPointer);
     void removeRecord(AutomationObject *obj);
 };
 

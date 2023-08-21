@@ -74,11 +74,6 @@ PValue::PValue()
 
 }
 
-PValue::PValue(const PValue &rhs)
-{
-    operator=(rhs);
-}
-
 PValue::PValue(SymbolType t, int64_t rhs)
 {
     type = t;
@@ -95,6 +90,9 @@ PValue::PValue(SymbolType t, int64_t rhs)
     case SymbolType::String:
         strValue = (StringObject*)rhs;
         break;
+    case SymbolType::Array:
+        arrValue = (Array*)rhs;
+        break;
     case SymbolType::Variable: {
         ObjectRecord *rec = (ObjectRecord*)rhs;
         switch (rec->type) {
@@ -109,6 +107,9 @@ PValue::PValue(SymbolType t, int64_t rhs)
             break;
         case SymbolType::String:
             strValue = (StringObject*)rec->data;
+            break;
+        case SymbolType::Array:
+            arrValue = (Array*)rec->data;
             break;
         default:
             throw std::domain_error("PValue: not supported type");
@@ -143,28 +144,6 @@ PValue::PValue(bool rhs)
 PValue::PValue(double rhs)
 {
     operator=(rhs);
-}
-
-PValue &PValue::operator=(const PValue &rhs)
-{
-    type = rhs.type;
-    switch (type) {
-    case SymbolType::Boolean:
-        boolValue = rhs.boolValue;
-        break;
-    case SymbolType::Integer:
-        intValue = rhs.intValue;
-        break;
-    case SymbolType::Real:
-        realValue = rhs.realValue;
-        break;
-    case SymbolType::String:
-        strValue = rhs.strValue;
-        break;
-    default:
-        break;
-    }
-    return *this;
 }
 
 PValue &PValue::operator=(int64_t rhs)
@@ -227,6 +206,8 @@ uint64_t PValue::value64() const
         return boolValue ? 1 : 0;
     case SymbolType::String:
         return bit_cast<uint64_t>(strValue);
+    case SymbolType::Array:
+        return bit_cast<uint64_t>(arrValue);
     default:
         throw std::domain_error("unsupproted type by PValue");
     }

@@ -17,6 +17,7 @@ SOURCES += \
         compare.cpp \
         console_test.cpp \
         conversions_test.cpp \
+        dotoperation_test.cpp \
         dowhilestatement_test.cpp \
         forreadme_test.cpp \
         forstatement_test.cpp \
@@ -51,6 +52,7 @@ HEADERS += \
     compare.h \
     console_test.h \
     conversions_test.h \
+    dotoperation_test.h \
     dowhilestatement_test.h \
     forreadme_test.h \
     forstatement_test.h \
