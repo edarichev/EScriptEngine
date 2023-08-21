@@ -14,6 +14,7 @@ void StringObject::buildFunctionsMap()
         _fn[U"charAt"] = &StringObject::call_charAt;
         _fn[U"charCodeAt"] = &StringObject::call_charCodeAt;
         _fn[U"endsWith"] = &StringObject::call_endsWith;
+        _fn[U"get"] = &StringObject::call_get;
         _fn[U"includes"] = &StringObject::call_includes;
         _fn[U"indexOf"] = &StringObject::call_indexOf;
         _fn[U"lastIndexOf"] = &StringObject::call_lastIndexOf;
@@ -22,6 +23,7 @@ void StringObject::buildFunctionsMap()
         _fn[U"repeat"] = &StringObject::call_repeat;
         _fn[U"replace"] = &StringObject::call_replace;
         _fn[U"replaceAll"] = &StringObject::call_replaceAll;
+        _fn[U"set"] = &StringObject::call_set;
         _fn[U"slice"] = &StringObject::call_slice;
         _fn[U"split"] = &StringObject::call_split;
         _fn[U"startsWith"] = &StringObject::call_startsWith;
@@ -365,6 +367,60 @@ void StringObject::call_endsWith(Processor *p)
         p->pushBooleanToStack(result);
     } else {
         p->pushBooleanToStack(false);
+    }
+}
+
+void StringObject::call_get(Processor *p)
+{
+    auto args = loadArguments(p);
+    if (args.empty())
+        p->pushToStack(U"");
+    else {
+        p->pushToStack(charAt(args.top().getIntValue()));
+    }
+}
+
+void StringObject::call_set(Processor *p)
+{
+    auto args = loadArguments(p);
+    if (args.empty())
+        p->pushToStack(U"");
+    else {
+        int64_t index = args.top().getIntValue();
+        args.pop();
+        if ((index < 0 || index > (int64_t) _s.length()) ||
+                args.empty()) {
+            p->pushToStack(0);
+            return;
+        }
+        auto value = args.top();
+        int charCode = 0;
+        do {
+            switch (value.type) {
+            case SymbolType::Integer:
+                charCode = value.value;
+                break;
+            case SymbolType::Real:
+                charCode = (int)bit_cast<double>(value.value);
+                break;
+            case SymbolType::String: {
+                auto str = (StringObject*)value.value;
+                charCode = str->_s.length() == 0 ? ' ' : str->_s[0];
+                break;
+            }
+            case SymbolType::Variable: {
+                ObjectRecord *rec = (ObjectRecord*)value.value;
+                value.type = rec->type;
+                value.value = rec->data;
+                continue;
+            }
+            default:
+                throw std::domain_error("Can not convert value to character in string.set");
+            }
+            break;
+        } while (true);
+        _s[index] = charCode;
+        p->pushToStack(0);
     }
 }
 

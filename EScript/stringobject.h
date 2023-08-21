@@ -63,6 +63,8 @@ private:
     void call_charAt(Processor *p);
     void call_charCodeAt(Processor *p);
     void call_endsWith(Processor *p);
+    void call_get(Processor *p);
+    void call_set(Processor *p);
     void call_includes(Processor *p);
     void call_indexOf(Processor *p);
     void call_lastIndexOf(Processor *p);

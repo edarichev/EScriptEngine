@@ -31,6 +31,9 @@ void String_Test::run()
     test_trimEnd();
     test_trimStart();
     test_comparisonOperators();
+    test_accessItemLiteralGet();
+    test_accessItemVariableGet();
+    test_accessItemVariableSet();
     cleanupTestCase();
 }
 
@@ -619,4 +622,43 @@ h = 'Apfel' >= 'Lautsprecher';
     record = engine.getObjectRecord(h);
     assert(record->type == SymbolType::Boolean);
     assert(Compare::equals_bool(false, record->data));
+}
+
+void String_Test::test_accessItemLiteralGet()
+{
+    const u32string code1 = U"x = 'hello'[1];";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::String);
+    auto str = (StringObject*)record->data;
+    assert(*str == U"e");
+}
+
+void String_Test::test_accessItemVariableGet()
+{
+    const u32string code1 = U"s = 'hello'; x = s[1];";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::String);
+    auto str = (StringObject*)record->data;
+    assert(*str == U"e");
+}
+
+void String_Test::test_accessItemVariableSet()
+{
+    const u32string code1 = U"s = 'hello'; s[1] = 'a'; x = s[1];";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::String);
+    auto str = (StringObject*)record->data;
+    assert(*str == U"a");
 }

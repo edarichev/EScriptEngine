@@ -712,6 +712,13 @@ void Parser::Factor()
             pushBack(t, str);
             DotOperation();
             return;
+        } else if (lookahead() == Token::LeftBracket) {
+            auto tmpStr = currentSymbolTable()->addTemp();
+            pushString(str);
+            emitAssign(tmpStr.get());
+            pushVariable(tmpStr);
+            OptionalArrayItemRefExpression();
+            return;
         } else {
             pushString(str);
         }

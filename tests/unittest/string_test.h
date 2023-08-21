@@ -36,6 +36,9 @@ private:
     void test_callMethodOfStringLiteral();
     void test_callMethodOfBQStringLiteral();
     void test_comparisonOperators();
+    void test_accessItemLiteralGet();
+    void test_accessItemVariableGet();
+    void test_accessItemVariableSet();
 };
 
 #endif // STRING_TEST_H
