@@ -34,6 +34,7 @@ SOURCES += \
         simpleexpression_test.cpp \
         stdafx.cpp \
         string_test.cpp \
+        switchcase_test.cpp \
         variabledecl_test.cpp \
         whilestatement_test.cpp
 
@@ -66,6 +67,7 @@ HEADERS += \
     simpleexpression_test.h \
     stdafx.h \
     string_test.h \
+    switchcase_test.h \
     variabledecl_test.h \
     whilestatement_test.h
 

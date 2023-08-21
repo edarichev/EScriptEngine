@@ -15,6 +15,7 @@ https://www.epaperpress.com/lexandyacc/if.html
 %token LShift RelOp EqualityOp And Or
 %token NCO // ?? - Nullish coalescing operator
 %token PlusPlus MinusMinus
+%token Switch Case Default
 
 %nonassoc If
 %nonassoc Else
@@ -42,7 +43,30 @@ Statement : CompoundStatement
           | AnyStatement
           | ReturnStatement ';'
           | VariableDeclBlock ';'
+          | SwitchStatement
           ;
+
+SwitchStatement : Switch '(' Expression ')' '{' SwitchBody '}'
+                ;
+
+SwitchBody : CaseBlockSequence
+           | CaseBlockSequence SwitchDefaultBlock
+           ;
+
+CaseBlockSequence : CaseBlock
+                  | CaseBlock  CaseBlockSequence
+                  ;
+
+CaseBlock : Case CaseConstant ':' StatementList
+          ;
+
+CaseConstant : IntegerNumber
+             | RealNumber
+             | QuotedString
+             ;
+
+SwitchDefaultBlock : Default ':' StatementList
+                   ;
 
 VariableDeclBlock : Var VariableDeclStatementList
                   ;

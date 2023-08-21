@@ -102,6 +102,7 @@ private:
     void DotOperation();
     void PostfixOperation();
     void VariableDeclBlock();
+    void SwitchStatement();
     // перемещение по потоку
 private:
     /**

@@ -42,6 +42,9 @@ void Parser::StatementList()
             continue;
         case Token::RightBrace:
             return; // блок закрыт
+        case Token::Case: // в блоке switch, выходим
+        case Token::Default:
+            return;
         default:
             Statement();
             break;
@@ -82,6 +85,9 @@ void Parser::Statement()
     case Token::Var:
         VariableDeclBlock();
         match(Token::Semicolon);
+        break;
+    case Token::Switch:
+        SwitchStatement();
         break;
     default:
         AnyStatement();
@@ -965,6 +971,83 @@ void Parser::VariableDeclBlock()
     } while (lookahead() != Token::Eof);
 }
 
+void Parser::SwitchStatement()
+{
+    match(Token::Switch);
+    int exitLabel = nextLabel();  // метка выхода
+    _exitLabels.push(exitLabel);
+    match(Token::LeftParenth);
+    Expression();
+    // следующую переменную будем сравнивать со всеми значениями в case exprN:
+    auto switchValue = currentSymbolTable()->addTemp(); // switch (expr1)
+    emitAssign(switchValue.get());
+    match(Token::RightParenth);
+    match(Token::LeftBrace);
+    // для прохода (fall-through) из одного case в другой, если нет break
+    int labelFallThroughToNextCase = nextLabel();
+    int nextComparisonLabel = nextLabel();
+    bool defaultEmitted = false; // если default уже был, то true
+    bool caseEmitted = false;
+    int defaultLabel = nextLabel();
+    emitGoto(nextComparisonLabel); // чтобы не попасть в default, если он сверху
+    do {
+        switch (lookahead()) {
+        case Token::Case: {
+            match(Token::Case);
+            caseEmitted = true;
+            emitLabel(nextComparisonLabel);
+            nextComparisonLabel = nextLabel();
+            Expression(); // можно всё, что угодно, лишь бы что-то возвращало
+            pushVariable(switchValue);
+            emitBinaryOp(OperationType::Equal);
+            emitIfFalseHeader(nextComparisonLabel);
+            match(Token::Colon);
+            emitLabel(labelFallThroughToNextCase);
+            labelFallThroughToNextCase = nextLabel();
+            StatementList();
+            // здесь ожидается break
+            // в этом месте можно выдать предупреждение
+            // однако проход дальше допускается, поэтому,
+            // если выше был break, то на этот goto мы просто не попадём,
+            // иначе совершаем прыжок в тело следующего case или default
+            emitGoto(labelFallThroughToNextCase);
+            break;
+        }
+        case Token::Default:
+            if (defaultEmitted)
+                error("Duplicate [default] block.");
+            defaultEmitted = true;
+            match(Token::Default);
+            match(Token::Colon);
+            emitLabel(defaultLabel);
+            emitLabel(labelFallThroughToNextCase);
+            labelFallThroughToNextCase = nextLabel();
+            StatementList();
+            emitGoto(labelFallThroughToNextCase);
+            break;
+        case Token::RightBrace:
+            break;
+        default:
+            unexpected(lookahead());
+        }
+        if (lookahead() == Token::RightBrace)
+            break; // } закрывающая скобка, завершение блока switch
+    } while (lookahead() != Token::Eof);
+    match(Token::RightBrace); // }
+    // здесь должен быть прыжок в default
+    if (defaultEmitted) // только если вообще был default
+        emitGoto(defaultLabel);
+    // это метка IFFALSE последнего сравнения,
+    // она укажет на выход, как и exitLabel
+    emitLabel(nextComparisonLabel);
+    if (defaultEmitted) {
+        // только один default
+        emitGoto(defaultLabel);
+    }
+    emitLabel(labelFallThroughToNextCase);
+    emitLabel(_exitLabels.top());
+    _exitLabels.pop();
+}
 
 //////////////////////// перемещение по потоку  /////////////////////////////
 

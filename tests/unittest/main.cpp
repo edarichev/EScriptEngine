@@ -27,6 +27,7 @@
 #include "algo_test.h"
 #include "forreadme_test.h"
 #include "math_test.h"
+#include "switchcase_test.h"
 
 using namespace std;
 
@@ -59,6 +60,7 @@ int main()
     ForReadme_Test().run();
     Automation_Test().run();
     Math_Test().run();
+    SwitchCase_Test().run();
     cout << "Tests OK" << endl;
     return 0;
 }
