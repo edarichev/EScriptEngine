@@ -22,7 +22,9 @@ private:
     void test_callAccessOfFuncExpression();
     void test_callAccessOfParenthExpression();
     void test_callAccessOfArrayDeclExpression();
-    void test_array2D();
+    void test_array2DGetItem();
+    void test_array2DDeclGetItem();
+    void test_array2DSetItem();
 };
 
 #endif // ARRAY_TEST_H

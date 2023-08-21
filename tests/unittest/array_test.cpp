@@ -18,7 +18,9 @@ void Array_Test::run()
     test_callAccessOfFuncExpression();
     test_callAccessOfParenthExpression();
     test_callAccessOfArrayDeclExpression();
-    test_array2D();
+    test_array2DGetItem();
+    test_array2DDeclGetItem();
+    test_array2DSetItem();
     cleanupTestCase();
 }
 
@@ -315,7 +317,7 @@ x = [1,2,3,4,5][2];
     assert(Compare::equals_int64(3, record->data));
 }
 
-void Array_Test::test_array2D()
+void Array_Test::test_array2DGetItem()
 {
     const u32string code1 = UR"(
 a = [[1,2,3], [4,5,6]];
@@ -331,4 +333,40 @@ x = a[1][1];
     auto record = engine.getObjectRecord(x);
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(5, record->data));
+}
+
+void Array_Test::test_array2DDeclGetItem()
+{
+    const u32string code1 = UR"(
+x = [[1,2,3], [4,5,6]][1][1];
+)";
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(5, record->data));
+}
+
+void Array_Test::test_array2DSetItem()
+{
+    const u32string code1 = UR"(
+a = [[1,2,3], [4,5,6]];
+a[1][2] = 12;
+x = a[1][2];
+)";
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(12, record->data));
 }
