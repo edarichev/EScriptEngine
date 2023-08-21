@@ -8,24 +8,25 @@ Linux, x64, C++17.
 
 ## Пример
 ```C++
-const std::string macro1 =
-    R"(
-        function updateCell(row, col, v) {
-            spreadsheet.setCellValue(row, col, v);
-        }
-        updateCell(1, 3, "Hello, world");
-        updateCell(1, 2, 12345);
-        s = spreadsheet.getCellValue(1, 3);
-        s += "!!!!";
-        updateCell(0, 0, s);
-    )";
-const std::u32string code1 = to_u32string(macro1);
-// Предположим, в нашей программе есть какая-то таблица, как LibreOffice.Calc
+// Предположим, в нашей программе есть какая-то таблица:
 MySpreadSheet spreadsheet; // объект, с которым нужно работать
 EScript engine;            // скриптовый движок
+
+// напишем скрипт:
+const std::u32string code1 = UR"(
+    function updateCell(row, col, v) {
+        spreadsheet.setCellValue(row, col, v);
+    }
+    updateCell(1, 3, "Hello, world");
+    updateCell(1, 2, 12345);
+    s = spreadsheet.getCellValue(1, 3);
+    s += "!!!!";
+    updateCell(0, 0, s);
+    )";
+
 // добавляем переменную в таблицу символов, например, под именем "spreadsheet"
 engine.attachObject(&spreadsheet, U"spreadsheet");
-// выполняем макрос macro1
+// выполняем макрос
 engine.eval(code1);
 // отсоединяем объект, т.к. он был создан статически
 engine.detachObject(&spreadsheet);
@@ -34,6 +35,7 @@ assert(spreadsheet.getCellValue(1, 3) == U"Hello, world");
 assert(spreadsheet.getCellValue(1, 2) == U"12345");
 assert(spreadsheet.getCellValue(0, 0) == U"Hello, world!!!!");
 ```
+
 Полный пример - в тестах (`automation_test.cpp`).
 
 Движок принимает исполняемый скрипт в виде строки `std::u32string`, поэтому вы можете использовать:

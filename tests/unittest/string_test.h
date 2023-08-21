@@ -39,6 +39,7 @@ private:
     void test_accessItemLiteralGet();
     void test_accessItemVariableGet();
     void test_accessItemVariableSet();
+    void test_accessItemParenthExpressionGet();
 };
 
 #endif // STRING_TEST_H

@@ -662,3 +662,16 @@ void String_Test::test_accessItemVariableSet()
     auto str = (StringObject*)record->data;
     assert(*str == U"a");
 }
+
+void String_Test::test_accessItemParenthExpressionGet()
+{
+    const u32string code1 = U"x = ('hello')[1];";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::String);
+    auto str = (StringObject*)record->data;
+    assert(*str == U"e");
+}
