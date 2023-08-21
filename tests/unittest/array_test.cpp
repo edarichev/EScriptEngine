@@ -21,6 +21,9 @@ void Array_Test::run()
     test_array2DGetItem();
     test_array2DDeclGetItem();
     test_array2DSetItem();
+    test_array3DGetItem();
+    test_array3DDeclGetItem();
+    test_array3DSetItem();
     cleanupTestCase();
 }
 
@@ -369,4 +372,90 @@ x = a[1][2];
     auto record = engine.getObjectRecord(x);
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(12, record->data));
+}
+
+void Array_Test::test_array3DGetItem()
+{
+    const u32string code1 = UR"(
+a =
+[
+    [
+        [1,2,3],
+        [4,5,6]
+    ],
+    [
+        [7,8,9],
+        [10,11,12]
+    ]
+];
+x = a[1][1][2];
+)";
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(12, record->data));
+}
+
+void Array_Test::test_array3DDeclGetItem()
+{
+    const u32string code1 = UR"(
+x =
+[
+    [
+        [1,2,3],
+        [4,5,6]
+    ],
+    [
+        [7,8,9],
+        [10,11,12]
+    ]
+]
+[1][1][2];
+
+)";
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(12, record->data));
+}
+
+void Array_Test::test_array3DSetItem()
+{
+    const u32string code1 = UR"(
+a =
+[
+    [
+        [1,2,3],
+        [4,5,6]
+    ],
+    [
+        [7,8,9],
+        [10,11,12]
+    ]
+];
+a[1][0][2] = 512;
+x = a[1][0][2];
+)";
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(512, record->data));
 }

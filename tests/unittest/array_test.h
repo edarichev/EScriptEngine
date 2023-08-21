@@ -25,6 +25,9 @@ private:
     void test_array2DGetItem();
     void test_array2DDeclGetItem();
     void test_array2DSetItem();
+    void test_array3DGetItem();
+    void test_array3DDeclGetItem();
+    void test_array3DSetItem();
 };
 
 #endif // ARRAY_TEST_H
