@@ -9,11 +9,13 @@
 #include "storage.h"
 #include "console.h"
 #include "mathobject.h"
+#include "numberobject.h"
 
 namespace escript {
 
 static const char32_t *consoleId = U"console";
 static const char32_t *mathId = U"Math";
+static const char32_t *numberId = U"Number";
 
 EScript::EScript()
 {
@@ -88,6 +90,9 @@ void EScript::registerStandardObjects(std::shared_ptr<Block> &firstBlock)
     auto mathObject = unit()->block()->symbolTable()->find(mathId);
     if (!mathObject)
         mathObject = firstBlock->symbolTable()->add(mathId);
+    auto numberObject = unit()->block()->symbolTable()->find(numberId);
+    if (!numberObject)
+        numberObject = firstBlock->symbolTable()->add(numberId);
 }
 
 void EScript::addStandardObjects()
@@ -109,6 +114,14 @@ void EScript::addStandardObjects()
     _standardObjects[mathId] = math;
     mathRecord->data = (uint64_t)math;
     _machine.replaceValuePtr(mathSymbol, mathRecord);
+
+    auto numberSymbol = unit()->block()->symbolTable()->find(numberId);
+    auto numberRecord = _machine.storage().installRecord(numberSymbol.get());
+    numberRecord->type = SymbolType::Object;
+    Number *number = new Number();
+    _standardObjects[numberId] = number;
+    numberRecord->data = (uint64_t)number;
+    _machine.replaceValuePtr(numberSymbol, numberRecord);
 }
 
 void EScript::registerDeferredObjects(std::shared_ptr<Block> &objectFileBlock)

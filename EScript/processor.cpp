@@ -7,6 +7,7 @@
 #include "pvalue.h"
 #include "stringobject.h"
 #include "function.h"
+#include "numberobject.h"
 
 namespace escript {
 
@@ -259,6 +260,20 @@ void Processor::ldstring()
     next(sizeof (uint64_t));
 }
 
+std::unique_ptr<Number> Processor::packNumber(const StackValue &v)
+{
+    switch (v.type) {
+    case SymbolType::Integer:
+        return std::make_unique<Number>(v.getIntValue());
+    case SymbolType::Real:
+        return std::make_unique<Number>((double)v.getRealValue());
+    default:
+        throw std::domain_error("Only simple types can be boxed.");
+    }
+}
+
+
+
 void Processor::callm()
 {
     next();
@@ -266,6 +281,10 @@ void Processor::callm()
     auto objItem = popFromStack();
     AutomationObject *obj = nullptr;
     ObjectRecord *rec = nullptr;
+    std::unique_ptr<Number> packedNumber;
+    bool box = false;
+    StackValue valueToBox;
+
     switch (objItem.type) {
     case SymbolType::Variable:
         rec = (ObjectRecord*)objItem.value;
@@ -281,6 +300,12 @@ void Processor::callm()
             break;
         case SymbolType::Object:
             obj = (AutomationObject*)rec->data;
+            break;
+        case SymbolType::Integer:
+        case SymbolType::Real:
+            box = true;
+            valueToBox.type = rec->type;
+            valueToBox.value = rec->data;
             break;
         default:
             throw std::domain_error("Can not call method of unsupported type");
@@ -301,6 +326,11 @@ void Processor::callm()
         break;
     default:
         throw std::domain_error("Expected a string at top of stack");
+    }
+    // если нужна упаковка, пакуем число и вызываем метод у временного объекта
+    if (box) {
+        packedNumber = packNumber(valueToBox);
+        obj = packedNumber.get();
     }
     obj->call(methodName, this);
     // теперь в стеке возвращённое значение (одно или нет)

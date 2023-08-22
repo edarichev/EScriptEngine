@@ -29,6 +29,7 @@
 #include "math_test.h"
 #include "switchcase_test.h"
 #include "dotoperation_test.h"
+#include "number_test.h"
 
 using namespace std;
 
@@ -63,6 +64,7 @@ int main()
     Automation_Test().run();
     Math_Test().run();
     DotOperation_Test().run();
+    Number_Test().run();
     cout << "Tests OK" << endl;
     return 0;
 }

@@ -18,6 +18,8 @@
 
 namespace escript {
 
+class Number;
+
 /**
  * @brief Процессор (выполняет команды)
  */
@@ -387,6 +389,10 @@ private:
 
 
     void binaryStackOp(OpCode opCode);
+
+    // упаковка простых типов
+private:
+    std::unique_ptr<Number> packNumber(const StackValue &v);
 };
 
 

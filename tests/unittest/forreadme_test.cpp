@@ -95,11 +95,10 @@ a =
 
 void ForReadme_Test::test_consoleLog()
 {
-    const std::string macro1 = R"(
+    const std::u32string code1 = UR"(
         z = 123.45;
         console.log("z=", z);
         )";
-    const std::u32string code1 = to_u32string(macro1);
     EScript engine;
     std::stringstream ss;
     engine.setOutStream(ss);

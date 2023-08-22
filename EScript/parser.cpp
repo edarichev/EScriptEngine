@@ -985,6 +985,15 @@ void Parser::OptionalDotOperation()
     switch (_values.top().type) {
     case SymbolType::Variable:
         break; // здесь должна быть некая временная переменная
+    case SymbolType::Integer:
+    case SymbolType::Real:
+    case SymbolType::String: {
+        // если это литерал, то создать временную переменную
+        auto tmpLiteralVar = currentSymbolTable()->addTemp();
+        emitAssign(tmpLiteralVar.get());
+        pushVariable(tmpLiteralVar);
+        break;
+    }
     default:
         error("Expected variable before [] operation");
     }
@@ -1261,7 +1270,6 @@ void Parser::emitIfFalseHeader(int exitOrFalseLabelId)
         tmp = currentSymbolTable()->addTemp();
         ptrValue = tmp.get();
         emitAssign(ptrValue);
-        //pushVariable(tmp);
     } else {
         ptrValue = _values.top().variable;
     }

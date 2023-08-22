@@ -1,7 +1,10 @@
-# EScriptEngine Version 0.1 alpha
+# Eugen-Script Version 0.1 alpha
+Eugen-Script (кратко: escript).
 Это встраиваемый движок C-подобного языка подмножества ECMAScript с динамической типизацией для программ на C++.
-
 Его можно использовать для написания скриптов, макросов и решения других задач расширения функциональности основной программы.
+
+Язык по возможности похож на ECMAScript/JavaScript, но всё же он отличается. 
+Например, в данный момент нет таких понятий, как `null` и `undefined`, арифметические опреации максимально стараются сохранять тип `Integer`.
 
 ## Целевая платформа
 Linux, x64, C++17.
@@ -56,8 +59,20 @@ assert(spreadsheet.getCellValue(0, 0) == U"Hello, world!!!!");
 |Function|pointer|Функция|
 |Object|pointer|Пользовательский объект|
 
+У строк и чисел можно вызывать методы, в том числе и у литералов, числовые литералы при этом должны быть заключены в круглые скобки:
+```javascript
+x = 387.561;
+s = x.toString();
+...
+s = (387.561).toString();
+...
+x = 387;
+s = x.toString(16); // s == "183" (в 16-й системе)
+```
+
 ## null и undefined
-Пока таких понятий в escript не существует.
+Пока таких понятий в escript не существует, и их введение будет откладываться.
+Если понадобится, то введено будет что-то одно, а не две сущности, выполняющие похожие функции.
 
 ## Переменные
 Переменные объявляются ключевым словом `var` или вообще без ключевого слова, просто при присваивании.
@@ -335,12 +350,12 @@ y = testFunc(7);
 Пример рекурсивного вызова:
 ```C++
     const u32string code1 =
-U"function factorial(i) { "
-"    if (i == 0)"
-"        return 1;"
-    "return i * factorial(i - 1);"
-"}"
-"y = factorial(10);";
+UR"(function factorial(i) { 
+    if (i == 0)
+        return 1;
+    return i * factorial(i - 1);
+}
+y = factorial(10);)";
     EScript engine;
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
@@ -547,13 +562,16 @@ void MyClass::call_acos(Processor *p)
 
 4. Создайте функцию для заполнения хэш-таблицы:
 ```C++
-void MyClass::buildFunctionsMap()
+/*static*/ void MyClass::buildFunctionsMap()
 {
     if (!_fn.empty())
         return;
     _fn[U"acos"] = &MyClass::call_acos;
     // добавьте таким же образом все остальные методы
+}
 ```
+Эту функцию можно вызвать, например, в конструкторе объекта. При её первом вызове хзш-таблица будет заполнена.
+
 5. Переопределите функцию `call` следующим образом:
 ```C++
 bool MyClass::call(const std::u32string &method, Processor *p)
@@ -567,6 +585,11 @@ bool MyClass::call(const std::u32string &method, Processor *p)
     return true;
 }
 ```
+где `BaseClass` определяется, например, так:
+```C++
+using BaseClass = AutomationObject;
+```
+
 Теперь метод `acos` будет доступен в скрипте.
 
 

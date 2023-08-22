@@ -15,19 +15,21 @@ class Processor;
  */
 class ESCRIPT_EXPORT AutomationObject
 {
+    typedef void (AutomationObject::*pFn)(Processor *p);
+    static std::map<std::u32string, pFn> _fn;
 public:
-    AutomationObject(){};
+    AutomationObject();;
     virtual ~AutomationObject(){}
     virtual bool call([[maybe_unused]] const std::u32string &method,
-                      [[maybe_unused]] Processor *p)
-    {
-        return false;
-    }
+                      [[maybe_unused]] Processor *p);
     void release()
     {
         delete this;
     }
     std::stack<StackValue> loadArguments(Processor *p) const;
+private:
+    void call_toString(Processor *p);
+    static void buildFunctionsMap();
 };
 
 
