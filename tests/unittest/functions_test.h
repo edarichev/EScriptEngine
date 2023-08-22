@@ -15,6 +15,11 @@ private:
     void test_funcAliasAssign();
     void test_functionAsParameter();
     void test_unnamedFuncAssign();
+    void test_nestedFunction();
+    void test_nestedFunctionVariable();
+    void test_functionReturnsFunction();
+    void test_function2ReturnsFunction();
+    void test_functionFactory();
 };
 
 #endif // FUNCTIONS_TEST_H

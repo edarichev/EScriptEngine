@@ -690,6 +690,9 @@ void Translator::emit_ldc(const Operand &operand)
     case SymbolType::String:
         a.ldstring(bit_cast<uint64_t>(operand.strValue));
         break;
+    case SymbolType::Function:
+        a.ldloc_m(location(operand.function));
+        break;
     default:
         throw std::domain_error("Unsupported type");
     }

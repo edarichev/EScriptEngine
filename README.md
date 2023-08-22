@@ -56,6 +56,9 @@ assert(spreadsheet.getCellValue(0, 0) == U"Hello, world!!!!");
 |Function|pointer|Функция|
 |Object|pointer|Пользовательский объект|
 
+## null и undefined
+Пока таких понятий в escript не существует.
+
 ## Переменные
 Переменные объявляются ключевым словом `var` или вообще без ключевого слова, просто при присваивании.
 ```javascript
@@ -175,7 +178,7 @@ function fa() {
     return a;
 }
 
-x = fa()[2]; // или так
+x = fa()[2]; // x == 3
 ```
 
 Массивы могут быть любой размерности. Например, двумерный:
@@ -358,6 +361,24 @@ function fnTest(pFn, x) {
 }
 y = fnTest(func, 12);
 z = fnTest(testFunc, 14);
+```
+
+Функции можно возвращать из других функций:
+```javascript
+factory = function(name) {
+    switch (name) {
+        case 3:
+            return function(x) { return 3 * x; };
+        case 5:
+            return function(x) { return 5 * x; };
+        default:
+            break;
+    }
+    return function(x) { return x; };
+};
+
+func = factory(5);
+y = func(12); // y==60
 ```
 
 ## Math

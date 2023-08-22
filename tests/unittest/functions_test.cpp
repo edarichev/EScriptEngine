@@ -11,6 +11,11 @@ void Functions_Test::run()
     test_funcAliasAssign();
     test_functionAsParameter();
     test_unnamedFuncAssign();
+    test_nestedFunction();
+    test_nestedFunctionVariable();
+    test_functionReturnsFunction();
+    test_function2ReturnsFunction();
+    test_functionFactory();
     cleanupTestCase();
 }
 
@@ -148,3 +153,132 @@ y = testFunc(7);
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(14, record->data));
 }
+
+void Functions_Test::test_functionReturnsFunction()
+{
+    const std::u32string code1 = UR"(
+function makeFunc(a) {
+    function fn3(x) { return 3 * x; };
+    return fn3;
+};
+
+fn = makeFunc('none');
+y = fn(5);
+
+)";
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto y = mainTable->find(U"y");
+    auto record = engine.getObjectRecord(y);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(15, record->data));
+}
+
+void Functions_Test::test_nestedFunction()
+{
+    const std::u32string code1 = UR"(
+function makeFunc(a) {
+    function fn3(x) { return 3 * x; };
+    return fn3(a);
+};
+
+y = makeFunc(5);
+
+)";
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto y = mainTable->find(U"y");
+    auto record = engine.getObjectRecord(y);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(15, record->data));
+}
+
+void Functions_Test::test_nestedFunctionVariable()
+{
+    const std::u32string code1 = UR"(
+function makeFunc(a) {
+    fn3 = function (x) { return 3 * x; };
+    return fn3(a);
+};
+
+y = makeFunc(5);
+
+)";
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto y = mainTable->find(U"y");
+    auto record = engine.getObjectRecord(y);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(15, record->data));
+}
+
+void Functions_Test::test_function2ReturnsFunction()
+{
+    const std::u32string code1 = UR"(
+// create a function
+makeFunc = function(name) {
+    t1 = function(x) { return 3 * x; };
+    t2 = function(x) { return 5 * x; };
+    switch (name) {
+        case "three":
+            return t1;
+        default:
+            return t2;
+    }
+};
+
+x = makeFunc("three");
+y = x(5);
+
+)";
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto y = mainTable->find(U"y");
+    auto record = engine.getObjectRecord(y);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(15, record->data));
+}
+
+void Functions_Test::test_functionFactory()
+{
+    const std::u32string code1 = UR"(
+// create a function
+factory = function(name) {
+    switch (name) {
+        case 3:
+            return function(x) { return 3 * x; };
+        case 5:
+            return function(x) { return 5 * x; };
+        default:
+            break;
+    }
+    return function(x) { return x; };
+};
+
+func = factory(5);
+y = func(12);
+
+)";
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto y = mainTable->find(U"y");
+    auto record = engine.getObjectRecord(y);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(60, record->data));
+}
+

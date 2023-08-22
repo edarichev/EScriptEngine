@@ -75,7 +75,7 @@ void EScript::eval(const std::u32string &strCode)
     _machine.load(newBlock, objectFile);
     addStandardObjects();
     addDeferredObjects();
-    ((Console*) _standardObjects[consoleId])->setOutputStream(*_outStream);
+    ((Console*) _standardObjects[consoleId])->setOutputStream(_outStream);
     _machine.run();
     _isAlreadyRunned = true;
 }

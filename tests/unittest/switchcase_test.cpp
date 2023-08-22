@@ -54,6 +54,7 @@ void SwitchCase_Test::run()
     test_switchCaseFalseDefaultCaseTrueDefaultFallThrough();
     test_mixedCases();
     test_expressionsInCases();
+    test_switchInFunction();
     cleanupTestCase();
 }
 
@@ -1215,6 +1216,34 @@ switch (x) {
     auto record = engine.getObjectRecord(x);
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(15, record->data));
+}
+
+void SwitchCase_Test::test_switchInFunction()
+{
+    const std::u32string code1 = UR"(
+// create a function
+makeFunc = function(name) {
+    switch (name) {
+        case 6:
+            return 11;
+        default:
+            return 2;
+    }
+return 8;
+};
+
+y = makeFunc(6);
+
+)";
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto y = mainTable->find(U"y");
+    auto record = engine.getObjectRecord(y);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(11, record->data));
 }
 
 void SwitchCase_Test::test_expressionsInCases()

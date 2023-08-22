@@ -21,7 +21,7 @@ public:
      */
     virtual ~Console();
     void log(std::vector<std::u32string> &args);
-    void setOutputStream(std::ostream &s);
+    void setOutputStream(std::ostream *s);
     // AutomationObject interface
 public:
     virtual bool call(const std::u32string &method, Processor *p) override;

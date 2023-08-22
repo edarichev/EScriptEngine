@@ -16,7 +16,7 @@ void Console::setSeparateWithSpace(bool newSeparateWithSpace)
 
 Console::Console()
 {
-    setOutputStream(std::cout);
+    setOutputStream(&std::cout);
 }
 
 Console::~Console()
@@ -37,9 +37,9 @@ void Console::log(std::vector<std::u32string> &args)
     s << std::endl;
 }
 
-void Console::setOutputStream(std::ostream &s)
+void Console::setOutputStream(std::ostream *s)
 {
-    _outStream = &s;
+    _outStream = s;
 }
 
 
@@ -59,7 +59,7 @@ bool escript::Console::call(const std::u32string &method, Processor *p)
             nArgs--;
         }
         log(args);
-        p->pushStringToStack((int64_t)0); // OK
+        p->pushToStack(0); // OK
         return true;
     }
     throw std::domain_error("Call of unknown method: console." + to_utf8(method));

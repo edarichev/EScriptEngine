@@ -1125,6 +1125,7 @@ void Parser::SwitchStatement()
             pushVariable(switchValue);
             emitBinaryOp(OperationType::Equal);
             emitIfFalseHeader(nextComparisonLabel);
+            popStackValue(); // убрать результат сравнения - он больше не нужен
             match(Token::Colon);
             emitLabel(labelFallThroughToNextCase);
             labelFallThroughToNextCase = nextLabel();
@@ -1260,7 +1261,7 @@ void Parser::emitIfFalseHeader(int exitOrFalseLabelId)
         tmp = currentSymbolTable()->addTemp();
         ptrValue = tmp.get();
         emitAssign(ptrValue);
-        pushVariable(tmp);
+        //pushVariable(tmp);
     } else {
         ptrValue = _values.top().variable;
     }

@@ -32,7 +32,7 @@ function doSomething(msg, x, y) {
 }
 
 x = doSomething("Result=", 123, 456);
-console.log(x);
+//console.log(x);
 )";
     const std::u32string code1 = to_u32string(macro1);
     EScript engine;
@@ -76,9 +76,18 @@ U"a = [1,2,3]; x = a.get_length();";
 void ForReadme_Test::test_forTmp()
 {
     const std::u32string code1 = UR"(
-s = 'Hello';
-s[1] = 'a'; // Hello -> Hallo
-//console.log(s);
+a =
+[
+    [
+        [1,2,3],
+        [4,5,6]
+    ],
+    [
+        [7,8,9],
+        [10,11,12]
+    ]
+];
+//console.log(a);
 )";
     EScript engine;
     engine.eval(code1);

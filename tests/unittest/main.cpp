@@ -43,6 +43,7 @@ int main()
     Assembler_Test().run();
     Boolean_Test().run();
     IfElseStatement_Test().run();
+    SwitchCase_Test().run();
     WhileStatement_Test().run();
     ForStatement_Test().run();
     FunctionDeclStatement_Test().run();
@@ -61,7 +62,6 @@ int main()
     ForReadme_Test().run();
     Automation_Test().run();
     Math_Test().run();
-    SwitchCase_Test().run();
     DotOperation_Test().run();
     cout << "Tests OK" << endl;
     return 0;
