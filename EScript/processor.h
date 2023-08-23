@@ -371,6 +371,7 @@ public:
     void pushToStack(SymbolType type, uint64_t value);
     void pushToStack(StackValue value);
     void pushRealToStack(double value);
+    void pushObjectToStack(AutomationObject *obj);
     StackValue popFromStack();
 
 private:

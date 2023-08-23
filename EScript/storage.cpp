@@ -30,12 +30,12 @@ void Storage::clear()
             // таблица строк сама всё удаляет
             continue;
         }
+        if (!r.managed)
+            continue;
         if (!AutomationObject::exists(p)) {
             // а такого быть не должно
             throw std::domain_error("Storage::clear: The object does not exists");
         }
-        if (!p->destructible())
-            continue;
         while (p->counter() > 1)
             p->release();
     }

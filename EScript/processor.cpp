@@ -775,6 +775,11 @@ void Processor::pushRealToStack(double value)
     pushToStack(SymbolType::Real, bit_cast<uint64_t>(value));
 }
 
+void Processor::pushObjectToStack(AutomationObject *obj)
+{
+    pushToStack(SymbolType::Object, bit_cast<uint64_t>(obj));
+}
+
 void Processor::stloc_m()
 {
     next();
@@ -791,9 +796,11 @@ void Processor::stloc_m()
     if (!ptrLValue) { // это lvalue, его нужно установить, если его ещё нет
         switch (item.type) {
         case SymbolType::Array:
-            ptrLValue = _storage->findRecord(item.value);
-            assert(ptrLValue);
-            break;
+        case SymbolType::Object:
+        case SymbolType::Function:
+//            ptrLValue = _storage->findRecord(item.value);
+//            assert(ptrLValue);
+//            break;
         case SymbolType::String:
             ptrLValue = _storage->findRecord(item.value);
             if (!ptrLValue)
@@ -832,6 +839,11 @@ void Processor::stloc_m()
         //ptrLValue->data = item.value;
         //ptrLValue->reference = true; // TODO: нужно проверить все присваивания
         break;
+    case SymbolType::Object:
+        ptrLValue->type = SymbolType::Object;
+        ptrLValue->data = item.value;
+        ptrLValue->managed = ((AutomationObject*)item.value)->managed();
+        break;
     case SymbolType::Variable:
         // здесь находится указатель на запись в таблице объектов
         // в зависимости от типа, мы либо меняем ссылку, либо присваиваем по значению
@@ -862,6 +874,9 @@ void Processor::stloc_m()
             *(uint64_t*)(_memory + symbol->location()) = (uint64_t)ptrRValue;
             break;
         case SymbolType::Function:
+            *(uint64_t*)(_memory + symbol->location()) = (uint64_t)ptrRValue;
+            break;
+        case SymbolType::Object:
             *(uint64_t*)(_memory + symbol->location()) = (uint64_t)ptrRValue;
             break;
         default:

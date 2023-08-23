@@ -7,9 +7,9 @@ namespace escript {
 std::map<std::u32string, AutomationObject::pFn> AutomationObject::_fn;
 
 
-bool AutomationObject::destructible() const
+bool AutomationObject::managed() const
 {
-    return _destructible;
+    return _managed;
 }
 
 AutomationObject::AutomationObject()

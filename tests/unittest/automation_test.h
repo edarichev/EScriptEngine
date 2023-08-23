@@ -14,6 +14,7 @@ private:
     void test_autoAddAfterFirstRun();
     void test_acceptArray();
     void test_acceptArrayVariable();
+    void test_nestedProperty();
 };
 
 #endif // AUTOMATION_TEST_H

@@ -38,21 +38,21 @@ void StringObject::buildFunctionsMap()
 
 StringObject::StringObject()
 {
-    _destructible = true;
+    _managed = true;
     buildFunctionsMap();
 }
 
 StringObject::StringObject(const std::u32string &s) :
     _s(s)
 {
-    _destructible = true;
+    _managed = true;
     buildFunctionsMap();
 }
 
 StringObject::StringObject(std::u32string &&s)
     : _s(std::move(s))
 {
-    _destructible = true;
+    _managed = true;
     buildFunctionsMap();
 }
 

@@ -1,6 +1,7 @@
 #ifndef COMPARE_H
 #define COMPARE_H
 
+namespace escript {
 
 class Compare
 {
@@ -25,6 +26,13 @@ public:
     {
         return b == boolAsUInt64 ? true : false;
     }
+
+    static bool equals_string(const std::u32string &s, uint64_t data)
+    {
+        return s == ((StringObject*)data)->uString();
+    }
 };
+
+} // namespace escript
 
 #endif // COMPARE_H

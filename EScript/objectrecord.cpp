@@ -19,7 +19,7 @@ ObjectRecord::ObjectRecord(ObjectRecord &&rhs)
 
 ObjectRecord::~ObjectRecord()
 {
-    if (data) {
+    if (data && managed) {
         switch (type) {
         case SymbolType::Array:
         case SymbolType::Function:
@@ -30,7 +30,7 @@ ObjectRecord::~ObjectRecord()
                 return;
             }
             obj->release();
-            if (!obj->destructible())
+            if (!obj->managed())
                 return;
             if (obj->counter() == 0)
                 delete obj;

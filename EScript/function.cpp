@@ -6,7 +6,7 @@ namespace escript {
 
 Function::Function(Symbol *sym) : _symbol(sym)
 {
-    _destructible = true;
+    _managed = true;
 }
 
 Function::~Function()

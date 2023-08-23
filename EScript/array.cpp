@@ -7,7 +7,7 @@ namespace escript {
 
 Array::Array()
 {
-    _destructible = true;
+    _managed = true;
 }
 
 Array::~Array()

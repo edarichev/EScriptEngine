@@ -11,6 +11,7 @@
 #include <limits>
 #include <sstream>
 #include "compare.h"
+#include <map>
 
 using namespace escript;
 using namespace std;

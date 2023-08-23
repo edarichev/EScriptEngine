@@ -8,7 +8,7 @@ std::map<std::u32string, Number::pFn> Number::_fn;
 
 Number::Number()
 {
-    _destructible = true;
+    _managed = true;
     buildFunctionsMap();
 }
 

@@ -22,7 +22,7 @@ class ESCRIPT_EXPORT AutomationObject
     static std::map<std::u32string, pFn> _fn;
     int64_t _counter = 0;
 protected:
-    bool _destructible = false;
+    bool _managed = false;
 public:
     AutomationObject();
     virtual ~AutomationObject();
@@ -36,14 +36,15 @@ public:
     static bool exists(AutomationObject *pObject);
     /**
      * @brief Возвращает true, если этот объект может быть удалён автоматически
-     *        при разрушении объекта движка. Обычно true установлено у
-     *        встроенных (стандартных) объектов.
+     *        при разрушении объекта движка.
+     * @details Обычно true установлено у встроенных (стандартных) объектов:
+     *        StringObject, Console, Number, Math, Function, Array.
      *        По умолчанию равно false,
      *        так что объекты производных пользовательских классов
      *        могут не беспокоиться, что они будут удалены движком.
      * @return
      */
-    bool destructible() const;
+    bool managed() const;
 
 private:
     void call_toString(Processor *p);
