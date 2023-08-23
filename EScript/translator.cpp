@@ -293,6 +293,7 @@ void Translator::translateFunctionBlock(std::vector<TCode>::const_iterator &it,
     dataLength = outBuffer.size() - startPointOfData;
     // стартовая точка функции
     Function *funcPtr = new Function(func);
+    funcPtr->addRef();
     funcPtr->setName(func->name());
     funcPtr->setCallAddress(outBuffer.size());
     ObjectRecord *rec = _storage.installRecord(func);

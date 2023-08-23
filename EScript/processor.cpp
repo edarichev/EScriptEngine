@@ -199,13 +199,18 @@ void Processor::ldargs()
                 rec->data = refRec->data;
                 *ptr = bit_cast<uint64_t>(rec);
                 break;
-            case SymbolType::Array:
-                rec = _storage->installRecord(nullptr);
-                rec->reference = true;
-                rec->type = refRec->type;
-                rec->data = refRec->data;
+            case SymbolType::Array: {
+                rec = _storage->findRecord(refRec->data);
+                if (!rec) {
+                    rec = _storage->installRecord(nullptr);
+                    //rec->reference = true;
+                    rec->type = refRec->type;
+                    rec->data = refRec->data;
+                }
                 *ptr = bit_cast<uint64_t>(rec);
+                ((AutomationObject*)rec->data)->addRef();
                 break;
+            }
             case SymbolType::String:
                 rec = _storage->installRecord(nullptr);
                 rec->type = refRec->type;
@@ -213,11 +218,15 @@ void Processor::ldargs()
                 *ptr = bit_cast<uint64_t>(rec);
                 break;
             case SymbolType::Function:
-                rec = _storage->installRecord(nullptr);
-                rec->reference = true;
-                rec->type = refRec->type;
-                rec->data = refRec->data;
+                rec = _storage->findRecord(refRec->data);
+                if (!rec) {
+                    rec = _storage->installRecord(nullptr);
+                    //rec->reference = true;
+                    rec->type = refRec->type;
+                    rec->data = refRec->data;
+                }
                 *ptr = bit_cast<uint64_t>(rec);
+                ((AutomationObject*)refRec->data)->addRef();
                 break;
             default:
                 throw std::domain_error("Not supported (parameter type)");
@@ -337,9 +346,11 @@ void Processor::callm()
     // проверим, какой это тип и установим его в таблицу строк или объектов:
     auto result = popFromStack();
     switch (result.type) {
-    case SymbolType::String:
-        _strings->add((StringObject*)result.value);
+    case SymbolType::String: {
+        auto str = _strings->add((StringObject*)result.value);
+        result.value = (uint64_t)str; // могло измениться
         break;
+    }
     case SymbolType::Array: {
         // Сначала установить сам массив.
         // Затем надо перебрать каждый элемент.
@@ -351,9 +362,17 @@ void Processor::callm()
             rec->type = SymbolType::Array;
             rec->data = result.value;
             Array *arr = (Array*)result.value;
+            //arr->addRef();
             for (auto &c : *arr) {
-                if (c.second.type == SymbolType::String) {
-                    _strings->add(c.second.strValue);
+                switch (c.second.type) {
+                case SymbolType::String:
+                    c.second.strValue = _strings->add(c.second.strValue);
+                    break;
+                case SymbolType::Array:
+                    c.second.arrValue->addRef();
+                    break;
+                default:
+                    break;
                 }
             }
         }
@@ -376,7 +395,9 @@ void Processor::allocarray()
     // создаём новый массив
     ObjectRecord *rec = installRecord(symbol);
     rec->type = SymbolType::Array;
-    rec->data = (PtrIntType)new Array();
+    Array *arr = new Array();
+    arr->addRef();
+    rec->data = (PtrIntType)arr;
     *(uint64_t*)(_memory + address) = (uint64_t)rec;
 
     next(sizeof (uint64_t));
@@ -573,17 +594,20 @@ void Processor::pushBooleanToStack(bool value)
 
 void Processor::pushToStack(const std::u32string &value)
 {
-    pushToStack(SymbolType::String, (uint64_t)new StringObject(value));
+    auto prevOrNew = _strings->add(value);
+    pushToStack(SymbolType::String, (uint64_t)prevOrNew);
 }
 
 void Processor::pushToStack(std::u32string &&value)
 {
-    pushToStack(SymbolType::String, (uint64_t)new StringObject(std::move(value)));
+    auto prevOrNew = _strings->add(value);
+    pushToStack(SymbolType::String, (uint64_t)prevOrNew);
 }
 
 void Processor::pushStringToStack(StringObject *strValue)
 {
-    pushToStack(SymbolType::String, (uint64_t)strValue);
+    auto prevOrNew = _strings->add(strValue);
+    pushToStack(SymbolType::String, (uint64_t)prevOrNew);
 }
 
 void Processor::pushArrayToStack(Array *arrValue)
@@ -606,7 +630,7 @@ void Processor::binaryStackOp(OpCode opCode)
     PValue result = PValue::binaryOpValues(value1, value2, op);
     if (result.type == SymbolType::String) {
         // это всегда новая строка, её нужно установить в таблицу строк
-        _strings->add(result.strValue);
+        result.strValue = _strings->add(result.strValue);
     }
     pushToStack(result.type, result.value64());
 }
@@ -765,7 +789,21 @@ void Processor::stloc_m()
     StringObject *stringValue = nullptr;
     ptrLValue = readRecord(symbol);
     if (!ptrLValue) { // это lvalue, его нужно установить, если его ещё нет
-        ptrLValue = installRecord(symbol);
+        switch (item.type) {
+        case SymbolType::Array:
+            ptrLValue = _storage->findRecord(item.value);
+            assert(ptrLValue);
+            break;
+        case SymbolType::String:
+            ptrLValue = _storage->findRecord(item.value);
+            if (!ptrLValue)
+                ptrLValue = installRecord(symbol);
+            assert(ptrLValue);
+            break;
+        default:
+            ptrLValue = installRecord(symbol);
+            break;
+        }
         // имеем адрес ObjectRecord
         // этот адрес нужно записать в секции DATA:
         uint8_t *addr = _memory + symbol->location();
@@ -785,14 +823,14 @@ void Processor::stloc_m()
         // в операнде находится указатель на запись в таблице символов
         setValue(ptrLValue, item.value ? true : false);
         break;
-    case SymbolType::String:
+    case SymbolType::String: // проверено выше
         ptrLValue->type = SymbolType::String;
         ptrLValue->data = item.value;
         break;
-    case SymbolType::Array:
-        ptrLValue->type = SymbolType::Array;
-        ptrLValue->data = item.value;
-        ptrLValue->reference = true; // TODO: нужно проверить все присваивания
+    case SymbolType::Array: // проверено выше
+        //ptrLValue->type = SymbolType::Array;
+        //ptrLValue->data = item.value;
+        //ptrLValue->reference = true; // TODO: нужно проверить все присваивания
         break;
     case SymbolType::Variable:
         // здесь находится указатель на запись в таблице объектов
@@ -815,6 +853,7 @@ void Processor::stloc_m()
         case SymbolType::String:
             stringValue = (StringObject*)ptrRValue->data;
             setValue(ptrLValue, stringValue);
+            *(uint64_t*)(_memory + symbol->location()) = (uint64_t)ptrRValue;
             break;
         case SymbolType::Array:
             // здесь нужно заменить само значение указателя в секции DATA

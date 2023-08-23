@@ -11,6 +11,7 @@ void Array_Test::run()
     test_arrayItemSwap();
     test_arrayItemAdd();
     test_arrayIfElse();
+    test_arrayWith1String();
     test_arrayStringKeys();
     test_arrayStringValues();
     test_arrayRealKeys();
@@ -174,6 +175,24 @@ i = fx(arr, v);
     mainTable = engine.unit()->block()->symbolTable();
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(1, record->data));
+}
+
+void Array_Test::test_arrayWith1String()
+{
+    const u32string code1 = UR"(
+a = ["hello"];
+x = a[0];
+)";
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::String);
+    assert(U"hello" == ((StringObject*)record->data)->uString());
 }
 
 void Array_Test::test_arrayStringKeys()

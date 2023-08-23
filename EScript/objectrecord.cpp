@@ -22,20 +22,14 @@ ObjectRecord::~ObjectRecord()
     if (data) {
         switch (type) {
         case SymbolType::Array:
-            if (!reference) {
-                delete (Array*)data;
-            }
-            break;
         case SymbolType::Function:
-            if (!reference) {
-                delete (Function*)data;
-            }
+        case SymbolType::Object: {
+            AutomationObject *obj = (AutomationObject*)data;
+            obj->release();
+            if (obj->counter() == 0)
+                delete obj;
             break;
-        case SymbolType::Object:
-            if (!reference) {
-                AutomationObject *obj = (AutomationObject*)data;
-                obj->release();
-            }
+        }
         default:
             break;
         }

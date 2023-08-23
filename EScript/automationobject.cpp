@@ -6,9 +6,15 @@ namespace escript {
 
 std::map<std::u32string, AutomationObject::pFn> AutomationObject::_fn;
 
+
 AutomationObject::AutomationObject()
 {
     buildFunctionsMap();
+}
+
+AutomationObject::~AutomationObject()
+{
+    _mark = 0xDEADBEEF;
 }
 
 bool AutomationObject::call(const std::u32string &method, Processor *p)
@@ -19,6 +25,21 @@ bool AutomationObject::call(const std::u32string &method, Processor *p)
     (this->*ptrToMethod->second)(p);
     return true;
 }
+
+void AutomationObject::release()
+{
+    // уменьшаем счётчик только до нуля,
+    // если он равен 0, то объект больше не используется,
+    // но он не удаляет сам себя, как в COM, его удаляет сборщик мусора
+    assert(_counter != 0); // явно потребуем это
+    if (_counter == 0)
+        return;
+    --_counter;
+}
+
+void AutomationObject::addRef() { ++_counter; }
+
+int64_t AutomationObject::counter() const { return _counter; }
 
 std::stack<StackValue> AutomationObject::loadArguments(Processor *p) const
 {

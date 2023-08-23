@@ -45,6 +45,8 @@ public:
     ObjectRecord *findRecord(Symbol *symbol);
     ObjectRecord *findRecord(uint64_t dataOrPointer);
     void removeRecord(AutomationObject *obj);
+    void checkDuplicates() const;
+    AutomationObject *tryCastToObject(const ObjectRecord &r) const;
 };
 
 } // namespace escript

@@ -34,6 +34,9 @@ public:
      */
     StringObject *add(const std::u32string &s);
     StringObject *add(StringObject *s);
+    void checkDuplicates() const;
+private:
+    StringObject *findString(const std::u32string &s) const;
 };
 
 } // namespace escript

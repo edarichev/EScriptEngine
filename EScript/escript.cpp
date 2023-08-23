@@ -103,6 +103,7 @@ void EScript::addStandardObjects()
     auto consoleRecord = _machine.storage().installRecord(consoleSymbol.get());
     consoleRecord->type = SymbolType::Object;
     Console *console = new Console();
+    console->addRef();
     _standardObjects[consoleId] = console;
     consoleRecord->data = (uint64_t)console;
     _machine.replaceValuePtr(consoleSymbol, consoleRecord);
@@ -111,6 +112,7 @@ void EScript::addStandardObjects()
     auto mathRecord = _machine.storage().installRecord(mathSymbol.get());
     mathRecord->type = SymbolType::Object;
     Math *math = new Math();
+    math->addRef();
     _standardObjects[mathId] = math;
     mathRecord->data = (uint64_t)math;
     _machine.replaceValuePtr(mathSymbol, mathRecord);
@@ -119,6 +121,7 @@ void EScript::addStandardObjects()
     auto numberRecord = _machine.storage().installRecord(numberSymbol.get());
     numberRecord->type = SymbolType::Object;
     Number *number = new Number();
+    number->addRef();
     _standardObjects[numberId] = number;
     numberRecord->data = (uint64_t)number;
     _machine.replaceValuePtr(numberSymbol, numberRecord);

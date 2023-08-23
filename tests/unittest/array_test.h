@@ -15,6 +15,7 @@ private:
     void test_arrayItemSwap();
     void test_arrayItemAdd();
     void test_arrayIfElse();
+    void test_arrayWith1String();
     void test_arrayStringKeys();
     void test_arrayStringValues();
     void test_arrayRealKeys();

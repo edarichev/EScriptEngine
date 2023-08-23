@@ -27,6 +27,8 @@ public:
     int64_t charCodeAt(int64_t i) const;
     std::u32string charAt(int64_t i) const;
     bool endsWith(const std::u32string &s) const;
+    int compare(StringObject *s) const;
+    int compare(const std::u32string &s) const;
     bool includes(const std::u32string &s) const;
     int64_t indexOf(const std::u32string &s) const;
     int64_t lastIndexOf(const std::u32string &s) const;

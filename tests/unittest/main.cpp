@@ -43,13 +43,13 @@ int main()
     OpCode_Test().run();
     Assembler_Test().run();
     Boolean_Test().run();
+    Array_Test().run();
     IfElseStatement_Test().run();
     SwitchCase_Test().run();
     WhileStatement_Test().run();
     ForStatement_Test().run();
     FunctionDeclStatement_Test().run();
     String_Test().run();
-    Array_Test().run();
     Console_Test().run();
     Conversions_Test().run();
     IncDec_Test().run();

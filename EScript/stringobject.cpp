@@ -88,6 +88,16 @@ bool StringObject::endsWith(const std::u32string &s) const
     return _s.rfind(s) == _s.length() - s.length();
 }
 
+int StringObject::compare(StringObject *s) const
+{
+    return _s.compare(s->_s);
+}
+
+int StringObject::compare(const std::u32string &s) const
+{
+    return _s.compare(s);
+}
+
 bool StringObject::includes(const std::u32string &s) const
 {
     return _s.find(s) != std::u32string::npos;
@@ -239,6 +249,7 @@ std::u32string StringObject::trimEnd() const
 Array *StringObject::split(const std::u32string &sep)
 {
     Array *arr = new Array();
+    arr->addRef();
     std::vector<std::u32string> parts;
     if (sep.length()) {
         // строка ненулевой длины, делим как обычно
@@ -266,6 +277,7 @@ Array *StringObject::split(const std::u32string &sep)
 Array *StringObject::split()
 {
     Array *arr = new Array();
+    arr->addRef();
     arr->set(0, PValue(SymbolType::String,
                 (uint64_t)new StringObject(_s)));
     return arr;

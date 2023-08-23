@@ -15,18 +15,21 @@ class Processor;
  */
 class ESCRIPT_EXPORT AutomationObject
 {
+    unsigned int _mark = 0xCCCCCCCC;
     typedef void (AutomationObject::*pFn)(Processor *p);
     static std::map<std::u32string, pFn> _fn;
+    int64_t _counter = 0;
 public:
-    AutomationObject();;
-    virtual ~AutomationObject(){}
+    AutomationObject();
+    virtual ~AutomationObject();
     virtual bool call([[maybe_unused]] const std::u32string &method,
                       [[maybe_unused]] Processor *p);
-    void release()
-    {
-        delete this;
-    }
+    void release();
+    void addRef();
+    int64_t counter() const;;
+
     std::stack<StackValue> loadArguments(Processor *p) const;
+
 private:
     void call_toString(Processor *p);
     static void buildFunctionsMap();
