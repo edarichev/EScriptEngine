@@ -16,7 +16,7 @@ StringContainer::~StringContainer()
 
 void StringContainer::clear()
 {
-    checkDuplicates();
+    //checkDuplicates();
     for (auto &c : _strings) {
         delete c;
     }
@@ -25,24 +25,14 @@ void StringContainer::clear()
 
 StringObject *StringContainer::add(const std::u32string &s)
 {
-    StringObject *str = findString(s);
-    if (!str) {
-        str = new StringObject(s);
-        str->addRef();
-        _strings.push_back(str);
-        return _strings.back();
-    }
+    StringObject *str = new StringObject(s);
     str->addRef();
-    return str;
+    _strings.push_back(str);
+    return _strings.back();
 }
 
 StringObject *StringContainer::add(StringObject *s)
 {
-    auto prev = findString(s->uString());
-    if (prev && prev != s) {
-        delete s;
-        s = prev;
-    }
     if (std::find(_strings.begin(), _strings.end(), s) == _strings.end()) {
         s->addRef();
         _strings.push_back(s);

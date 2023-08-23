@@ -434,8 +434,10 @@ void StringObject::call_set(Processor *p)
             }
             break;
         } while (true);
+        // строка не должна никогда изменяться, кроме этой операции
+        // иначе невозможно сделать такое: s[1] = "a";
         _s[index] = charCode;
-        p->pushToStack(0);
+        p->pushToStack(_s);
     }
 }
 

@@ -485,6 +485,7 @@ bool MySpreadSheet::call(const u32string &method, Processor *p)
     if (BaseClass::call(method, p))
         return true;
     if (method == U"getCellValue") {
+        // здесь показана прямая работа со стеком, но можно и проще (см. ниже)
         auto argCount = p->popFromStack().value; // число аргументов == 2
         assert(argCount == 2);
         auto argColumnIndex = p->popFromStack(); // индекс столбца
@@ -595,9 +596,10 @@ using BaseClass = AutomationObject;
 Теперь метод `acos` будет доступен в скрипте.
 
 Вы можете использовать более сложные конструкции. Например, пусть наша таблица 
-содержит не просто текстовые ячейки, а экземпляры класса. Чтобы работать с ячейками - 
-получать на нах ссылки или вызывать методы - класс ячейки тоже должен 
-реализовать интерфейс AutomationObject (см. полный пример в 
+содержит не просто текстовые ячейки, а экземпляры специализированного класса ячейки таблицы `MyCell`.
+Чтобы работать с ячейками - 
+получать на них ссылки или вызывать методы - класс ячейки тоже должен 
+реализовать интерфейс `AutomationObject` (см. полный пример в 
 [unittest/automation_test.cpp](https://github.com/edarichev/EScriptEngine/blob/master/tests/unittest/automation_test.cpp)):
 ```C++
 class MyCell : public AutomationObject
@@ -627,7 +629,7 @@ class MySpreadSheet : public AutomationObject
 }
 ```
 
-Тогда можно применять следующие конструкции:
+Тогда можно применять следующие выражения:
 ```javascript
 c1 = spreadsheet.cell(1, 1);           // можно сначала получить ячейку
 c1.text = "Hello";                     // а затем задать её текст
@@ -636,8 +638,22 @@ s = spreadsheet.cell(1, 1).text;       // а можно обратиться и 
 spreadsheet.cell(1, 2).text = "World"; // вызова метода, без объявления переменной
 ```
 
-Аналогично можно у MyCell сделать какой-нибудь MyStyle и задавать туда цвет, шрифт и т.п.,
-главное, чтобы класс наследовался от AutomationObject.
+Хотя вот так делать не стоит:
+```javascript
+spreadsheet.cell(1, 3).text[1] = "a";
+```
+поскольку `text` - это отдельно живущий экземпляр того, что вернулось из метода `cell.get_text()`, а не внутреннее 
+представление ячейки, которое вовсе и не текстовое, в виде объекта MyCell,
+само значение при этом не изменится:
+```javascript
+spreadsheet.cell(1, 3).text = "Hello";
+p = spreadsheet.cell(1, 3).text[1] = "a"; // p == "Hallo", однако:
+console.log(spreadsheet.cell(1, 3).text); // выведет "Hello"
+```
+
+
+Аналогично можно у `MyCell` сделать какой-нибудь стиль класса `MyStyle` и задавать туда цвет, шрифт и т.п.,
+главное, чтобы класс наследовался от `AutomationObject`.
 
 
 

@@ -321,6 +321,11 @@ s = c1.text;
 s = spreadsheet.cell(1, 1).text;
 spreadsheet.cell(1, 2).text = "World";
 spreadsheet.cell(1, 2).text = spreadsheet.cell(1, 2).text + "!!!";
+spreadsheet.cell(1, 3).text = "Hello";
+console.log(s);
+p = spreadsheet.cell(1, 3).text[1] = "a";
+console.log(p);
+console.log(spreadsheet.cell(1, 3).text);
 )";
     EScript engine;
     MySpreadSheet spreadsheet;
@@ -338,8 +343,12 @@ spreadsheet.cell(1, 2).text = spreadsheet.cell(1, 2).text + "!!!";
     assert(Compare::equals_string(U"Hello", record->data));
     assert(spreadsheet.getCellValue(1, 1) == U"Hello");
     assert(spreadsheet.getCellValue(1, 2) == U"World!!!");
+    assert(spreadsheet.getCellValue(1, 3) == U"Hello");
 
-    std::shared_ptr<AutomationObject> p1 = std::make_shared<MyCell>();
+    auto p = mainTable->find(U"p");
+    record = engine.getObjectRecord(p);
+    assert(record->type == SymbolType::String);
+    assert(Compare::equals_string(U"Hallo", record->data));
 }
 
 
