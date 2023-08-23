@@ -594,9 +594,50 @@ using BaseClass = AutomationObject;
 
 Теперь метод `acos` будет доступен в скрипте.
 
+Вы можете использовать более сложные конструкции. Например, пусть наша таблица 
+содержит не просто текстовые ячейки, а экземпляры класса. Чтобы работать с ячейками - 
+получать на нах ссылки или вызывать методы - класс ячейки тоже должен 
+реализовать интерфейс AutomationObject (см. полный пример в 
+[unittest/automation_test.cpp](https://github.com/edarichev/EScriptEngine/blob/master/tests/unittest/automation_test.cpp)):
+```C++
+class MyCell : public AutomationObject
+{
+    std::u32string _value;
+public:
+    const std::u32string &value() const { return _value; }
+    void setValue(const u32string &newValue) { _value = newValue; }
+    // остальное пропущено для краткости
+}
 
+class MySpreadSheet : public AutomationObject
+{
+    std::vector<std::vector<MyCell> > _cells;
+    // остальное пропущено для краткости
+    void call_cell(Processor *p)
+    { // вернуть указатель на ячейку
+        auto args = loadArguments(p);
+        assert(args.size() == 2);
+        int rowIndex = args.top().getIntValue(); // индекс строки
+        args.pop();
+        int columnIndex = args.top().getIntValue(); // индекс столбца
+        // указатель на ячейку мы вернём, и он будет доступен в скрипте
+        MyCell *c = &_cells[rowIndex][columnIndex];
+        p->pushObjectToStack(c);
+    }
+}
+```
 
+Тогда можно применять следующие конструкции:
+```javascript
+c1 = spreadsheet.cell(1, 1);           // можно сначала получить ячейку
+c1.text = "Hello";                     // а затем задать её текст
+s = c1.text;                           // или получить текст
+s = spreadsheet.cell(1, 1).text;       // а можно обратиться и сразу к результату 
+spreadsheet.cell(1, 2).text = "World"; // вызова метода, без объявления переменной
+```
 
+Аналогично можно у MyCell сделать какой-нибудь MyStyle и задавать туда цвет, шрифт и т.п.,
+главное, чтобы класс наследовался от AutomationObject.
 
 
 
