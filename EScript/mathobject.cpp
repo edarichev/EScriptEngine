@@ -10,6 +10,7 @@ std::map<std::u32string, Math::pFn> Math::_fn;
 
 Math::Math()
 {
+    _destructible = true;
     buildFunctionsMap();
 }
 

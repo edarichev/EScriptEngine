@@ -25,7 +25,13 @@ ObjectRecord::~ObjectRecord()
         case SymbolType::Function:
         case SymbolType::Object: {
             AutomationObject *obj = (AutomationObject*)data;
+            if (!AutomationObject::exists(obj)) {
+                std::cerr << "~ObjectRecord: The object does not exists\n";
+                return;
+            }
             obj->release();
+            if (!obj->destructible())
+                return;
             if (obj->counter() == 0)
                 delete obj;
             break;

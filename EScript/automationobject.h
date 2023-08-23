@@ -4,6 +4,8 @@
 #include "EScript_global.h"
 #include "stackvalue.h"
 
+#define OBJECT_EXISTS_MARK 0xCCCCCCCC
+
 namespace escript {
 
 class EScript;
@@ -15,10 +17,12 @@ class Processor;
  */
 class ESCRIPT_EXPORT AutomationObject
 {
-    unsigned int _mark = 0xCCCCCCCC;
+    unsigned int _mark = OBJECT_EXISTS_MARK;
     typedef void (AutomationObject::*pFn)(Processor *p);
     static std::map<std::u32string, pFn> _fn;
     int64_t _counter = 0;
+protected:
+    bool _destructible = false;
 public:
     AutomationObject();
     virtual ~AutomationObject();
@@ -29,6 +33,17 @@ public:
     int64_t counter() const;;
 
     std::stack<StackValue> loadArguments(Processor *p) const;
+    static bool exists(AutomationObject *pObject);
+    /**
+     * @brief Возвращает true, если этот объект может быть удалён автоматически
+     *        при разрушении объекта движка. Обычно true установлено у
+     *        встроенных (стандартных) объектов.
+     *        По умолчанию равно false,
+     *        так что объекты производных пользовательских классов
+     *        могут не беспокоиться, что они будут удалены движком.
+     * @return
+     */
+    bool destructible() const;
 
 private:
     void call_toString(Processor *p);

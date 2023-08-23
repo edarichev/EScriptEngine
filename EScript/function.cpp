@@ -4,6 +4,11 @@
 namespace escript {
 
 
+Function::Function(Symbol *sym) : _symbol(sym)
+{
+    _destructible = true;
+}
+
 Function::~Function()
 {
 

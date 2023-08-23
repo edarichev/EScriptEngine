@@ -16,6 +16,7 @@ void Console::setSeparateWithSpace(bool newSeparateWithSpace)
 
 Console::Console()
 {
+    _destructible = true;
     setOutputStream(&std::cout);
 }
 

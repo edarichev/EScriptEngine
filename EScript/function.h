@@ -20,7 +20,7 @@ public:
     /**
      * @brief Создаёт новый экземпляр класса Function
      */
-    Function(Symbol *sym) : _symbol(sym) {}
+    Function(Symbol *sym);
 
     /**
      * @brief Освобождает связанные с этим экземпляром ресурсы

@@ -7,6 +7,11 @@ namespace escript {
 std::map<std::u32string, AutomationObject::pFn> AutomationObject::_fn;
 
 
+bool AutomationObject::destructible() const
+{
+    return _destructible;
+}
+
 AutomationObject::AutomationObject()
 {
     buildFunctionsMap();
@@ -31,7 +36,7 @@ void AutomationObject::release()
     // уменьшаем счётчик только до нуля,
     // если он равен 0, то объект больше не используется,
     // но он не удаляет сам себя, как в COM, его удаляет сборщик мусора
-    assert(_counter != 0); // явно потребуем это
+    assert(_counter >= 0); // явно потребуем это
     if (_counter == 0)
         return;
     --_counter;
@@ -44,6 +49,11 @@ int64_t AutomationObject::counter() const { return _counter; }
 std::stack<StackValue> AutomationObject::loadArguments(Processor *p) const
 {
     return p->loadArguments();
+}
+
+bool AutomationObject::exists(AutomationObject *pObject)
+{
+    return pObject->_mark == OBJECT_EXISTS_MARK;
 }
 
 
