@@ -986,8 +986,7 @@ void Parser::OptionalDotOperation()
     case SymbolType::Variable:
         break; // здесь должна быть некая временная переменная
     case SymbolType::Integer:
-    case SymbolType::Real:
-    case SymbolType::String: {
+    case SymbolType::Real: {
         // если это литерал, то создать временную переменную
         auto tmpLiteralVar = currentSymbolTable()->addTemp();
         emitAssign(tmpLiteralVar.get());
