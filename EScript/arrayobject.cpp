@@ -33,6 +33,7 @@ void Array::buildFunctionsMap()
     _fn[U"reverse"] = &Array::call_reverse;
     _fn[U"fill"] = &Array::call_fill;
     _fn[U"sort"] = &Array::call_sort;
+    _fn[U"unshift"] = &Array::call_unshift;
 }
 
 PValue Array::get(int64_t index)
@@ -296,6 +297,19 @@ void Array::call_sort(Processor *p)
     auto args = loadArguments(p);
     std::sort(_indexedItems.begin(), _indexedItems.end());
     p->pushArrayToStack(this);
+}
+
+void Array::call_unshift(Processor *p)
+{
+    auto args = loadArguments(p);
+    int i = 0;
+    while (!args.empty()) {
+        PValue v(args.top());
+        _indexedItems.insert(_indexedItems.begin() + i, v);
+        args.pop();
+        i++;
+    }
+    p->pushToStack(_indexedItems.size());
 }
 
 std::u32string Array::enquote(const std::u32string &key)

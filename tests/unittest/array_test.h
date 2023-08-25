@@ -51,6 +51,7 @@ private:
     void test_arrayReverse();
     void test_arrayFill();
     void test_arraySort();
+    void test_arrayUnshift();
 };
 
 #endif // ARRAY_TEST_H
