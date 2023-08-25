@@ -60,6 +60,7 @@ private:
     void call_splice(Processor *p);
     void call_reverse(Processor *p);
     void call_fill(Processor *p);
+    void call_sort(Processor *p);
 private:
     /**
      * @brief При необходимости заключает в кавычки ключ (имя свойства)

@@ -50,6 +50,7 @@ private:
     void test_arraySpliceRemoveNInsertFromEnd();
     void test_arrayReverse();
     void test_arrayFill();
+    void test_arraySort();
 };
 
 #endif // ARRAY_TEST_H

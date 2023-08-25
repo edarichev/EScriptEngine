@@ -32,6 +32,7 @@ void Array::buildFunctionsMap()
     _fn[U"splice"] = &Array::call_splice;
     _fn[U"reverse"] = &Array::call_reverse;
     _fn[U"fill"] = &Array::call_fill;
+    _fn[U"sort"] = &Array::call_sort;
 }
 
 PValue Array::get(int64_t index)
@@ -288,6 +289,13 @@ void Array::call_fill(Processor *p)
     }
     assert(start <= end);
     std::fill(_indexedItems.begin() + start, _indexedItems.begin() + end, v);
+}
+
+void Array::call_sort(Processor *p)
+{
+    auto args = loadArguments(p);
+    std::sort(_indexedItems.begin(), _indexedItems.end());
+    p->pushArrayToStack(this);
 }
 
 std::u32string Array::enquote(const std::u32string &key)
