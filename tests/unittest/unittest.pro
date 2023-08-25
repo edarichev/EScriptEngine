@@ -12,6 +12,7 @@ SOURCES += \
         automation_test.cpp \
         bit_test.cpp \
         boolean_test.cpp \
+        callscriptfunction_test.cpp \
         codegen_test.cpp \
         codeunit_test.cpp \
         compare.cpp \
@@ -48,6 +49,7 @@ HEADERS += \
     automation_test.h \
     bit_test.h \
     boolean_test.h \
+    callscriptfunction_test.h \
     codegen_test.h \
     codeunit_test.h \
     compare.h \

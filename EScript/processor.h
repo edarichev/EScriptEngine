@@ -61,6 +61,7 @@ public:
      */
     size_t PC() const { return _pc; }
     void setPC(size_t newPc) { _pc = newPc; }
+    void pushPC() { _pcStack.push(_pc); }
 
     std::stack<StackValue> loadArguments();
 

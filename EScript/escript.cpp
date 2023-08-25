@@ -41,7 +41,7 @@ void EScript::clear()
         _unit->clear();
         _unit.reset();
     }
-    _isAlreadyRunned = false;
+    _standardObjectsAdded = false;
     _machine.clear();
 }
 
@@ -51,6 +51,12 @@ ObjectRecord *EScript::getObjectRecord(std::shared_ptr<Symbol> symbol)
 }
 
 void EScript::eval(const std::u32string &strCode)
+{
+    compile(strCode);
+    run();
+}
+
+void EScript::compile(const std::u32string &strCode)
 {
     std::vector<TCode> buffer;
     // каждая единица трансляции находится в дочернем блоке главного блока
@@ -78,8 +84,12 @@ void EScript::eval(const std::u32string &strCode)
     addStandardObjects();
     addDeferredObjects();
     ((Console*) _standardObjects[consoleId])->setOutputStream(_outStream);
+    _standardObjectsAdded = true;
+}
+
+void EScript::run()
+{
     _machine.run();
-    _isAlreadyRunned = true;
 }
 
 void EScript::registerStandardObjects(std::shared_ptr<Block> &firstBlock)
@@ -97,7 +107,7 @@ void EScript::registerStandardObjects(std::shared_ptr<Block> &firstBlock)
 
 void EScript::addStandardObjects()
 {
-    if (_isAlreadyRunned)
+    if (_standardObjectsAdded)
         return;
     auto consoleSymbol = unit()->block()->symbolTable()->find(consoleId);
     auto consoleRecord = _machine.storage().installRecord(consoleSymbol.get());
@@ -148,7 +158,7 @@ void EScript::addDeferredObjects()
     _deferredObjects.clear();
 }
 
-const Machine &EScript::machine() const
+Machine &EScript::machine()
 {
     return _machine;
 }

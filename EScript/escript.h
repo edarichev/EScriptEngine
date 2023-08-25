@@ -27,8 +27,8 @@ private:
     // и добавляются в глобальную таблицу символов
     std::vector<std::pair<AutomationObject*, std::u32string> > _deferredObjects;
     std::vector<std::shared_ptr<Symbol>> _deferredSymbols;
-    // уже запускали?
-    bool _isAlreadyRunned = false;
+    // уже добавили стандартные объекты?
+    bool _standardObjectsAdded = false;
     std::map<std::u32string, AutomationObject*> _standardObjects;
 public:
     /**
@@ -45,6 +45,16 @@ public:
      */
     void eval(const std::u32string &strCode);
     /**
+     * @brief Компилирует, загружает в память, но не запускает
+     * @param strCode
+     */
+    void compile(const std::u32string &strCode);
+    /**
+     * @brief Запускает предварительно скомпилированную программу
+     *        с текущего адреса.
+     */
+    void run();
+    /**
      * @brief Возвращает указатель на программный модуль.
      * @return
      */
@@ -54,7 +64,7 @@ public:
      */
     void clear();
     ObjectRecord *getObjectRecord(std::shared_ptr<Symbol> symbol);
-    const Machine &machine() const;
+    Machine &machine();
     void setShowTCode(bool newShowTCode);
     void setShowDisassembleListing(bool newShowDisassembleListing);
     void setOutStream(std::ostream &newOutStream);

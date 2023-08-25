@@ -11,7 +11,7 @@
 
 namespace escript {
 
-const Processor &Machine::cpu() const
+Processor &Machine::cpu()
 {
     return _cpu;
 }
