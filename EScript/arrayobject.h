@@ -75,6 +75,8 @@ private:
      * @return
      */
     static std::u32string enquote(const std::u32string &key);
+    int64_t indexOf(const PValue &v, int64_t start);
+    int64_t lastIndexOf(const PValue &v, int64_t start);
 };
 
 } // namespace escript

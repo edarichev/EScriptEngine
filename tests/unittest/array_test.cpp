@@ -1387,10 +1387,105 @@ x = a.indexOf(11);
 
 void Array_Test::test_arrayLastIndexOf()
 {
+    const u32string code1 = UR"(
+a = [1,2,3,4,5,4,6,7];
+n = a.lastIndexOf(4); // ==5
+x = a.lastIndexOf(4, -4); // ==3
+y = a.lastIndexOf(11, -40); // -1
+z = a.lastIndexOf(4, -40); // ==-1
+t = a.lastIndexOf(8); // ==-1
+k = a.lastIndexOf(4, 4); // ==3
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
 
+    auto n = mainTable->find(U"n");
+    assert(n != nullptr);
+    auto record = engine.getObjectRecord(n);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(5, record->data));
+
+    auto x = mainTable->find(U"x");
+    assert(x != nullptr);
+    record = engine.getObjectRecord(x);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(3, record->data));
+
+    auto y = mainTable->find(U"y");
+    assert(y != nullptr);
+    record = engine.getObjectRecord(y);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(-1, record->data));
+
+    auto z = mainTable->find(U"z");
+    assert(z != nullptr);
+    record = engine.getObjectRecord(z);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(-1, record->data));
+
+    auto t = mainTable->find(U"t");
+    assert(t != nullptr);
+    record = engine.getObjectRecord(t);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(-1, record->data));
+
+    auto k = mainTable->find(U"k");
+    assert(k != nullptr);
+    record = engine.getObjectRecord(k);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(3, record->data));
 }
 
 void Array_Test::test_arrayIncludes()
 {
+    const u32string code1 = UR"(
+a = [1,2,3,4,5,6,7];
+n = a.includes(4);//true
+x = a.includes(11);//false
+y = a.includes(5, 2);//true
+z = a.includes(5, 5);//false
+t = a.includes(5, -5);//true
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
 
+    auto n = mainTable->find(U"n");
+    assert(n != nullptr);
+    auto record = engine.getObjectRecord(n);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(true, record->data));
+
+    auto x = mainTable->find(U"x");
+    assert(x != nullptr);
+    record = engine.getObjectRecord(x);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(false, record->data));
+
+    auto y = mainTable->find(U"y");
+    record = engine.getObjectRecord(y);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(true, record->data));
+
+    auto z = mainTable->find(U"z");
+    record = engine.getObjectRecord(z);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(false, record->data));
+
+    auto t = mainTable->find(U"t");
+    record = engine.getObjectRecord(t);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(true, record->data));
 }

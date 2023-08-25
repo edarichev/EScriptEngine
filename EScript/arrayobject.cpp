@@ -413,32 +413,34 @@ void Array::call_indexOf(Processor *p)
     }
     PValue v(args.top());
     args.pop();
-    int64_t start = 0;
-    if (!args.empty()) {
-        start = args.top().getIntValue();
-    }
-    if (start < 0)
-        start += _indexedItems.size();
-    if (start < 0)
-        start = 0;
-    if (start > (int64_t)_indexedItems.size()) {
-        p->pushToStack(-1);
-        return;
-    }
-    auto itStart = _indexedItems.begin() + start;
-    auto it = std::find(itStart, _indexedItems.end(), v);
-    int64_t index = it == _indexedItems.end() ? - 1 : std::distance(itStart, it);
-    p->pushToStack(index);
+    int64_t start = args.empty() ? 0 : args.top().getIntValue();
+    p->pushToStack(indexOf(v, start));
 }
 
 void Array::call_lastIndexOf(Processor *p)
 {
-
+    auto args = loadArguments(p);
+    if (args.empty()) {
+        p->pushToStack(-1);
+        return;
+    }
+    PValue v(args.top());
+    args.pop();
+    int64_t start = args.empty() ? 0 : args.top().getIntValue();
+    p->pushToStack(lastIndexOf(v, start));
 }
 
 void Array::call_includes(Processor *p)
 {
-
+    auto args = loadArguments(p);
+    if (args.empty()) {
+        p->pushToStack(-1);
+        return;
+    }
+    PValue v(args.top());
+    args.pop();
+    int64_t start = args.empty() ? 0 : args.top().getIntValue();
+    p->pushBooleanToStack(lastIndexOf(v, start) >= 0);
 }
 
 std::u32string Array::enquote(const std::u32string &key)
@@ -462,6 +464,40 @@ std::u32string Array::enquote(const std::u32string &key)
     if (b)
         return U"\'" + key + U"\'";
     return key;
+}
+
+int64_t Array::indexOf(const PValue &v, int64_t start)
+{
+    if (start < 0)
+        start += _indexedItems.size();
+    if (start < 0)
+        start = 0;
+    if (start > (int64_t)_indexedItems.size()) {
+        return -1;
+    }
+    auto itStart = _indexedItems.begin() + start;
+    auto it = std::find(itStart, _indexedItems.end(), v);
+    int64_t index = it == _indexedItems.end() ? - 1 : std::distance(itStart, it);
+    return index;
+}
+
+int64_t Array::lastIndexOf(const PValue &v, int64_t start)
+{
+    int64_t n = _indexedItems.size();
+    if (start < 0)
+        start += n;
+    if (start < 0)
+        return -1;
+    if (start > n)
+        start = n;
+    // для обратного итератора:
+    start = n - start;
+    auto rStart = _indexedItems.rbegin() + (n - start);
+    auto it = std::find(rStart, _indexedItems.rend(), v);
+    // это дистанция с конца
+    auto d = std::distance(_indexedItems.rbegin(), it);
+    int64_t index = it == _indexedItems.rend() ? -1 : n - d - 1; // -1 - т.к. это обратный итератор
+    return index;
 }
 
 bool Array::call(const std::u32string &method, Processor *p)
