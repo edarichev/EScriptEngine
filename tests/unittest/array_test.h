@@ -52,6 +52,7 @@ private:
     void test_arrayFill();
     void test_arraySort();
     void test_arrayUnshift();
+    void test_arraySlice();
 };
 
 #endif // ARRAY_TEST_H

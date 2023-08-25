@@ -62,6 +62,7 @@ private:
     void call_fill(Processor *p);
     void call_sort(Processor *p);
     void call_unshift(Processor *p);
+    void call_slice(Processor *p);
 private:
     /**
      * @brief При необходимости заключает в кавычки ключ (имя свойства)

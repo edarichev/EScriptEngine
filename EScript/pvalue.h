@@ -40,6 +40,7 @@ enum class ArithmeticOperation : uint8_t
 };
 
 class StringObject;
+class Function;
 
 /**
  * @brief Структура для упаковки тип+значение (как variant)
@@ -49,6 +50,9 @@ class StringObject;
  * Структура сама извлекает либо хранимое
  * в ObjectRecord значение, либо вытаскивает его из переменной, если
  * запись указывает на переменную.
+ *
+ * Была идея соединить её со StackValue, но получится чудовище.
+ * Пусть StackValue занимается стеком, а PValue - вычислениями.
  */
 struct PValue
 {
@@ -59,6 +63,7 @@ struct PValue
         bool boolValue;
         StringObject *strValue;
         Array *arrValue;
+        Function *function;
     };
     PValue();
     PValue(const PValue &rhs) = default;

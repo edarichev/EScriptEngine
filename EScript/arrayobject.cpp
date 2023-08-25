@@ -30,6 +30,7 @@ void Array::buildFunctionsMap()
     _fn[U"pop"] = &Array::call_pop;
     _fn[U"shift"] = &Array::call_shift;
     _fn[U"splice"] = &Array::call_splice;
+    _fn[U"slice"] = &Array::call_slice;
     _fn[U"reverse"] = &Array::call_reverse;
     _fn[U"fill"] = &Array::call_fill;
     _fn[U"sort"] = &Array::call_sort;
@@ -288,8 +289,8 @@ void Array::call_fill(Processor *p)
         if (end < start)
             return;
     }
-    assert(start <= end);
-    std::fill(_indexedItems.begin() + start, _indexedItems.begin() + end, v);
+    if (start < end)
+        std::fill(_indexedItems.begin() + start, _indexedItems.begin() + end, v);
 }
 
 void Array::call_sort(Processor *p)
@@ -310,6 +311,37 @@ void Array::call_unshift(Processor *p)
         i++;
     }
     p->pushToStack(_indexedItems.size());
+}
+
+void Array::call_slice(Processor *p)
+{
+    auto args = loadArguments(p);
+    Array *arr = new Array();
+    arr->addRef();
+
+    int64_t start = 0;
+    int64_t end = _indexedItems.size();
+    if (!args.empty())
+    {
+        start = args.top().getIntValue();
+        args.pop();
+        if (start < 0)
+            start += _indexedItems.size();
+        if (start < 0)
+            start = 0;
+        if (!args.empty()) {
+            end = args.top().getIntValue();
+            args.pop();
+            if (end < 0)
+                end += _indexedItems.size();
+        }
+    }
+    if (start < end) {
+        arr->_indexedItems.insert(arr->_indexedItems.begin(),
+                                  _indexedItems.begin() + start,
+                                  _indexedItems.begin() + end);
+    }
+    p->pushArrayToStack(arr);
 }
 
 std::u32string Array::enquote(const std::u32string &key)
