@@ -31,6 +31,7 @@ void Array::buildFunctionsMap()
     _fn[U"shift"] = &Array::call_shift;
     _fn[U"splice"] = &Array::call_splice;
     _fn[U"reverse"] = &Array::call_reverse;
+    _fn[U"fill"] = &Array::call_fill;
 }
 
 PValue Array::get(int64_t index)
@@ -212,6 +213,8 @@ void Array::call_splice(Processor *p)
         startPos = _indexedItems.size();
     if (startPos < 0)
         startPos = (int64_t)_indexedItems.size() + startPos;
+    if (startPos < 0) // всё равно слишком далеко?
+        startPos = 0;
     args.pop();
     int64_t nRemove = args.empty() ? _indexedItems.size() // удалить все
                                    : args.top().getIntValue();
@@ -250,6 +253,41 @@ void Array::call_reverse(Processor *p)
     auto args = loadArguments(p);
     std::reverse(_indexedItems.begin(), _indexedItems.end());
     p->pushArrayToStack(this);
+}
+
+void Array::call_fill(Processor *p)
+{
+    // если нет - как есть
+    // если 1 аргумент - это значение, которым заполняем
+    // арг 2 - стартовый индекс, если нет - с 0
+    // арг 3 - конечный индекс, если его нет - до конца
+    auto args = loadArguments(p);
+    p->pushArrayToStack(this); // сразу занести, т.к. вернём этот же массив
+    if (args.empty()) {
+        return;
+    }
+    PValue v(args.top());
+    args.pop();
+    int64_t start = 0;
+    if (!args.empty()) {
+        start = args.top().getIntValue();
+        args.pop();
+    }
+    if (start < 0)
+        start += _indexedItems.size();
+    if (start < 0)
+        start = 0;
+    int end = _indexedItems.size();
+    if (!args.empty()) {
+        end = args.top().getIntValue();
+        args.pop();
+        if (end < 0)
+            end += _indexedItems.size();
+        if (end < start)
+            return;
+    }
+    assert(start <= end);
+    std::fill(_indexedItems.begin() + start, _indexedItems.begin() + end, v);
 }
 
 std::u32string Array::enquote(const std::u32string &key)

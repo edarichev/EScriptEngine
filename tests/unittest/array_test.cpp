@@ -45,6 +45,7 @@ void Array_Test::run()
     test_arraySpliceRemoveNInsertFromPos();
     test_arraySpliceRemoveNInsertFromEnd();
     test_arrayReverse();
+    test_arrayFill();
     cleanupTestCase();
 }
 
@@ -1125,6 +1126,50 @@ n = b.length;
     assert(arrB->get(0).intValue == 34);
     assert(arrB->get(2).intValue == 9);
     assert(arrB->get(4).intValue == 77);
+
+    assert(arrA == arrB); // один и тот же объект
+
+    for (int i = 0; i < arrA->length(); i++) {
+        assert(arrA->get(i) == arrB->get(i));
+    }
+}
+
+void Array_Test::test_arrayFill()
+{
+    const u32string code1 = UR"(
+a = [77,6,9,67,34];
+b = a.fill(45, 2, 10); // --> [77,6,45,45,45]
+n = b.length;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto n = mainTable->find(U"n");
+    assert(n != nullptr);
+    auto record = engine.getObjectRecord(n);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(5, record->data));
+
+    auto b = mainTable->find(U"b");
+    assert(b != nullptr);
+    record = engine.getObjectRecord(b);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Array);
+    Array *arrB = (Array*)record->data;
+    assert(arrB->length() == 5);
+    assert(arrB->get(0).intValue == 77);
+    assert(arrB->get(2).intValue == 45);
+    assert(arrB->get(4).intValue == 45);
+
+    auto a = mainTable->find(U"a");
+    assert(a != nullptr);
+    record = engine.getObjectRecord(a);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Array);
+    Array *arrA = (Array*)record->data;
+    assert(arrA->length() == arrB->length());
 
     assert(arrA == arrB); // один и тот же объект
 
