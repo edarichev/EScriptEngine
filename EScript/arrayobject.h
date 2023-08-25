@@ -65,8 +65,8 @@ private:
     void call_slice(Processor *p);
     void call_join(Processor *p);
     void call_filter(Processor *p);
-    void call_indexOf(Processor *p);
-    void call_lastIndexOf(Processor *p);
+    void call_firstIndex(Processor *p);
+    void call_lastIndex(Processor *p);
     void call_includes(Processor *p);
 private:
     /**
@@ -75,8 +75,8 @@ private:
      * @return
      */
     static std::u32string enquote(const std::u32string &key);
-    int64_t indexOf(const PValue &v, int64_t start);
-    int64_t lastIndexOf(const PValue &v, int64_t start);
+    int64_t firstIndex(const PValue &v, int64_t start);
+    int64_t lastIndex(const PValue &v, int64_t start);
 };
 
 } // namespace escript

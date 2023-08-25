@@ -55,8 +55,8 @@ private:
     void test_arraySlice();
     void test_arrayJoin();
     void test_arrayFilter();
-    void test_arrayIndexOf();
-    void test_arrayLastIndexOf();
+    void test_arrayFirstIndex();
+    void test_arrayLastIndex();
     void test_arrayIncludes();
 };
 

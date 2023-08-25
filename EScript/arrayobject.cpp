@@ -31,8 +31,8 @@ void Array::buildFunctionsMap()
     _fn[U"get"] = &Array::call_get;
     _fn[U"join"] = &Array::call_join;
     _fn[U"includes"] = &Array::call_includes;
-    _fn[U"indexOf"] = &Array::call_indexOf;
-    _fn[U"lastIndexOf"] = &Array::call_lastIndexOf;
+    _fn[U"firstIndex"] = &Array::call_firstIndex;
+    _fn[U"lastIndex"] = &Array::call_lastIndex;
     _fn[U"push"] = &Array::call_push;
     _fn[U"pop"] = &Array::call_pop;
     _fn[U"reverse"] = &Array::call_reverse;
@@ -404,7 +404,7 @@ void Array::call_filter(Processor *p)
     }
 }
 
-void Array::call_indexOf(Processor *p)
+void Array::call_firstIndex(Processor *p)
 {
     auto args = loadArguments(p);
     if (args.empty()) {
@@ -414,10 +414,10 @@ void Array::call_indexOf(Processor *p)
     PValue v(args.top());
     args.pop();
     int64_t start = args.empty() ? 0 : args.top().getIntValue();
-    p->pushToStack(indexOf(v, start));
+    p->pushToStack(firstIndex(v, start));
 }
 
-void Array::call_lastIndexOf(Processor *p)
+void Array::call_lastIndex(Processor *p)
 {
     auto args = loadArguments(p);
     if (args.empty()) {
@@ -427,7 +427,7 @@ void Array::call_lastIndexOf(Processor *p)
     PValue v(args.top());
     args.pop();
     int64_t start = args.empty() ? 0 : args.top().getIntValue();
-    p->pushToStack(lastIndexOf(v, start));
+    p->pushToStack(lastIndex(v, start));
 }
 
 void Array::call_includes(Processor *p)
@@ -440,7 +440,7 @@ void Array::call_includes(Processor *p)
     PValue v(args.top());
     args.pop();
     int64_t start = args.empty() ? 0 : args.top().getIntValue();
-    p->pushBooleanToStack(lastIndexOf(v, start) >= 0);
+    p->pushBooleanToStack(lastIndex(v, start) >= 0);
 }
 
 std::u32string Array::enquote(const std::u32string &key)
@@ -466,7 +466,7 @@ std::u32string Array::enquote(const std::u32string &key)
     return key;
 }
 
-int64_t Array::indexOf(const PValue &v, int64_t start)
+int64_t Array::firstIndex(const PValue &v, int64_t start)
 {
     if (start < 0)
         start += _indexedItems.size();
@@ -481,7 +481,7 @@ int64_t Array::indexOf(const PValue &v, int64_t start)
     return index;
 }
 
-int64_t Array::lastIndexOf(const PValue &v, int64_t start)
+int64_t Array::lastIndex(const PValue &v, int64_t start)
 {
     int64_t n = _indexedItems.size();
     if (start < 0)
