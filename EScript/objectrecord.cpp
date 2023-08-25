@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "objectrecord.h"
 #include "function.h"
-#include "array.h"
+#include "arrayobject.h"
 
 namespace escript {
 

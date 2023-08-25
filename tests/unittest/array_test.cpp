@@ -26,6 +26,24 @@ void Array_Test::run()
     test_array3DDeclGetItem();
     test_array3DSetItem();
     test_arrayFuncRetArrayGetItem();
+    test_arrayLength();
+    test_arrayLengthWithProps();
+    test_arrayPush();
+    test_arrayPushMultiple();
+    test_arrayPop();
+    test_arrayShift();
+    test_arraySpliceRemoveAll();
+    test_arraySpliceRemoveAllFrom();
+    test_arraySpliceRemoveAllFromEnd();
+    test_arraySpliceRemoveNFrom0();
+    test_arraySpliceRemoveNFromPos();
+    test_arraySpliceRemoveNFromEnd();
+    test_arraySpliceInsertAt0();
+    test_arraySpliceInsertAtN();
+    test_arraySpliceInsertAtEnd();
+    test_arraySpliceRemoveNInsertFrom0();
+    test_arraySpliceRemoveNInsertFromPos();
+    test_arraySpliceRemoveNInsertFromEnd();
     cleanupTestCase();
 }
 
@@ -496,4 +514,573 @@ x = fn()[1];
     auto record = engine.getObjectRecord(x);
     assert(record->type == SymbolType::String);
     assert(U"e" == ((StringObject*)record->data)->uString());
+}
+
+void Array_Test::test_arrayLength()
+{
+    const u32string code1 = UR"(a = [3,6,9,]; n = a.length;)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto n = mainTable->find(U"n");
+    assert(n != nullptr);
+    auto record = engine.getObjectRecord(n);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(3, record->data));
+}
+
+void Array_Test::test_arrayLengthWithProps()
+{
+    const u32string code1 = UR"(
+a = [3,6,9,]; n = a.length;
+a[-1] = -1;
+a['he'] = 'llo';
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto n = mainTable->find(U"n");
+    assert(n != nullptr);
+    auto record = engine.getObjectRecord(n);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(3, record->data));
+}
+
+void Array_Test::test_arrayPush()
+{
+    const u32string code1 = UR"(
+a = [3,6,9,];
+a.push(10);
+n = a.length;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto a = mainTable->find(U"a");
+    assert(a != nullptr);
+    auto record = engine.getObjectRecord(a);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Array);
+    Array *arr = (Array*)record->data;
+    assert(arr->get(0).intValue == 3);
+    assert(arr->get(1).intValue == 6);
+    assert(arr->get(2).intValue == 9);
+    assert(arr->get(3).intValue == 10);
+
+    auto n = mainTable->find(U"n");
+    assert(n != nullptr);
+    record = engine.getObjectRecord(n);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(4, record->data));
+}
+
+void Array_Test::test_arrayPushMultiple()
+{
+    const u32string code1 = UR"(
+a = [3,6,9,];
+a.push(10, 11, 12);
+n = a.length;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto a = mainTable->find(U"a");
+    assert(a != nullptr);
+    auto record = engine.getObjectRecord(a);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Array);
+    Array *arr = (Array*)record->data;
+    assert(arr->get(0).intValue == 3);
+    assert(arr->get(1).intValue == 6);
+    assert(arr->get(2).intValue == 9);
+    assert(arr->get(3).intValue == 10);
+    assert(arr->get(4).intValue == 11);
+    assert(arr->get(5).intValue == 12);
+
+    auto n = mainTable->find(U"n");
+    assert(n != nullptr);
+    record = engine.getObjectRecord(n);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(6, record->data));
+}
+
+void Array_Test::test_arrayPop()
+{
+    const u32string code1 = UR"(
+a = [3,6,9,];
+b = a.pop();
+n = a.length;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto n = mainTable->find(U"n");
+    assert(n != nullptr);
+    auto record = engine.getObjectRecord(n);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(2, record->data));
+
+    auto b = mainTable->find(U"b");
+    assert(b != nullptr);
+    record = engine.getObjectRecord(b);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(9, record->data));
+}
+
+void Array_Test::test_arrayShift()
+{
+    const u32string code1 = UR"(
+a = [77,6,9,];
+b = a.shift();
+n = a.length;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto n = mainTable->find(U"n");
+    assert(n != nullptr);
+    auto record = engine.getObjectRecord(n);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(2, record->data));
+
+    auto b = mainTable->find(U"b");
+    assert(b != nullptr);
+    record = engine.getObjectRecord(b);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(77, record->data));
+}
+
+void Array_Test::test_arraySpliceRemoveAll()
+{
+    const u32string code1 = UR"(
+a = [77,6,9,67,34,89,23,-6,90,11];
+b = a.splice(0);
+n = a.length;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto n = mainTable->find(U"n");
+    assert(n != nullptr);
+    auto record = engine.getObjectRecord(n);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(0, record->data));
+
+    auto b = mainTable->find(U"b");
+    assert(b != nullptr);
+    record = engine.getObjectRecord(b);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Array);
+    Array *arr = (Array*)record->data;
+    assert(arr->get(0).intValue == 77);
+    assert(arr->get(1).intValue == 6);
+    assert(arr->get(2).intValue == 9);
+    assert(arr->get(3).intValue == 67);
+    assert(arr->get(4).intValue == 34);
+    assert(arr->get(9).intValue == 11);
+}
+
+void Array_Test::test_arraySpliceRemoveAllFrom()
+{
+    const u32string code1 = UR"(
+a = [77,6,9,67,34,89,23,-6,90,11];
+b = a.splice(3);
+n = a.length;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto n = mainTable->find(U"n");
+    assert(n != nullptr);
+    auto record = engine.getObjectRecord(n);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(3, record->data));
+
+    auto b = mainTable->find(U"b");
+    assert(b != nullptr);
+    record = engine.getObjectRecord(b);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Array);
+    Array *arr = (Array*)record->data;
+    assert(arr->get(0).intValue == 67);
+    assert(arr->get(1).intValue == 34);
+    assert(arr->get(2).intValue == 89);
+    assert(arr->get(3).intValue == 23);
+    assert(arr->get(4).intValue == -6);
+    assert(arr->get(6).intValue == 11);
+}
+
+void Array_Test::test_arraySpliceRemoveAllFromEnd()
+{
+    const u32string code1 = UR"(
+a = [77,6,9,67,34,89,23,-6,90,11];
+b = a.splice(a.length);
+n = a.length;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto n = mainTable->find(U"n");
+    assert(n != nullptr);
+    auto record = engine.getObjectRecord(n);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(10, record->data));
+
+    auto b = mainTable->find(U"b");
+    assert(b != nullptr);
+    record = engine.getObjectRecord(b);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Array);
+    Array *arr = (Array*)record->data;
+    assert(arr->length() == 0);
+}
+
+void Array_Test::test_arraySpliceRemoveNFrom0()
+{
+    const u32string code1 = UR"(
+a = [77,6,9,67,34,89,23,-6,90,11];
+b = a.splice(0, 3);
+n = a.length;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto n = mainTable->find(U"n");
+    assert(n != nullptr);
+    auto record = engine.getObjectRecord(n);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(10-3, record->data));
+
+    auto b = mainTable->find(U"b");
+    assert(b != nullptr);
+    record = engine.getObjectRecord(b);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Array);
+    Array *arr = (Array*)record->data;
+    assert(arr->length() == 3);
+    assert(arr->get(0).intValue == 77);
+    assert(arr->get(1).intValue == 6);
+    assert(arr->get(2).intValue == 9);
+}
+
+void Array_Test::test_arraySpliceRemoveNFromPos()
+{
+    const u32string code1 = UR"(
+a = [77,6,9,67,34,89,23,-6,90,11];
+b = a.splice(2, 4);
+n = a.length;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto n = mainTable->find(U"n");
+    assert(n != nullptr);
+    auto record = engine.getObjectRecord(n);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(10-4, record->data));
+
+    auto b = mainTable->find(U"b");
+    assert(b != nullptr);
+    record = engine.getObjectRecord(b);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Array);
+    Array *arr = (Array*)record->data;
+    assert(arr->length() == 4);
+    assert(arr->get(0).intValue == 9);
+    assert(arr->get(1).intValue == 67);
+    assert(arr->get(2).intValue == 34);
+    assert(arr->get(3).intValue == 89);
+}
+
+void Array_Test::test_arraySpliceRemoveNFromEnd()
+{
+    const u32string code1 = UR"(
+a = [77,6,9,67,34,89,23,-6,90,11];
+b = a.splice(a.length, 4);
+n = a.length;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto n = mainTable->find(U"n");
+    assert(n != nullptr);
+    auto record = engine.getObjectRecord(n);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(10, record->data));
+
+    auto b = mainTable->find(U"b");
+    assert(b != nullptr);
+    record = engine.getObjectRecord(b);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Array);
+    Array *arr = (Array*)record->data;
+    assert(arr->length() == 0);
+}
+
+void Array_Test::test_arraySpliceInsertAt0()
+{
+    const u32string code1 = UR"(
+a = [77,6,9,67,34,89,23,-6,90,11];
+b = a.splice(0, 0, 1, 2, 3);
+n = a.length;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto n = mainTable->find(U"n");
+    assert(n != nullptr);
+    auto record = engine.getObjectRecord(n);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(13, record->data));
+
+    auto b = mainTable->find(U"b");
+    assert(b != nullptr);
+    record = engine.getObjectRecord(b);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Array);
+    Array *arr = (Array*)record->data;
+    assert(arr->length() == 0);
+
+    auto a = mainTable->find(U"a");
+    assert(a != nullptr);
+    record = engine.getObjectRecord(a);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Array);
+    arr = (Array*)record->data;
+    assert(arr->length() == 13);
+    assert(arr->get(0).intValue == 1);
+    assert(arr->get(1).intValue == 2);
+    assert(arr->get(2).intValue == 3);
+}
+
+void Array_Test::test_arraySpliceInsertAtN()
+{
+    const u32string code1 = UR"(
+a = [77,6,9,67,34,89,23,-6,90,11];
+b = a.splice(3, 0, 1, 2, 3);
+n = a.length;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto n = mainTable->find(U"n");
+    assert(n != nullptr);
+    auto record = engine.getObjectRecord(n);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(13, record->data));
+
+    auto b = mainTable->find(U"b");
+    assert(b != nullptr);
+    record = engine.getObjectRecord(b);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Array);
+    Array *arr = (Array*)record->data;
+    assert(arr->length() == 0);
+
+    auto a = mainTable->find(U"a");
+    assert(a != nullptr);
+    record = engine.getObjectRecord(a);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Array);
+    arr = (Array*)record->data;
+    assert(arr->length() == 13);
+    assert(arr->get(0).intValue == 77);
+    assert(arr->get(2).intValue == 9);
+    assert(arr->get(3).intValue == 1);
+    assert(arr->get(4).intValue == 2);
+    assert(arr->get(5).intValue == 3);
+    assert(arr->get(6).intValue == 67);
+}
+
+void Array_Test::test_arraySpliceInsertAtEnd()
+{
+    const u32string code1 = UR"(
+a = [77,6,9,67,34,89,23,-6,90,11];
+b = a.splice(a.length, 0, 1, 2, 3);
+n = a.length;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto n = mainTable->find(U"n");
+    assert(n != nullptr);
+    auto record = engine.getObjectRecord(n);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(13, record->data));
+
+    auto b = mainTable->find(U"b");
+    assert(b != nullptr);
+    record = engine.getObjectRecord(b);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Array);
+    Array *arr = (Array*)record->data;
+    assert(arr->length() == 0);
+
+    auto a = mainTable->find(U"a");
+    assert(a != nullptr);
+    record = engine.getObjectRecord(a);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Array);
+    arr = (Array*)record->data;
+    assert(arr->length() == 13);
+    assert(arr->get(0).intValue == 77);
+    assert(arr->get(2).intValue == 9);
+    assert(arr->get(10).intValue == 1);
+    assert(arr->get(11).intValue == 2);
+    assert(arr->get(12).intValue == 3);
+}
+
+void Array_Test::test_arraySpliceRemoveNInsertFrom0()
+{
+    const u32string code1 = UR"(
+a = [77,6,9,67,34,89,23,-6,90,11];
+b = a.splice(0, 4, 1, 2, 3);
+n = a.length;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto n = mainTable->find(U"n");
+    assert(n != nullptr);
+    auto record = engine.getObjectRecord(n);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(10-4+3, record->data));
+
+    auto b = mainTable->find(U"b");
+    assert(b != nullptr);
+    record = engine.getObjectRecord(b);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Array);
+    Array *arr = (Array*)record->data;
+    assert(arr->length() == 4);
+    assert(arr->get(0).intValue == 77);
+    assert(arr->get(1).intValue == 6);
+    assert(arr->get(2).intValue == 9);
+    assert(arr->get(3).intValue == 67);
+
+    auto a = mainTable->find(U"a");
+    assert(a != nullptr);
+    record = engine.getObjectRecord(a);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Array);
+    arr = (Array*)record->data;
+    assert(arr->length() == 10-4+3);
+    assert(arr->get(0).intValue == 1);
+    assert(arr->get(1).intValue == 2);
+    assert(arr->get(2).intValue == 3);
+    assert(arr->get(3).intValue == 34);
+}
+
+void Array_Test::test_arraySpliceRemoveNInsertFromPos()
+{
+    const u32string code1 = UR"(
+a = [77,6,9,67,34,89,23,-6,90,11];
+b = a.splice(2, 4, 1, 2, 3);
+n = a.length;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto n = mainTable->find(U"n");
+    assert(n != nullptr);
+    auto record = engine.getObjectRecord(n);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(10-4+3, record->data));
+
+    auto b = mainTable->find(U"b");
+    assert(b != nullptr);
+    record = engine.getObjectRecord(b);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Array);
+    Array *arr = (Array*)record->data;
+    assert(arr->length() == 4);
+    assert(arr->get(0).intValue == 9);
+    assert(arr->get(1).intValue == 67);
+    assert(arr->get(2).intValue == 34);
+    assert(arr->get(3).intValue == 89);
+
+    auto a = mainTable->find(U"a");
+    assert(a != nullptr);
+    record = engine.getObjectRecord(a);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Array);
+    arr = (Array*)record->data;
+    assert(arr->length() == 10-4+3);
+    assert(arr->get(2).intValue == 1);
+    assert(arr->get(3).intValue == 2);
+    assert(arr->get(4).intValue == 3);
+    assert(arr->get(5).intValue == 23);
+}
+
+void Array_Test::test_arraySpliceRemoveNInsertFromEnd()
+{ // чтобы неполный диапазон - с конца-1, но не 4 штуки
+    const u32string code1 = UR"(
+a = [77,6,9,67,34,89,23,-6,90,11];
+b = a.splice(a.length-1, 4, 1, 2, 3);
+n = a.length;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto n = mainTable->find(U"n");
+    assert(n != nullptr);
+    auto record = engine.getObjectRecord(n);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(10-1+3, record->data));
+
+    auto b = mainTable->find(U"b");
+    assert(b != nullptr);
+    record = engine.getObjectRecord(b);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Array);
+    Array *arr = (Array*)record->data;
+    assert(arr->length() == 1);
+    assert(arr->get(0).intValue == 11);
+
+    auto a = mainTable->find(U"a");
+    assert(a != nullptr);
+    record = engine.getObjectRecord(a);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Array);
+    arr = (Array*)record->data;
+    assert(arr->length() == 10-1+3);
+    assert(arr->get(9).intValue == 1);
+    assert(arr->get(10).intValue == 2);
+    assert(arr->get(11).intValue == 3);
 }

@@ -42,6 +42,13 @@ struct StackValue
     double getRealValue() const noexcept(false);
     Array *getArrayValue() const noexcept(false);
     double getBoolValue() const noexcept(false);
+    /**
+     * @brief Вернёт true, если тип равен указанному или если тип - переменная,
+     * и тип этой переменной равен указанному.
+     * @param t
+     * @return
+     */
+    bool ofType(SymbolType t) const;
 };
 
 

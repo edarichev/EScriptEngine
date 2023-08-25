@@ -8,7 +8,7 @@
 #include "EScript_global.h"
 #include "types.h"
 #include "storage.h"
-#include "array.h"
+#include "arrayobject.h"
 #include "stackvalue.h"
 
 namespace escript {
@@ -44,7 +44,7 @@ class StringObject;
 /**
  * @brief Структура для упаковки тип+значение (как variant)
  *        и выполнения арифметических и прочих операций.
- * @details (для процессора, P - processor).
+ * @details
  * Предназначена для облегчения вычислений.
  * Структура сама извлекает либо хранимое
  * в ObjectRecord значение, либо вытаскивает его из переменной, если
@@ -68,6 +68,7 @@ struct PValue
     explicit PValue(int rhs);
     explicit PValue(bool rhs);
     explicit PValue(double rhs);
+    explicit PValue(const StackValue &rhs);
     PValue &operator=(const PValue &rhs) = default;
     PValue &operator=(int64_t rhs);
     PValue &operator=(uint64_t rhs);

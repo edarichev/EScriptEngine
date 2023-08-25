@@ -11,7 +11,7 @@ CONFIG += PRECOMPILE_HEADER
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    array.cpp \
+    arrayobject.cpp \
     assembler.cpp \
     automationobject.cpp \
     block.cpp \
@@ -44,7 +44,7 @@ SOURCES += \
 
 HEADERS += \
     EScript_global.h \
-    array.h \
+    arrayobject.h \
     assembler.h \
     automationobject.h \
     block.h \

@@ -30,6 +30,24 @@ private:
     void test_array3DDeclGetItem();
     void test_array3DSetItem();
     void test_arrayFuncRetArrayGetItem();
+    void test_arrayLength();
+    void test_arrayLengthWithProps();
+    void test_arrayPush();
+    void test_arrayPushMultiple();
+    void test_arrayPop();
+    void test_arrayShift();
+    void test_arraySpliceRemoveAll();
+    void test_arraySpliceRemoveAllFrom();
+    void test_arraySpliceRemoveAllFromEnd();
+    void test_arraySpliceRemoveNFrom0();
+    void test_arraySpliceRemoveNFromPos();
+    void test_arraySpliceRemoveNFromEnd();
+    void test_arraySpliceInsertAt0();
+    void test_arraySpliceInsertAtN();
+    void test_arraySpliceInsertAtEnd();
+    void test_arraySpliceRemoveNInsertFrom0();
+    void test_arraySpliceRemoveNInsertFromPos();
+    void test_arraySpliceRemoveNInsertFromEnd();
 };
 
 #endif // ARRAY_TEST_H

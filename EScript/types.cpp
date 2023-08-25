@@ -2,7 +2,7 @@
 #include "types.h"
 #include "objectrecord.h"
 #include "stringobject.h"
-#include "array.h"
+#include "arrayobject.h"
 
 using namespace std;
 

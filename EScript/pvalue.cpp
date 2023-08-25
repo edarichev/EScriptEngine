@@ -146,6 +146,11 @@ PValue::PValue(double rhs)
     operator=(rhs);
 }
 
+PValue::PValue(const StackValue &rhs)
+{
+    *this = PValue::getValue(rhs);
+}
+
 PValue &PValue::operator=(int64_t rhs)
 {
     type = SymbolType::Integer;

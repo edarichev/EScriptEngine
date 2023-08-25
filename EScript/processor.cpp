@@ -364,12 +364,12 @@ void Processor::callm()
             Array *arr = (Array*)result.value;
             //arr->addRef();
             for (auto &c : *arr) {
-                switch (c.second.type) {
+                switch (c.type) {
                 case SymbolType::String:
-                    c.second.strValue = _strings->add(c.second.strValue);
+                    c.strValue = _strings->add(c.strValue);
                     break;
                 case SymbolType::Array:
-                    c.second.arrValue->addRef();
+                    c.arrValue->addRef();
                     break;
                 default:
                     break;

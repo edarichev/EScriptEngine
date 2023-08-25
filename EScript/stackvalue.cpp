@@ -2,10 +2,10 @@
 #include "stackvalue.h"
 #include "objectrecord.h"
 #include "stringobject.h"
-#include "array.h"
+#include "arrayobject.h"
 #include <cmath>
 #include <utility>
-#include "array.h"
+#include "arrayobject.h"
 
 namespace escript {
 
@@ -115,6 +115,17 @@ Array *StackValue::getArrayValue() const
 double StackValue::getBoolValue() const noexcept(false)
 {
     return boolValue(type, value);
+}
+
+bool StackValue::ofType(SymbolType t) const
+{
+    if (type == t)
+        return true;
+    if (type == SymbolType::Variable) {
+        ObjectRecord *rec = (ObjectRecord*)value;
+        return rec->type == t;
+    }
+    return false;
 }
 
 

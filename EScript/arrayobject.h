@@ -1,5 +1,5 @@
-#ifndef ARRAY_H
-#define ARRAY_H
+#ifndef ARRAYOBJECT_H
+#define ARRAYOBJECT_H
 
 #include "EScript_global.h"
 #include <map>
@@ -20,8 +20,9 @@ struct PValue;
  */
 class ESCRIPT_EXPORT Array final : public AutomationObject
 {
-    std::map<std::string, PValue> _items;
-    std::vector<std::string> _keys;
+    std::vector<PValue> _indexedItems;
+    std::map<std::u32string, PValue> _namedItems;
+
     using BaseClass = AutomationObject;
     using pFn = void (Array::*)(Processor *p);
     static std::map<std::u32string, pFn> _fn;
@@ -34,8 +35,8 @@ public:
      * @brief Освобождает связанные с этим экземпляром ресурсы
      */
     virtual ~Array();
-    std::map<std::string, PValue>::iterator begin() { return _items.begin(); }
-    std::map<std::string, PValue>::iterator end() { return _items.end(); }
+    std::vector<PValue>::iterator begin() { return _indexedItems.begin(); }
+    std::vector<PValue>::iterator end() { return _indexedItems.end(); }
     PValue get(int64_t index);
     PValue get(const std::u32string &index);
     void set(int64_t index, PValue value);
@@ -48,14 +49,24 @@ public:
 public:
     virtual bool call(const std::u32string &method, Processor *p) override;
 private:
-    void setKeyValue(const std::string &key, const PValue &value);
+    void setKeyValue(const std::u32string &key, const PValue &value);
     void buildFunctionsMap();
     void call_get_length(Processor *p);
     void call_push(Processor *p);
     void call_get(Processor *p);
     void call_set(Processor *p);
+    void call_pop(Processor *p);
+    void call_shift(Processor *p);
+    void call_splice(Processor *p);
+private:
+    /**
+     * @brief При необходимости заключает в кавычки ключ (имя свойства)
+     * @param key
+     * @return
+     */
+    static std::u32string enquote(const std::u32string &key);
 };
 
 } // namespace escript
 
-#endif // ARRAY_H
+#endif // ARRAYOBJECT_H
