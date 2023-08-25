@@ -58,6 +58,7 @@ private:
     void call_pop(Processor *p);
     void call_shift(Processor *p);
     void call_splice(Processor *p);
+    void call_reverse(Processor *p);
 private:
     /**
      * @brief При необходимости заключает в кавычки ключ (имя свойства)

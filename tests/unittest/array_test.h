@@ -48,6 +48,7 @@ private:
     void test_arraySpliceRemoveNInsertFrom0();
     void test_arraySpliceRemoveNInsertFromPos();
     void test_arraySpliceRemoveNInsertFromEnd();
+    void test_arrayReverse();
 };
 
 #endif // ARRAY_TEST_H

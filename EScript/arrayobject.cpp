@@ -30,6 +30,7 @@ void Array::buildFunctionsMap()
     _fn[U"pop"] = &Array::call_pop;
     _fn[U"shift"] = &Array::call_shift;
     _fn[U"splice"] = &Array::call_splice;
+    _fn[U"reverse"] = &Array::call_reverse;
 }
 
 PValue Array::get(int64_t index)
@@ -242,6 +243,13 @@ void Array::call_splice(Processor *p)
         i++;
     }
     p->pushArrayToStack(arr);
+}
+
+void Array::call_reverse(Processor *p)
+{
+    auto args = loadArguments(p);
+    std::reverse(_indexedItems.begin(), _indexedItems.end());
+    p->pushArrayToStack(this);
 }
 
 std::u32string Array::enquote(const std::u32string &key)
