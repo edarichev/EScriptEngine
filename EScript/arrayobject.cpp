@@ -22,18 +22,19 @@ void Array::buildFunctionsMap()
 {
     if (!_fn.empty())
         return;
+    _fn[U"add"] = &Array::call_push;
+    _fn[U"fill"] = &Array::call_fill;
     _fn[U"get_length"] = &Array::call_get_length;
     _fn[U"get"] = &Array::call_get;
-    _fn[U"set"] = &Array::call_set;
+    _fn[U"join"] = &Array::call_join;
     _fn[U"push"] = &Array::call_push;
-    _fn[U"add"] = &Array::call_push;
     _fn[U"pop"] = &Array::call_pop;
-    _fn[U"shift"] = &Array::call_shift;
-    _fn[U"splice"] = &Array::call_splice;
-    _fn[U"slice"] = &Array::call_slice;
     _fn[U"reverse"] = &Array::call_reverse;
-    _fn[U"fill"] = &Array::call_fill;
+    _fn[U"set"] = &Array::call_set;
+    _fn[U"shift"] = &Array::call_shift;
+    _fn[U"slice"] = &Array::call_slice;
     _fn[U"sort"] = &Array::call_sort;
+    _fn[U"splice"] = &Array::call_splice;
     _fn[U"unshift"] = &Array::call_unshift;
 }
 
@@ -342,6 +343,23 @@ void Array::call_slice(Processor *p)
                                   _indexedItems.begin() + end);
     }
     p->pushArrayToStack(arr);
+}
+
+void Array::call_join(Processor *p)
+{
+    auto args = loadArguments(p);
+    std::u32string separator = U"";
+    if (!args.empty()) {
+        separator = args.top().getStringValue();
+    }
+    std::u32string s;
+    auto pend = std::prev(_indexedItems.end());
+    for (auto it = _indexedItems.begin(); it != _indexedItems.end(); ++it) {
+        s.append((*it).uString());
+        if (it != pend)
+            s.append(separator);
+    }
+    p->pushToStack(s);
 }
 
 std::u32string Array::enquote(const std::u32string &key)

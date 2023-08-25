@@ -49,6 +49,7 @@ void Array_Test::run()
     test_arraySort();
     test_arrayUnshift();
     test_arraySlice();
+    test_arrayJoin();
     cleanupTestCase();
 }
 
@@ -1301,4 +1302,22 @@ n = a.length;
     assert(record->type == SymbolType::Array);
     Array *arrA = (Array*)record->data;
     assert(arrA->length() == 5);
+}
+
+void Array_Test::test_arrayJoin()
+{
+    const u32string code1 = UR"(
+a = ["hello", "world", 1, 2, 3];
+x = a.join("*_*"); // -> 'hello*_*world*_*1*_*2*_*3'
+)";
+    EScript engine;
+    engine.setShowDisassembleListing(false);
+    engine.setShowTCode(false);
+    engine.eval(code1);
+
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::String);
+    assert(U"hello*_*world*_*1*_*2*_*3" == ((StringObject*)record->data)->uString());
 }
