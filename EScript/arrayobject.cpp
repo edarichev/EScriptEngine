@@ -292,6 +292,8 @@ void Array::call_fill(Processor *p)
             end += _indexedItems.size();
         if (end < start)
             return;
+        if (end > (int64_t)_indexedItems.size())
+            end = _indexedItems.size();
     }
     if (start < end)
         std::fill(_indexedItems.begin() + start, _indexedItems.begin() + end, v);

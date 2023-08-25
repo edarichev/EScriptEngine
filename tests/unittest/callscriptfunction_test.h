@@ -10,6 +10,8 @@ private:
     void initTestCase();
     void cleanupTestCase();
     void test_callFunction();
+    void test_callFunctionArgString();
+    void test_callFunctionArgArray();
 };
 
 #endif // CALLSCRIPTFUNCTION_TEST_H
