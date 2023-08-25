@@ -2,6 +2,8 @@
 #include "arrayobject.h"
 #include "pvalue.h"
 #include "processor.h"
+#include "function.h"
+#include "machine.h"
 
 namespace escript {
 
@@ -24,6 +26,7 @@ void Array::buildFunctionsMap()
         return;
     _fn[U"add"] = &Array::call_push;
     _fn[U"fill"] = &Array::call_fill;
+    _fn[U"filter"] = &Array::call_filter;
     _fn[U"get_length"] = &Array::call_get_length;
     _fn[U"get"] = &Array::call_get;
     _fn[U"join"] = &Array::call_join;
@@ -360,6 +363,40 @@ void Array::call_join(Processor *p)
             s.append(separator);
     }
     p->pushToStack(s);
+}
+
+void Array::call_filter(Processor *p)
+{
+    // аргумент - функция, возвращающая true/false
+    auto args = loadArguments(p);
+    Array *arr = new Array();
+    arr->addRef();
+    p->pushArrayToStack(arr); // сразу добавим результат
+    if (args.empty()) {
+        arr->_indexedItems.insert(arr->_indexedItems.begin(),
+                                  _indexedItems.begin(), _indexedItems.end());
+    } else {
+        auto argFunction = args.top();
+        if (!argFunction.ofType(SymbolType::Function))
+            return;
+        Function *fn = argFunction.getFunction();
+        assert(fn != nullptr);
+        size_t currentPC = p->PC(); // восстановим PC после перебора
+        for (auto &pval : _indexedItems) {
+            p->setPC((size_t)-1);
+            p->pushPC();          // инструкция RET извлечёт PC при выходе из функции
+            p->setPC(fn->callAddress()); // в PC ставим адрес функции
+            StackValue x(pval.type, pval.value64()); // готовим аргумент
+            p->pushToStack(x);    // помещаем аргументы в прямом порядке
+            p->pushToStack(1);    // последним - число аргументов, здесь 1 аргумент
+            p->machine()->run();  // запускаем с текущего PC
+            StackValue v = p->popFromStack();
+            bool b = v.getBoolValue();
+            if (b)
+                arr->_indexedItems.push_back(pval);
+        }
+        p->setPC(currentPC);
+    }
 }
 
 std::u32string Array::enquote(const std::u32string &key)

@@ -10,7 +10,7 @@
 namespace escript {
 
 class Array;
-
+class Function;
 /**
  * @brief Значение, хранимое в стеке машины во время выполнения
  */
@@ -41,7 +41,8 @@ struct StackValue
     int64_t getIntValue() const noexcept(false);
     double getRealValue() const noexcept(false);
     Array *getArrayValue() const noexcept(false);
-    double getBoolValue() const noexcept(false);
+    bool getBoolValue() const noexcept(false);
+    Function *getFunction() const;
     /**
      * @brief Вернёт true, если тип равен указанному или если тип - переменная,
      * и тип этой переменной равен указанному.

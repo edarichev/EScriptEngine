@@ -50,6 +50,7 @@ void Array_Test::run()
     test_arrayUnshift();
     test_arraySlice();
     test_arrayJoin();
+    test_arrayFilter();
     cleanupTestCase();
 }
 
@@ -1320,4 +1321,37 @@ x = a.join("*_*"); // -> 'hello*_*world*_*1*_*2*_*3'
     auto record = engine.getObjectRecord(x);
     assert(record->type == SymbolType::String);
     assert(U"hello*_*world*_*1*_*2*_*3" == ((StringObject*)record->data)->uString());
+}
+
+void Array_Test::test_arrayFilter()
+{
+    const u32string code1 = UR"(
+function fnGreater(x) { return x > 3; }
+
+a = [1,2,3,4,5,6,7];
+b = a.filter(fnGreater); // --> [4,5,6,7]
+n = b.length;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto n = mainTable->find(U"n");
+    assert(n != nullptr);
+    auto record = engine.getObjectRecord(n);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(4, record->data));
+
+    auto b = mainTable->find(U"b");
+    assert(b != nullptr);
+    record = engine.getObjectRecord(b);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Array);
+    Array *arrB = (Array*)record->data;
+    assert(arrB->length() == 4);
+    assert(arrB->get(0).intValue == 4);
+    assert(arrB->get(1).intValue == 5);
+    assert(arrB->get(2).intValue == 6);
+    assert(arrB->get(3).intValue == 7);
 }

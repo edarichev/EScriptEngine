@@ -112,9 +112,21 @@ Array *StackValue::getArrayValue() const
     return arrayValue(type, value);
 }
 
-double StackValue::getBoolValue() const noexcept(false)
+bool StackValue::getBoolValue() const noexcept(false)
 {
     return boolValue(type, value);
+}
+
+Function *StackValue::getFunction() const
+{
+    if (type == SymbolType::Function)
+        return (Function*)value;
+    if (type == SymbolType::Variable) {
+        ObjectRecord *rec = (ObjectRecord*)value;
+        if (rec->type == SymbolType::Function)
+            return (Function*)rec->data;
+    }
+    return nullptr;
 }
 
 bool StackValue::ofType(SymbolType t) const

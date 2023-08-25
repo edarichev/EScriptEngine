@@ -14,7 +14,8 @@ namespace escript {
 // для конвертации операций
 std::map<OpCode, ArithmeticOperation> Processor::optypes;
 
-Processor::Processor()
+Processor::Processor(Machine *m)
+    : _machine(m)
 {
     if (optypes.empty()) {
         optypes = {
@@ -38,6 +39,11 @@ Processor::Processor()
             {OpCode::MODST, ArithmeticOperation::Mod },
         };
     }
+}
+
+Machine *Processor::machine() const
+{
+    return _machine;
 }
 
 std::stack<StackValue> Processor::loadArguments()

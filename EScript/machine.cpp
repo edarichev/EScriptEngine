@@ -32,6 +32,7 @@ void Machine::replaceValuePtr(std::shared_ptr<Symbol> &symbol, StringObject *s)
 }
 
 Machine::Machine()
+    : _cpu(this)
 {
     _cpu.setStrings(&_strings);
 }

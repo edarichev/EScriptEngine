@@ -64,6 +64,7 @@ private:
     void call_unshift(Processor *p);
     void call_slice(Processor *p);
     void call_join(Processor *p);
+    void call_filter(Processor *p);
 private:
     /**
      * @brief При необходимости заключает в кавычки ключ (имя свойства)

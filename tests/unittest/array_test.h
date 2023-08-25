@@ -54,6 +54,7 @@ private:
     void test_arrayUnshift();
     void test_arraySlice();
     void test_arrayJoin();
+    void test_arrayFilter();
 };
 
 #endif // ARRAY_TEST_H

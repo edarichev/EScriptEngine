@@ -19,6 +19,7 @@
 namespace escript {
 
 class Number;
+class Machine;
 
 /**
  * @brief Процессор (выполняет команды)
@@ -41,8 +42,10 @@ class ESCRIPT_EXPORT Processor
     // для сохранения счётчика команд: CALL-вставить PC, RET - извлечь отсюда PC
     std::stack<uint64_t> _pcStack;
     std::stack<uint64_t> _activationRecords;
+    Machine *_machine = nullptr; // обратная связь
 public:
-    Processor();
+    Processor(Machine *m);
+    Machine *machine() const;
     /**
      * @brief "Присоединить" к памяти
      * @param memory указатель на память машины
