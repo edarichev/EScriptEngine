@@ -55,6 +55,9 @@ private:
     void test_arraySlice();
     void test_arrayJoin();
     void test_arrayFilter();
+    void test_arrayIndexOf();
+    void test_arrayLastIndexOf();
+    void test_arrayIncludes();
 };
 
 #endif // ARRAY_TEST_H

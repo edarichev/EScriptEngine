@@ -65,6 +65,9 @@ private:
     void call_slice(Processor *p);
     void call_join(Processor *p);
     void call_filter(Processor *p);
+    void call_indexOf(Processor *p);
+    void call_lastIndexOf(Processor *p);
+    void call_includes(Processor *p);
 private:
     /**
      * @brief При необходимости заключает в кавычки ключ (имя свойства)

@@ -51,6 +51,9 @@ void Array_Test::run()
     test_arraySlice();
     test_arrayJoin();
     test_arrayFilter();
+    test_arrayIndexOf();
+    test_arrayLastIndexOf();
+    test_arrayIncludes();
     cleanupTestCase();
 }
 
@@ -1354,4 +1357,40 @@ n = b.length;
     assert(arrB->get(1).intValue == 5);
     assert(arrB->get(2).intValue == 6);
     assert(arrB->get(3).intValue == 7);
+}
+
+void Array_Test::test_arrayIndexOf()
+{
+    const u32string code1 = UR"(
+a = [1,2,3,4,5,6,7];
+n = a.indexOf(4);
+x = a.indexOf(11);
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto n = mainTable->find(U"n");
+    assert(n != nullptr);
+    auto record = engine.getObjectRecord(n);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(3, record->data));
+
+    auto x = mainTable->find(U"x");
+    assert(x != nullptr);
+    record = engine.getObjectRecord(x);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(-1, record->data));
+}
+
+void Array_Test::test_arrayLastIndexOf()
+{
+
+}
+
+void Array_Test::test_arrayIncludes()
+{
+
 }

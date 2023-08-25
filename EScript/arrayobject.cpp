@@ -30,6 +30,9 @@ void Array::buildFunctionsMap()
     _fn[U"get_length"] = &Array::call_get_length;
     _fn[U"get"] = &Array::call_get;
     _fn[U"join"] = &Array::call_join;
+    _fn[U"includes"] = &Array::call_includes;
+    _fn[U"indexOf"] = &Array::call_indexOf;
+    _fn[U"lastIndexOf"] = &Array::call_lastIndexOf;
     _fn[U"push"] = &Array::call_push;
     _fn[U"pop"] = &Array::call_pop;
     _fn[U"reverse"] = &Array::call_reverse;
@@ -399,6 +402,43 @@ void Array::call_filter(Processor *p)
         }
         p->setPC(currentPC);
     }
+}
+
+void Array::call_indexOf(Processor *p)
+{
+    auto args = loadArguments(p);
+    if (args.empty()) {
+        p->pushToStack(-1);
+        return;
+    }
+    PValue v(args.top());
+    args.pop();
+    int64_t start = 0;
+    if (!args.empty()) {
+        start = args.top().getIntValue();
+    }
+    if (start < 0)
+        start += _indexedItems.size();
+    if (start < 0)
+        start = 0;
+    if (start > (int64_t)_indexedItems.size()) {
+        p->pushToStack(-1);
+        return;
+    }
+    auto itStart = _indexedItems.begin() + start;
+    auto it = std::find(itStart, _indexedItems.end(), v);
+    int64_t index = it == _indexedItems.end() ? - 1 : std::distance(itStart, it);
+    p->pushToStack(index);
+}
+
+void Array::call_lastIndexOf(Processor *p)
+{
+
+}
+
+void Array::call_includes(Processor *p)
+{
+
 }
 
 std::u32string Array::enquote(const std::u32string &key)
