@@ -1,5 +1,129 @@
 #include "stdafx.h"
 #include "automation_test.h"
+#include <iomanip>
+
+class MyColor : public AutomationObject
+{
+    using BaseClass = AutomationObject;
+    using pFn = void (MyColor::*)(Processor *p);
+    static std::map<std::u32string, pFn> _fn;
+    int _rgb {};
+public:
+    MyColor()
+    {
+        buildFunctionsMap();
+    }
+    MyColor(const std::u32string &c)
+    {
+        if (c.find(U"#") == 0) {
+            size_t i = 0;
+            _rgb = std::stoi(to_utf8(c.substr(1)), &i, 16);
+        }
+    }
+    MyColor &operator=(const std::u32string &c)
+    {
+        MyColor ct(c);
+        swap(ct, *this);
+        return *this;
+    }
+    static void swap(MyColor &l, MyColor &r) noexcept
+    {
+        std::swap(l._rgb, r._rgb);
+    }
+    virtual bool call(const u32string &method, Processor *p) override
+    {
+        if (method != U"toString" && BaseClass::call(method, p))
+            return true;
+        auto ptrToMethod = _fn.find(method);
+        if (ptrToMethod == _fn.end())
+            throw std::domain_error("Call of unknown method: MyColor." + to_utf8(method));
+        (this->*ptrToMethod->second)(p);
+        return true;
+    }
+    void buildFunctionsMap()
+    {
+        if (!_fn.empty())
+            return;
+        _fn[U"toString"] = &MyColor::call_toString;
+    }
+
+    void call_toString(Processor *p)
+    {
+        auto args = loadArguments(p);
+        assert(args.empty());
+        stringstream ss;
+        ss << "#" << setfill('0') << setw(6) << hex << uppercase << _rgb;
+        p->pushToStack(to_u32string(ss.str()));
+    }
+};
+
+std::map<std::u32string, MyColor::pFn> MyColor::_fn;
+
+class MyStyle : public AutomationObject
+{
+    using BaseClass = AutomationObject;
+    using pFn = void (MyStyle::*)(Processor *p);
+    static std::map<std::u32string, pFn> _fn;
+    MyColor _color;
+public:
+    MyStyle()
+    {
+        buildFunctionsMap();
+    }
+
+    MyStyle(const MyStyle &c)
+    {
+        _color = c._color;
+    }
+
+    MyStyle &operator=(const MyStyle &c)
+    {
+        MyStyle tmp(c);
+        swap(tmp, *this);
+        return *this;
+    }
+
+    void swap(MyStyle &l, MyStyle &r) noexcept
+    {
+        MyColor::swap(l._color, r._color);
+    }
+
+    virtual bool call(const u32string &method, Processor *p) override
+    {
+        if (BaseClass::call(method, p))
+            return true;
+        auto ptrToMethod = _fn.find(method);
+        if (ptrToMethod == _fn.end())
+            throw std::domain_error("Call of unknown method: MyStyle." + to_utf8(method));
+        (this->*ptrToMethod->second)(p);
+        return true;
+    }
+
+    void buildFunctionsMap()
+    {
+        if (!_fn.empty())
+            return;
+        _fn[U"set_color"] = &MyStyle::call_set_color;
+        _fn[U"get_color"] = &MyStyle::call_get_color;
+    }
+
+    void call_get_color(Processor *p)
+    {
+        auto args = loadArguments(p);
+        assert(args.empty());
+        p->pushToStack(SymbolType::Object, (uint64_t)&_color);
+    }
+
+    void call_set_color(Processor *p)
+    {
+        auto args = loadArguments(p);
+        assert(!args.empty());
+        _color = args.top().getStringValue();
+        p->pushToStack(0);
+    }
+};
+
+std::map<std::u32string, MyStyle::pFn> MyStyle::_fn;
 
 class MyCell : public AutomationObject
 {
@@ -7,6 +131,7 @@ class MyCell : public AutomationObject
     using pFn = void (MyCell::*)(Processor *p);
     std::u32string _value;
     static std::map<std::u32string, pFn> _fn;
+    MyStyle _style;
 public:
     const std::u32string &value() const { return _value; }
     void setValue(const u32string &newValue) { _value = newValue; }
@@ -48,12 +173,20 @@ private:
         p->pushToStack(0); // OK
     }
 
+    void call_get_style(Processor *p)
+    {
+        auto args = loadArguments(p);
+        assert(args.empty());
+        p->pushToStack(SymbolType::Object, (uint64_t)&_style);
+    }
+
     void buildFunctionsMap()
     {
         if (!_fn.empty())
             return;
         _fn[U"set_text"] = &MyCell::call_set_text;
         _fn[U"get_text"] = &MyCell::call_get_text;
+        _fn[U"get_style"] = &MyCell::call_get_style;
     }
 };
 
@@ -323,6 +456,8 @@ spreadsheet.cell(1, 2).text = "World";
 spreadsheet.cell(1, 2).text = spreadsheet.cell(1, 2).text + "!!!";
 spreadsheet.cell(1, 3).text = "Hello";
 p = spreadsheet.cell(1, 3).text[1] = "a";
+spreadsheet.cell(2, 2).style.color = "#00FFFF"; // yellow
+sColor = spreadsheet.cell(2, 2).style.color.toString(); // == "#00FFFF"
 )";
     EScript engine;
     MySpreadSheet spreadsheet;
@@ -346,6 +481,11 @@ p = spreadsheet.cell(1, 3).text[1] = "a";
     record = engine.getObjectRecord(p);
     assert(record->type == SymbolType::String);
     assert(Compare::equals_string(U"Hallo", record->data));
+
+    auto sColor = mainTable->find(U"sColor");
+    record = engine.getObjectRecord(sColor);
+    assert(record->type == SymbolType::String);
+    assert(Compare::equals_string(U"#00FFFF", record->data));
 }
 
 

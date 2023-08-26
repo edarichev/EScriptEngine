@@ -457,8 +457,10 @@ void Array::call_forEach(Processor *p)
     // 2. индекс
     // 3. этот массив
     // 4. pThis, если есть
-    p->pushToStack(0); // сразу занесём пустой результат
-    mappedWorkerFunction(args, p, [&](const StackValue &) { /*ничего не делаем в данном случае, результат не нужен*/ });
+    mappedWorkerFunction(args, p, [&](const StackValue &) {
+        return false; // ничего не делаем в данном случае, результат не нужен
+    });
+    p->pushToStack(0);
 }
 
 void Array::call_map(Processor *p)
@@ -474,7 +476,10 @@ void Array::call_map(Processor *p)
     // 4. pThis, если есть
     Array *arr = new Array();
     arr->addRef();
-    mappedWorkerFunction(args, p, [&](const StackValue &v) { arr->add(PValue(v)); });
+    mappedWorkerFunction(args, p, [&](const StackValue &v) {
+        arr->add(PValue(v));
+        return false; // продолжить выполнение цикла (не прерывать)
+    });
     p->pushArrayToStack(arr); // результат
 }
 
@@ -482,26 +487,34 @@ void Array::call_some(Processor *p)
 {
     auto args = loadArguments(p);
     bool bFound = false;
-    mappedWorkerFunction(args, p, [&](const StackValue &v) { bFound = bFound || v.getBoolValue(); });
+    mappedWorkerFunction(args, p, [&](const StackValue &v) {
+        if (v.getBoolValue()) {
+            bFound = true;
+            return true; // прервать цикл
+        }
+        return false;
+    });
     p->pushBooleanToStack(bFound);
 }
 
 void Array::call_every(Processor *p)
 {
     auto args = loadArguments(p);
-    int64_t numsOfFound = 0;
+    bool bError = false;
     int64_t n = _indexedItems.size();
     if (n) {
         mappedWorkerFunction(args, p, [&](const StackValue &v) {
-            if (v.getBoolValue()) {
-                numsOfFound++;
+            if (!v.getBoolValue()) {
+                bError = true;
+                return true; // прервать цикл
             }
+            return false;
         });
     }
-    p->pushBooleanToStack(numsOfFound == n && numsOfFound > 0);
+    p->pushBooleanToStack(!bError);
 }
 
-void Array::mappedWorkerFunction(std::stack<StackValue> &args, Processor *p, std::function<void (const StackValue &)> fn)
+void Array::mappedWorkerFunction(std::stack<StackValue> &args, Processor *p, std::function<bool (const StackValue &)> fn)
 {
     // первый аргумент - функция fnCallback, которая что-то делает
     // второй - опционально, pThis.
@@ -533,7 +546,8 @@ void Array::mappedWorkerFunction(std::stack<StackValue> &args, Processor *p, std
         p->pushToStack(containsThis ? 4 : 3); // последним - число аргументов
         p->machine()->run();  // запускаем с текущего PC
         auto v = p->popFromStack();
-        fn(v);
+        if (fn(v))
+            break;
         i++;
     }
     p->setPC(currentPC);

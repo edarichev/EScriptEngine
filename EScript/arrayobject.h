@@ -84,7 +84,8 @@ private:
     int64_t lastIndex(const PValue &v, int64_t start);
     // это функция для методов map, forEach и т.п. - они отличаются только
     // способом обработки возвращаемого значения
-    void mappedWorkerFunction(std::stack<StackValue> &args, Processor *p, std::function<void(const StackValue &)>);
+    // возврат true одначает прервать цикл
+    void mappedWorkerFunction(std::stack<StackValue> &args, Processor *p, std::function<bool (const StackValue &)>);
 };
 
 } // namespace escript

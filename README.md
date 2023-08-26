@@ -185,7 +185,7 @@ a["key1"] = 123;
 var x = a["key1"];
 ```
 
-Даже вещественные числа могут быть ключом (всё, что не целое, станет строкой, 
+Даже вещественные числа могут быть ключом (всё, что не целое, или целое, но меньше нуля, станет строкой, 
 хотя для совместимости с кодом JavaScript/ECMAScript это можно не делать, но тем не менее):
 ```javascript
 a = [];
@@ -214,7 +214,7 @@ a = [[1,2,3], [4,5,6]];
 a[1][2] = 12;
 x = a[1][2];
 ```
-а так -- трёхмерный:
+а так - трёхмерный:
 ```javascript
 a =
 [
@@ -235,12 +235,13 @@ x = a[1][0][2];
 
 Поддерживаются следующие методы: 
 `every`,
-`fill`, `filter`, `forEach`, `get`, `length` (get-свойство), `includes`, `indexOf`, `join`, 
+`fill`, `filter`, `forEach`, `get` (используется для операции []),
+`length` (get-свойство), `includes`, `indexOf`, `join`, 
 `lastIndexOf`, `map`,
-`pop`, `push`, `reverse`, `set`, `shift`, `slice`, `some`,
+`pop`, `push`, `reverse`, `set` (используется для операции []), `shift`, `slice`, `some`,
 `sort`, `splice`, `unshift`
 
-Метод `filter` принимает в качестве параметра функцию:
+Методы `filter`, `some`, `every`, `map`, `forEach`  принимают в качестве параметра функцию:
 ```javascript
 function fnGreater(x) {
     return x > 3;
@@ -663,7 +664,12 @@ s = spreadsheet.cell(1, 1).text;       // а можно обратиться и 
 spreadsheet.cell(1, 2).text = "World"; // вызова метода, без объявления переменной
 ```
 Аналогично можно у `MyCell` сделать какой-нибудь класс стиля `MyStyle` и задавать туда цвет, шрифт и т.п.,
-главное, чтобы класс наследовался от `AutomationObject`.
+главное, чтобы класс наследовался от `AutomationObject`:
+
+```javascript
+spreadsheet.cell(2, 2).style.color = "#00FFFF"; // жёлтый
+sColor = spreadsheet.cell(2, 2).style.color.toString(); // == "#00FFFF"
+```
 
 Хотя вот так делать не стоит:
 ```javascript
