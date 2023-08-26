@@ -64,7 +64,7 @@ public:
      */
     void clear();
     ObjectRecord *getObjectRecord(std::shared_ptr<Symbol> symbol);
-    Machine &machine();
+    Machine *machine();
     void setShowTCode(bool newShowTCode);
     void setShowDisassembleListing(bool newShowDisassembleListing);
     void setOutStream(std::ostream &newOutStream);

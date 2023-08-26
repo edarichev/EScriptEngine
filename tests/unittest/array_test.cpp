@@ -54,6 +54,7 @@ void Array_Test::run()
     test_arrayFirstIndex();
     test_arrayLastIndex();
     test_arrayIncludes();
+    test_appendWithSplice();
     cleanupTestCase();
 }
 
@@ -1488,4 +1489,37 @@ t = a.includes(5, -5);//true
     assert(record != nullptr);
     assert(record->type == SymbolType::Boolean);
     assert(Compare::equals_bool(true, record->data));
+}
+
+void Array_Test::test_appendWithSplice()
+{
+    // для этого start=length, toRemove=0
+    const u32string code1 = UR"(
+a = [77,6,9,67];
+a.splice(4,0,34,89,23,-6,90,11);
+n = a.length;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto n = mainTable->find(U"n");
+    assert(n != nullptr);
+    auto record = engine.getObjectRecord(n);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(10, record->data));
+
+    auto a = mainTable->find(U"a");
+    assert(a != nullptr);
+    record = engine.getObjectRecord(a);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Array);
+    Array *arr = (Array*)record->data;
+    assert(arr->get(0).intValue == 77);
+    assert(arr->get(1).intValue == 6);
+    assert(arr->get(2).intValue == 9);
+    assert(arr->get(3).intValue == 67);
+    assert(arr->get(4).intValue == 34);
+    assert(arr->get(9).intValue == 11);
 }

@@ -11,9 +11,9 @@
 
 namespace escript {
 
-Processor &Machine::cpu()
+Processor *Machine::cpu()
 {
-    return _cpu;
+    return &_cpu;
 }
 
 uint64_t Machine::addressValueOf(std::shared_ptr<Symbol> &symbol) const

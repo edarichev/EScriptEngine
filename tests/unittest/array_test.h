@@ -58,6 +58,7 @@ private:
     void test_arrayFirstIndex();
     void test_arrayLastIndex();
     void test_arrayIncludes();
+    void test_appendWithSplice();
 };
 
 #endif // ARRAY_TEST_H

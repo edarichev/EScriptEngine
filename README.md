@@ -690,19 +690,19 @@ auto functionRecord = engine.getObjectRecord(fnMulVar);
 assert(functionRecord->type = SymbolType::Function);
 Function *fnMul = (Function*)functionRecord->data;
 
-Machine &m = engine.machine();
-m.cpu().setPC((size_t)-1); // ставим недействительный адрес возврата,
+auto cpu = engine.machine()->cpu();
+cpu->setPC((size_t)-1); // ставим недействительный адрес возврата,
                            // выполнение будет только до верхней границы памяти
                            // и поэтому сразу остановится
-m.cpu().pushPC();          // инструкция RET извлечёт PC при выходе из функции
-m.cpu().setPC(fnMul->callAddress());   // в PC ставим адрес функции
+cpu->pushPC();          // инструкция RET извлечёт PC при выходе из функции
+cpu->setPC(fnMul->callAddress());   // в PC ставим адрес функции
 StackValue x(SymbolType::Integer, 3);  // готовим аргументы
 StackValue y(SymbolType::Integer, 5);
-m.cpu().pushToStack(x);    // помещаем аргументы в прямом порядке
-m.cpu().pushToStack(y);
-m.cpu().pushToStack(2);    // последним - число аргументов, здесь 2 аргумента
+cpu->pushToStack(x);    // помещаем аргументы в прямом порядке
+cpu->pushToStack(y);
+cpu->pushToStack(2);    // последним - число аргументов, здесь 2 аргумента
 engine.run();              // запускаем с текущего PC
-StackValue v = m.cpu().popFromStack();  // в стеке всегда одно значение после вызова функции
+StackValue v = cpu->popFromStack();  // в стеке всегда одно значение после вызова функции
 assert(v.type == SymbolType::Variable); // результат помещается во временную переменную
 int64_t result = v.getIntValue();       // извлекаем результат
 assert(result == (3 + 1) * 5);
@@ -754,12 +754,12 @@ function fnSubStr(s, from, to) {
 std::u32string myString = U"Hello, world!"; // готовим данные
 int from = 7;
 int to = 12;
-m.cpu().pushToStack(myString);          // помещаем аргументы в прямом порядке
-m.cpu().pushToStack(from);
-m.cpu().pushToStack(to);
-m.cpu().pushToStack(3);                 // последним - число аргументов, здесь 3 аргумента
+cpu->pushToStack(myString);          // помещаем аргументы в прямом порядке
+cpu->pushToStack(from);
+cpu->pushToStack(to);
+cpu->pushToStack(3);                 // последним - число аргументов, здесь 3 аргумента
 engine.run();                           // запускаем с текущего PC
-StackValue v = m.cpu().popFromStack();  // в стеке всегда одно значение после вызова функции
+StackValue v = cpu->popFromStack();  // в стеке всегда одно значение после вызова функции
 assert(v.type == SymbolType::Variable); // результат помещается во временную переменную
 auto result = v.getStringValue();       // извлекаем результат
 assert(result == U"world");
@@ -792,12 +792,12 @@ arr->add(PValue(-1));
 arr->add(PValue(5));
 int from = 5;              // заменим все 5 на 7
 int to = 7;
-m.cpu().pushArrayToStack(arr); // помещаем аргументы в прямом порядке
-m.cpu().pushToStack(from);
-m.cpu().pushToStack(to);
-m.cpu().pushToStack(3);    // последним - число аргументов, здесь 3 аргумента
+cpu->pushArrayToStack(arr); // помещаем аргументы в прямом порядке
+cpu->pushToStack(from);
+cpu->pushToStack(to);
+cpu->pushToStack(3);    // последним - число аргументов, здесь 3 аргумента
 engine.run();              // запускаем с текущего PC
-StackValue v = m.cpu().popFromStack();  // в стеке всегда одно значение после вызова функции
+StackValue v = cpu->popFromStack();  // в стеке всегда одно значение после вызова функции
 assert(v.type == SymbolType::Variable); // результат помещается во временную переменную
 auto result = v.getArrayValue();        // извлекаем результат -> [7, 2, -1, 5]
 assert(result->get(0).intValue == 7);   // должна замениться предыдущая 5 на 7

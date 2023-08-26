@@ -158,9 +158,9 @@ void EScript::addDeferredObjects()
     _deferredObjects.clear();
 }
 
-Machine &EScript::machine()
+Machine *EScript::machine()
 {
-    return _machine;
+    return &_machine;
 }
 
 void EScript::setShowTCode(bool newShowTCode)
