@@ -32,16 +32,14 @@ std::shared_ptr<Symbol> SymbolTable::add(const std::u32string &identifier)
     std::shared_ptr<Symbol> symbol = std::make_shared<Symbol>(identifier);
     if (_symbols.find(identifier) != _symbols.end())
         throw std::domain_error("duplicate identifier");
-    _symbols[identifier] = symbol;
+    _symbols.insert(std::make_pair(identifier, symbol));
     _orderedSymbols.push_back(symbol);
     return symbol;
 }
 
 void SymbolTable::addRange(std::shared_ptr<SymbolTable> &&otherTable)
 {
-    for (auto &c : *otherTable) {
-        _orderedSymbols.push_back(c);
-    }
+    _orderedSymbols.insert(_orderedSymbols.end(), otherTable->begin(), otherTable->end());
     _symbols.merge(std::move(otherTable->_symbols));
 }
 

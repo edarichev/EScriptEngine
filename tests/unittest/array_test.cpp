@@ -58,6 +58,7 @@ void Array_Test::run()
     test_arrayForEach();
     test_arrayMap();
     test_arraySome();
+    test_arrayEvery();
     cleanupTestCase();
 }
 

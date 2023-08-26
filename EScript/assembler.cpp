@@ -75,10 +75,10 @@ const std::string &Assembler::mnemonics(OpCode opCode)
 
 uint8_t Assembler::instructionSize(OpCode opCode)
 {
-    auto it = _opCodesMap.find(opCode);
-    if (it == _opCodesMap.end())
+    const constexpr int n = sizeof(_opCodes) / sizeof(OpCode);
+    if ((OpCodeType)opCode >= n)
         throw std::out_of_range("Unknown OpCode");
-    return _opCodeSize[it->second];
+    return _opCodeSize[(OpCodeType)opCode];
 }
 
 void Assembler::initOpCodesMap()
