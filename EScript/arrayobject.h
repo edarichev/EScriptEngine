@@ -72,6 +72,7 @@ private:
     void call_forEach(Processor *p);
     void call_map(Processor *p);
     void call_some(Processor *p);
+    void call_every(Processor *p);
 private:
     /**
      * @brief При необходимости заключает в кавычки ключ (имя свойства)

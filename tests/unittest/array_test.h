@@ -62,6 +62,7 @@ private:
     void test_arrayForEach();
     void test_arrayMap();
     void test_arraySome();
+    void test_arrayEvery();
 };
 
 #endif // ARRAY_TEST_H

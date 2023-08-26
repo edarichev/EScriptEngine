@@ -1643,3 +1643,33 @@ y = a.some(notfound);
     assert(record->type == SymbolType::Boolean);
     assert(Compare::equals_bool(false, record->data));
 }
+
+void Array_Test::test_arrayEvery()
+{
+    const u32string code1 = UR"(
+a = [2,2,2,2];
+function ever(x) { return x == 2; }
+function notfound(x) { return x == 0; }
+x = a.every(ever);
+y = a.every(notfound);
+)";
+    EScript engine;
+    engine.setShowTCode(false);
+    engine.setShowDisassembleListing(false);
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto x = mainTable->find(U"x");
+    assert(x != nullptr);
+    auto record = engine.getObjectRecord(x);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(true, record->data));
+
+    auto y = mainTable->find(U"y");
+    assert(y != nullptr);
+    record = engine.getObjectRecord(y);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(false, record->data));
+}

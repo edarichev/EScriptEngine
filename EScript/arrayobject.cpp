@@ -25,6 +25,7 @@ void Array::buildFunctionsMap()
     if (!_fn.empty())
         return;
     _fn[U"add"] = &Array::call_push;
+    _fn[U"every"] = &Array::call_every;
     _fn[U"fill"] = &Array::call_fill;
     _fn[U"filter"] = &Array::call_filter;
     _fn[U"firstIndex"] = &Array::call_firstIndex;
@@ -483,6 +484,21 @@ void Array::call_some(Processor *p)
     bool bFound = false;
     mappedWorkerFunction(args, p, [&](const StackValue &v) { bFound = bFound || v.getBoolValue(); });
     p->pushBooleanToStack(bFound);
+}
+
+void Array::call_every(Processor *p)
+{
+    auto args = loadArguments(p);
+    int64_t numsOfFound = 0;
+    int64_t n = _indexedItems.size();
+    if (n) {
+        mappedWorkerFunction(args, p, [&](const StackValue &v) {
+            if (v.getBoolValue()) {
+                numsOfFound++;
+            }
+        });
+    }
+    p->pushBooleanToStack(numsOfFound == n && numsOfFound > 0);
 }
 
 void Array::mappedWorkerFunction(std::stack<StackValue> &args, Processor *p, std::function<void (const StackValue &)> fn)
