@@ -56,6 +56,8 @@ void Array_Test::run()
     test_arrayIncludes();
     test_appendWithSplice();
     test_arrayForEach();
+    test_arrayMap();
+    test_arraySome();
     cleanupTestCase();
 }
 
@@ -1564,4 +1566,80 @@ n = a.length;
     assert(arr->get(1).intValue == 2);
     assert(arr->get(2).intValue == 3);
     assert(arr->get(3).intValue == 4);
+}
+
+void Array_Test::test_arrayMap()
+{
+    const u32string code1 = UR"(
+a = [1,2,3,4];
+function mul2(x) { return 2*x; }
+b = a.map(mul2);
+c = a.map(mul2);//ещё раз для лишней работы
+n = a.length;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    // не должен измениться
+    auto n = mainTable->find(U"n");
+    assert(n != nullptr);
+    auto record = engine.getObjectRecord(n);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(4, record->data));
+
+    auto a = mainTable->find(U"a");
+    assert(a != nullptr);
+    record = engine.getObjectRecord(a);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Array);
+    Array *arrA = (Array*)record->data;
+    assert(arrA->get(0).intValue == 1);
+    assert(arrA->get(1).intValue == 2);
+    assert(arrA->get(2).intValue == 3);
+    assert(arrA->get(3).intValue == 4);
+
+    auto b = mainTable->find(U"b");
+    assert(b != nullptr);
+    record = engine.getObjectRecord(b);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Array);
+    auto arrB = (Array*)record->data;
+    assert(arrB->get(0).intValue == 2);
+    assert(arrB->get(1).intValue == 4);
+    assert(arrB->get(2).intValue == 6);
+    assert(arrB->get(3).intValue == 8);
+
+    assert(arrA != arrB);
+}
+
+void Array_Test::test_arraySome()
+{
+    const u32string code1 = UR"(
+a = [1,2,3,4];
+function even(x) { return x % 2 == 0; }
+function notfound(x) { return x == 0; }
+x = a.some(even);
+y = a.some(notfound);
+)";
+    EScript engine;
+    engine.setShowTCode(false);
+    engine.setShowDisassembleListing(false);
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto x = mainTable->find(U"x");
+    assert(x != nullptr);
+    auto record = engine.getObjectRecord(x);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(true, record->data));
+
+    auto y = mainTable->find(U"y");
+    assert(y != nullptr);
+    record = engine.getObjectRecord(y);
+    assert(record != nullptr);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(false, record->data));
 }

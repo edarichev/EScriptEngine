@@ -6,6 +6,7 @@
 #include <vector>
 #include "automationobject.h"
 #include "types.h"
+#include <functional>
 
 namespace escript {
 
@@ -69,6 +70,8 @@ private:
     void call_lastIndex(Processor *p);
     void call_includes(Processor *p);
     void call_forEach(Processor *p);
+    void call_map(Processor *p);
+    void call_some(Processor *p);
 private:
     /**
      * @brief При необходимости заключает в кавычки ключ (имя свойства)
@@ -78,6 +81,9 @@ private:
     static std::u32string enquote(const std::u32string &key);
     int64_t firstIndex(const PValue &v, int64_t start);
     int64_t lastIndex(const PValue &v, int64_t start);
+    // это функция для методов map, forEach и т.п. - они отличаются только
+    // способом обработки возвращаемого значения
+    void mappedWorkerFunction(std::stack<StackValue> &args, Processor *p, std::function<void(const StackValue &)>);
 };
 
 } // namespace escript

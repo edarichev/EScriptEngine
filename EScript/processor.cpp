@@ -159,6 +159,13 @@ void Processor::ldargs()
     int nArgs = item.value;
     // записываем в обратном порядке
     // (снизу вверх, т.к. переданы они тоже в обратном порядке)
+    // поэтому, если аргументов больше, чем параметров, мы сначала пропускаем их
+    while (nArgs > numOfParameters) {
+        // TODO: пока просто извлечь лишние аргументы, потом поместим их в 'arguments'
+        popFromStack();
+        nArgs--;
+    }
+    // а если меньше, то нужно сдвинуть ptr повыше, а это ровно столько, сколько пришло аргументов:
     ptr += nArgs - 1;
     while (nArgs > 0) {
         auto arg = popFromStack();
@@ -194,7 +201,7 @@ void Processor::ldargs()
             *ptr = bit_cast<uint64_t>(rec);
             break;
         case SymbolType::Array:
-            rec = _storage->findRecord(arg.value);
+            rec = _storage->findRecord(arg.type, arg.value);
             if (!rec) {
                 rec = _storage->installRecord(nullptr);
                 rec->type = SymbolType::Array;
@@ -215,7 +222,7 @@ void Processor::ldargs()
                 *ptr = bit_cast<uint64_t>(rec);
                 break;
             case SymbolType::Array: {
-                rec = _storage->findRecord(refRec->data);
+                rec = _storage->findRecord(refRec->type, refRec->data);
                 if (!rec) {
                     rec = _storage->installRecord(nullptr);
                     rec->type = refRec->type;
@@ -232,7 +239,7 @@ void Processor::ldargs()
                 *ptr = bit_cast<uint64_t>(rec);
                 break;
             case SymbolType::Function:
-                rec = _storage->findRecord(refRec->data);
+                rec = _storage->findRecord(refRec->type, refRec->data);
                 if (!rec) {
                     rec = _storage->installRecord(nullptr);
                     //rec->reference = true;
@@ -369,7 +376,7 @@ void Processor::callm()
         // Сначала установить сам массив.
         // Затем надо перебрать каждый элемент.
         // Если это строка - установить в таблицу строк
-        auto rec = _storage->findRecord(result.value);
+        auto rec = _storage->findRecord(result.type, result.value);
         if (!rec) {
             // создать новый массив
             rec = _storage->installRecord(nullptr);
@@ -816,7 +823,7 @@ void Processor::stloc_m()
 //            assert(ptrLValue);
 //            break;
         case SymbolType::String:
-            ptrLValue = _storage->findRecord(item.value);
+            ptrLValue = _storage->findRecord(item.type, item.value);
             if (!ptrLValue)
                 ptrLValue = installRecord(symbol);
             assert(ptrLValue);

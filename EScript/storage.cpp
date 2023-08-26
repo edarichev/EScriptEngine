@@ -51,10 +51,10 @@ ObjectRecord *Storage::findRecord(Symbol *symbol)
     return nullptr;
 }
 
-ObjectRecord *Storage::findRecord(uint64_t dataOrPointer)
+ObjectRecord *Storage::findRecord(SymbolType type, uint64_t dataOrPointer)
 {
     for (ObjectRecord &r : _records) {
-        if (r.data == dataOrPointer)
+        if (r.data == dataOrPointer && r.type == type)
             return &r;
     }
     return nullptr;

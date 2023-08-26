@@ -234,8 +234,8 @@ x = a[1][0][2];
 Технически это означает, что в массиве содержатся другие массивы.
 
 Поддерживаются следующие методы: 
-`fill`, `filter`, `get`, `length` (get-свойство), `includes`, `indexOf`, `join`, 
-`lastIndexOf`,
+`fill`, `filter`, `forEach`, `get`, `length` (get-свойство), `includes`, `indexOf`, `join`, 
+`lastIndexOf`, `map`,
 `pop`, `push`, `reverse`, `set`, `shift`, `slice`, `sort`, `splice`, `unshift`
 
 Метод `filter` принимает в качестве параметра функцию:

@@ -60,6 +60,8 @@ private:
     void test_arrayIncludes();
     void test_appendWithSplice();
     void test_arrayForEach();
+    void test_arrayMap();
+    void test_arraySome();
 };
 
 #endif // ARRAY_TEST_H

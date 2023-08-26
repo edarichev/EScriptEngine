@@ -75,13 +75,13 @@ public:
      */
     void run()
     {
+        OpCode opCode = OpCode::NOP;
         while (_pc < _memoryLimit) {
             _p = _memory + _pc;
-            OpCode opCode = (OpCode) *((OpCodeType*)(_p));
-            auto shift = Assembler::instructionSize(opCode);
+            opCode = (OpCode) *((OpCodeType*)(_p));
             switch (opCode) {
             case OpCode::HALT:
-                next(shift);
+                next(Assembler::instructionSize(opCode));
                 return;
             case OpCode::NOP: nop(); break;
             case OpCode::LDC_UINT64_DATA64: ldc_uint64_data64(); break;

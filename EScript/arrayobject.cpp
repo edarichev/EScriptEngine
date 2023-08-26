@@ -27,13 +27,14 @@ void Array::buildFunctionsMap()
     _fn[U"add"] = &Array::call_push;
     _fn[U"fill"] = &Array::call_fill;
     _fn[U"filter"] = &Array::call_filter;
+    _fn[U"firstIndex"] = &Array::call_firstIndex;
     _fn[U"forEach"] = &Array::call_forEach;
     _fn[U"get_length"] = &Array::call_get_length;
     _fn[U"get"] = &Array::call_get;
     _fn[U"join"] = &Array::call_join;
     _fn[U"includes"] = &Array::call_includes;
-    _fn[U"firstIndex"] = &Array::call_firstIndex;
     _fn[U"lastIndex"] = &Array::call_lastIndex;
+    _fn[U"map"] = &Array::call_map;
     _fn[U"push"] = &Array::call_push;
     _fn[U"pop"] = &Array::call_pop;
     _fn[U"reverse"] = &Array::call_reverse;
@@ -43,6 +44,7 @@ void Array::buildFunctionsMap()
     _fn[U"sort"] = &Array::call_sort;
     _fn[U"splice"] = &Array::call_splice;
     _fn[U"unshift"] = &Array::call_unshift;
+    _fn[U"some"] = &Array::call_some;
 }
 
 PValue Array::get(int64_t index)
@@ -454,8 +456,44 @@ void Array::call_forEach(Processor *p)
     // 2. индекс
     // 3. этот массив
     // 4. pThis, если есть
-
     p->pushToStack(0); // сразу занесём пустой результат
+    mappedWorkerFunction(args, p, [&](const StackValue &) { /*ничего не делаем в данном случае, результат не нужен*/ });
+}
+
+void Array::call_map(Processor *p)
+{
+    auto args = loadArguments(p);
+    // первый аргумент - функция fnCallback, которая возвращает элемент,
+    // помещаемый в массив
+    // второй - опционально, pThis.
+    // в функцию fnCallback при вызове передаются:
+    // 1. элемент
+    // 2. индекс
+    // 3. этот массив
+    // 4. pThis, если есть
+    Array *arr = new Array();
+    arr->addRef();
+    mappedWorkerFunction(args, p, [&](const StackValue &v) { arr->add(PValue(v)); });
+    p->pushArrayToStack(arr); // результат
+}
+
+void Array::call_some(Processor *p)
+{
+    auto args = loadArguments(p);
+    bool bFound = false;
+    mappedWorkerFunction(args, p, [&](const StackValue &v) { bFound = bFound || v.getBoolValue(); });
+    p->pushBooleanToStack(bFound);
+}
+
+void Array::mappedWorkerFunction(std::stack<StackValue> &args, Processor *p, std::function<void (const StackValue &)> fn)
+{
+    // первый аргумент - функция fnCallback, которая что-то делает
+    // второй - опционально, pThis.
+    // в функцию fnCallback при вызове передаются:
+    // 1. элемент
+    // 2. индекс
+    // 3. этот массив
+    // 4. pThis, если есть
     if (args.empty())
         return; // ничего делать не нужно
     Function *fnCallback = args.top().getFunction();
@@ -478,7 +516,8 @@ void Array::call_forEach(Processor *p)
             p->pushToStack(pThis);            // 4. pThis, если есть
         p->pushToStack(containsThis ? 4 : 3); // последним - число аргументов
         p->machine()->run();  // запускаем с текущего PC
-        p->popFromStack();    // результат не нужен, просто извлекаем
+        auto v = p->popFromStack();
+        fn(v);
         i++;
     }
     p->setPC(currentPC);
