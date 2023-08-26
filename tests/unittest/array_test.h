@@ -59,6 +59,7 @@ private:
     void test_arrayLastIndex();
     void test_arrayIncludes();
     void test_appendWithSplice();
+    void test_arrayForEach();
 };
 
 #endif // ARRAY_TEST_H

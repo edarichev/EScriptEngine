@@ -68,6 +68,7 @@ private:
     void call_firstIndex(Processor *p);
     void call_lastIndex(Processor *p);
     void call_includes(Processor *p);
+    void call_forEach(Processor *p);
 private:
     /**
      * @brief При необходимости заключает в кавычки ключ (имя свойства)

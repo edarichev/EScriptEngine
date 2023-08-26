@@ -27,6 +27,7 @@ void Array::buildFunctionsMap()
     _fn[U"add"] = &Array::call_push;
     _fn[U"fill"] = &Array::call_fill;
     _fn[U"filter"] = &Array::call_filter;
+    _fn[U"forEach"] = &Array::call_forEach;
     _fn[U"get_length"] = &Array::call_get_length;
     _fn[U"get"] = &Array::call_get;
     _fn[U"join"] = &Array::call_join;
@@ -441,6 +442,46 @@ void Array::call_includes(Processor *p)
     args.pop();
     int64_t start = args.empty() ? 0 : args.top().getIntValue();
     p->pushBooleanToStack(lastIndex(v, start) >= 0);
+}
+
+void Array::call_forEach(Processor *p)
+{
+    auto args = loadArguments(p);
+    // первый аргумент - функция fnCallback, которая ничего не возвращает
+    // второй - опционально, pThis.
+    // в функцию fnCallback при вызове передаются:
+    // 1. элемент
+    // 2. индекс
+    // 3. этот массив
+    // 4. pThis, если есть
+
+    p->pushToStack(0); // сразу занесём пустой результат
+    if (args.empty())
+        return; // ничего делать не нужно
+    Function *fnCallback = args.top().getFunction();
+    assert(fnCallback);
+    args.pop();
+    bool containsThis = !args.empty();
+    StackValue pThis;
+    if (containsThis)
+        pThis = args.top();
+    size_t currentPC = p->PC(); // восстановим PC после перебора
+    int64_t i = 0;
+    for (auto &pval : _indexedItems) {
+        p->setPC((size_t)-1);
+        p->pushPC();          // инструкция RET извлечёт PC при выходе из функции
+        p->setPC(fnCallback->callAddress()); // в PC ставим адрес функции
+        p->pushToStack(pval.type, pval.value64()); // 1. элемент
+        p->pushToStack(i);                    // 2. индекс
+        p->pushArrayToStack(this);            // 3. этот массив
+        if (containsThis)
+            p->pushToStack(pThis);            // 4. pThis, если есть
+        p->pushToStack(containsThis ? 4 : 3); // последним - число аргументов
+        p->machine()->run();  // запускаем с текущего PC
+        p->popFromStack();    // результат не нужен, просто извлекаем
+        i++;
+    }
+    p->setPC(currentPC);
 }
 
 std::u32string Array::enquote(const std::u32string &key)

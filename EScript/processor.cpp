@@ -194,9 +194,12 @@ void Processor::ldargs()
             *ptr = bit_cast<uint64_t>(rec);
             break;
         case SymbolType::Array:
-            rec = _storage->installRecord(nullptr);
-            rec->type = SymbolType::Array;
-            rec->data = arg.value;
+            rec = _storage->findRecord(arg.value);
+            if (!rec) {
+                rec = _storage->installRecord(nullptr);
+                rec->type = SymbolType::Array;
+                rec->data = arg.value;
+            }
             *ptr = bit_cast<uint64_t>(rec);
             break;
         case SymbolType::Variable: {

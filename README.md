@@ -601,7 +601,22 @@ class MyCell : public AutomationObject
 public:
     const std::u32string &value() const { return _value; }
     void setValue(const u32string &newValue) { _value = newValue; }
-    // остальное пропущено для краткости
+    void call_get_text(Processor *p)
+    {
+        auto args = loadArguments(p);
+        assert(args.empty());
+        p->pushToStack(value());
+    }
+
+    void call_set_text(Processor *p)
+    {
+        auto args = loadArguments(p);
+        assert(!args.empty());
+        auto txt = args.top().getStringValue();
+        setValue(txt);
+        p->pushToStack(0); // OK
+    }
+    /* остальное пропущено для краткости */
 }
 
 class MySpreadSheet : public AutomationObject
@@ -691,16 +706,16 @@ assert(functionRecord->type = SymbolType::Function);
 Function *fnMul = (Function*)functionRecord->data;
 
 auto cpu = engine.machine()->cpu();
-cpu->setPC((size_t)-1); // ставим недействительный адрес возврата,
+cpu->setPC((size_t)-1);    // ставим недействительный адрес возврата,
                            // выполнение будет только до верхней границы памяти
                            // и поэтому сразу остановится
-cpu->pushPC();          // инструкция RET извлечёт PC при выходе из функции
-cpu->setPC(fnMul->callAddress());   // в PC ставим адрес функции
+cpu->pushPC();             // инструкция RET извлечёт PC при выходе из функции
+cpu->setPC(fnMul->callAddress());      // в PC ставим адрес функции
 StackValue x(SymbolType::Integer, 3);  // готовим аргументы
 StackValue y(SymbolType::Integer, 5);
-cpu->pushToStack(x);    // помещаем аргументы в прямом порядке
+cpu->pushToStack(x);       // помещаем аргументы в прямом порядке
 cpu->pushToStack(y);
-cpu->pushToStack(2);    // последним - число аргументов, здесь 2 аргумента
+cpu->pushToStack(2);       // последним - число аргументов, здесь 2 аргумента
 engine.run();              // запускаем с текущего PC
 StackValue v = cpu->popFromStack();  // в стеке всегда одно значение после вызова функции
 assert(v.type == SymbolType::Variable); // результат помещается во временную переменную
@@ -754,12 +769,12 @@ function fnSubStr(s, from, to) {
 std::u32string myString = U"Hello, world!"; // готовим данные
 int from = 7;
 int to = 12;
-cpu->pushToStack(myString);          // помещаем аргументы в прямом порядке
+cpu->pushToStack(myString);             // помещаем аргументы в прямом порядке
 cpu->pushToStack(from);
 cpu->pushToStack(to);
-cpu->pushToStack(3);                 // последним - число аргументов, здесь 3 аргумента
+cpu->pushToStack(3);                    // последним - число аргументов, здесь 3 аргумента
 engine.run();                           // запускаем с текущего PC
-StackValue v = cpu->popFromStack();  // в стеке всегда одно значение после вызова функции
+StackValue v = cpu->popFromStack();     // в стеке всегда одно значение после вызова функции
 assert(v.type == SymbolType::Variable); // результат помещается во временную переменную
 auto result = v.getStringValue();       // извлекаем результат
 assert(result == U"world");
@@ -792,12 +807,12 @@ arr->add(PValue(-1));
 arr->add(PValue(5));
 int from = 5;              // заменим все 5 на 7
 int to = 7;
-cpu->pushArrayToStack(arr); // помещаем аргументы в прямом порядке
+cpu->pushArrayToStack(arr);// помещаем аргументы в прямом порядке
 cpu->pushToStack(from);
 cpu->pushToStack(to);
-cpu->pushToStack(3);    // последним - число аргументов, здесь 3 аргумента
+cpu->pushToStack(3);       // последним - число аргументов, здесь 3 аргумента
 engine.run();              // запускаем с текущего PC
-StackValue v = cpu->popFromStack();  // в стеке всегда одно значение после вызова функции
+StackValue v = cpu->popFromStack();     // в стеке всегда одно значение после вызова функции
 assert(v.type == SymbolType::Variable); // результат помещается во временную переменную
 auto result = v.getArrayValue();        // извлекаем результат -> [7, 2, -1, 5]
 assert(result->get(0).intValue == 7);   // должна замениться предыдущая 5 на 7
