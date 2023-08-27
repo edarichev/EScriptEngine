@@ -217,6 +217,7 @@ private:
     void pushFunction(std::shared_ptr<Symbol> &func);
     void pushString(const std::u32string &s);
     void pushArray(std::shared_ptr<Symbol> &arrVariable);
+    void pushNull();
     Operand popStackValue();
     Operand stackValue();
     void pushBack(Token t, const std::u32string &str);

@@ -19,6 +19,7 @@
 #include "stdafx.h"
 #include "pvalue.h"
 #include "stringobject.h"
+#include "engineerrors.h"
 
 namespace escript {
 
@@ -218,6 +219,11 @@ bool PValue::asBoolean() const
     }
 }
 
+bool PValue::isNull() const
+{
+    return type == SymbolType::Null;
+}
+
 uint64_t PValue::value64() const
 {
     switch (type) {
@@ -231,6 +237,8 @@ uint64_t PValue::value64() const
         return bit_cast<uint64_t>(strValue);
     case SymbolType::Array:
         return bit_cast<uint64_t>(arrValue);
+    case SymbolType::Null:
+        return 0;
     default:
         throw std::domain_error("unsupproted type by PValue");
     }
@@ -258,6 +266,9 @@ PValue PValue::getValue(ObjectRecord *ptr)
         val.strValue = (StringObject*)ptr->data;
         val.type = SymbolType::String;
         break;
+    case SymbolType::Null:
+        val.type = SymbolType::Null;
+        break;
     default:
         throw std::domain_error("Unsupported type: getValue");
     }
@@ -284,6 +295,8 @@ PValue PValue::getValue(const StackValue &item)
         val.strValue = (StringObject*)item.value;
         val.type = SymbolType::String;
         break;
+    case SymbolType::Null:
+        break; // он уже null по умолчанию
     default:
         throw std::domain_error("Unsupported type: getValue(pair)");
     }
@@ -292,6 +305,16 @@ PValue PValue::getValue(const StackValue &item)
 
 PValue PValue::binaryOpValues(const PValue &value1, const PValue &value2, ArithmeticOperation op)
 {
+    if (value1.isNull() || value2.isNull()) {
+        switch (op) {
+        case ArithmeticOperation::BoolEqual:
+            return PValue(value1.isNull() == value2.isNull());
+        case ArithmeticOperation::BoolNotEqual:
+            return PValue(value1.isNull() != value2.isNull());
+        default:
+            throw ArgumentNullException(__FILE__, __LINE__);
+        }
+    }
     // в арифметических действиях true/false рассматриваем как целые числа 1, 0
     // и результат переводим в целое
     switch (value1.type) {
@@ -354,6 +377,8 @@ PValue PValue::binaryOpValues(const PValue &value1, const PValue &value2, Arithm
         return PValue(value1.uString() >= value2.uString());
     case ArithmeticOperation::BoolEqual:
         return PValue(value1.uString() == value2.uString());
+    case ArithmeticOperation::BoolNotEqual:
+        return PValue(value1.uString() != value2.uString());
     default:
         break;
     }

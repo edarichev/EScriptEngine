@@ -195,3 +195,4 @@ void Boolean_Test::test_arrayItemsLess()
     assert(record->type == SymbolType::Boolean);
     assert(Compare::equals_bool(true, record->data));
 }
+

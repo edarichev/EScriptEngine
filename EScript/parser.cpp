@@ -524,6 +524,9 @@ void Parser::RelationOrEqualityExpression()
     case Token::Equal:
         opType = OperationType::Equal;
         break;
+    case Token::NotEqual:
+        opType = OperationType::NotEqual;
+        break;
     default:
         return;
     }
@@ -730,6 +733,10 @@ void Parser::Factor()
     case Token::False:
         pushBoolean(false);
         next();
+        break;
+    case Token::Null:
+        next();
+        pushNull();
         break;
     case Token::QuotedString:
     case Token::BackQuotedString: {
@@ -1322,6 +1329,7 @@ void Parser::emitBinaryOp(OperationType opType)
     case OperationType::LogAND:
     case OperationType::LogOR:
     case OperationType::Mod:
+    case OperationType::NotEqual:
     {
         auto opRecord2 = popStackValue();
         auto opRecord1 = popStackValue();
@@ -1593,6 +1601,13 @@ void Parser::pushArray(std::shared_ptr<Symbol> &arrVariable)
     Operand rec;
     rec.type = SymbolType::Array;
     rec.variable = arrVariable.get();
+    _values.push(rec);
+}
+
+void Parser::pushNull()
+{
+    Operand rec;
+    rec.type = SymbolType::Null;
     _values.push(rec);
 }
 

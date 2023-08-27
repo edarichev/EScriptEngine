@@ -1,7 +1,6 @@
 /**
- * @file escriptengine.h
- * @brief Включите этот файл, чтобы использовать библиотеку движка Eugen-Script
- *        в Вашей программе.
+ * @file engineerrors.cpp
+ * @brief Классы исключений
  *
  * Eugen-Script
  * The ECMAScript-like engine for C++ programs.
@@ -17,15 +16,17 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  */
-#ifndef ESCRIPTENGINE_H
-#define ESCRIPTENGINE_H
-
-#include "escript.h"
-#include "automationobject.h"
-#include "stringobject.h"
-#include "mathobject.h"
-#include "arrayobject.h"
-#include "functionobject.h"
+#include "stdafx.h"
 #include "engineerrors.h"
 
-#endif // ESCRIPTENGINE_H
+#define STR_ARGUMENT_NULL "Argument is null"
+
+namespace escript {
+
+ArgumentNullException::ArgumentNullException(const char *file, int line)
+    : BaseClass(STR_ARGUMENT_NULL)
+{
+
+}
+
+} // namespace escript

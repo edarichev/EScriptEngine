@@ -50,7 +50,8 @@ enum class ArithmeticOperation : uint8_t
     BITXOR = 14,
     LOGAND = 15,
     LOGOR = 16,
-    Mod = 17
+    Mod = 17,
+    BoolNotEqual = 18,
 };
 
 class StringObject;
@@ -105,6 +106,7 @@ struct PValue
      * @return
      */
     bool asBoolean() const;
+    bool isNull() const;
     /**
      * @brief Возвращает значение как uint64_t
      * @return
@@ -166,6 +168,8 @@ decltype(auto) calcValues(T1 v1, T2 v2, ArithmeticOperation op)
     case ArithmeticOperation::BoolGreaterOrEqual:
         return PValue(PValue(v1) >= PValue(v2));
     case ArithmeticOperation::BoolEqual:
+        return PValue(PValue(v1) == PValue(v2));
+    case ArithmeticOperation::BoolNotEqual:
         return PValue(PValue(v1) == PValue(v2));
     case ArithmeticOperation::LShift:
         return PValue::lshift(PValue(v1), PValue(v2));

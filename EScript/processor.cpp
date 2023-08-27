@@ -51,6 +51,7 @@ Processor::Processor(Machine *m)
             {OpCode::LOG_AND, ArithmeticOperation::LOGAND },
             {OpCode::LOG_OR, ArithmeticOperation::LOGOR },
             {OpCode::MODST, ArithmeticOperation::Mod },
+            {OpCode::STNOTEQ, ArithmeticOperation::BoolNotEqual },
         };
     }
 }
@@ -617,6 +618,17 @@ void Processor::ld_ar()
     next(sizeof (uint64_t));
 }
 
+void Processor::ld_null()
+{
+    next();
+    _stack.push(StackValue());
+}
+
+void Processor::stnoteq()
+{
+    binaryStackOp(OpCode::STNOTEQ);
+}
+
 void Processor::pushToStack(int64_t value)
 {
     pushToStack(SymbolType::Integer, value);
@@ -696,11 +708,15 @@ void Processor::ldloc_m()
     next();
     Symbol *symbol = nullptr;
     ObjectRecord *ptr = readRecord(symbol);
-    // добавим счётчик ссылок, т.к. теперь объект используется в стеке
-    ptr->counter++;
-    // тип объекта - тут всегда переменная, такова команда ldloc m
-    // значение/указатель, в зависимости от типа
-    _stack.emplace(SymbolType::Variable, (uint64_t)ptr);
+    if (!ptr) {
+        _stack.push(StackValue());
+    } else {
+        // добавим счётчик ссылок, т.к. теперь объект используется в стеке
+        ptr->counter++;
+        // тип объекта - тут всегда переменная, такова команда ldloc m
+        // значение/указатель, в зависимости от типа
+        _stack.emplace(SymbolType::Variable, (uint64_t)ptr);
+    }
     // сдвиг на следующую команду
     next(sizeof (uint64_t));
 }
@@ -879,6 +895,10 @@ void Processor::stloc_m()
         ptrLValue->data = item.value;
         ptrLValue->managed = ((AutomationObject*)item.value)->managed();
         break;
+    case SymbolType::Null:
+        ptrLValue->type = SymbolType::Null;
+        ptrLValue->data = 0;
+        break;
     case SymbolType::Variable:
         // здесь находится указатель на запись в таблице объектов
         // в зависимости от типа, мы либо меняем ссылку, либо присваиваем по значению
@@ -896,6 +916,10 @@ void Processor::stloc_m()
         case SymbolType::Boolean:
             bValue = ptrRValue->data ? true : false;
             setValue(ptrLValue, bValue);
+            break;
+        case SymbolType::Null:
+            ptrLValue->type = SymbolType::Null;
+            ptrLValue->data = 0;
             break;
         case SymbolType::String:
             stringValue = (StringObject*)ptrRValue->data;

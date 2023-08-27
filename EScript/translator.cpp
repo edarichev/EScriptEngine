@@ -56,6 +56,7 @@ Translator::Translator(Storage &s) : _storage(s)
             {OperationType::LogAND, ArithmeticOperation::LOGAND },
             {OperationType::LogOR, ArithmeticOperation::LOGOR },
             {OperationType::Mod, ArithmeticOperation::Mod },
+            {OperationType::NotEqual, ArithmeticOperation::BoolNotEqual },
         };
     }
 }
@@ -169,6 +170,7 @@ void Translator::translateOperation(const TCode &c)
     case OperationType::LogAND:
     case OperationType::LogOR:
     case OperationType::Mod:
+    case OperationType::NotEqual:
         binaryOp(c);
         break;
     case OperationType::Assign:
@@ -465,6 +467,9 @@ void Translator::binaryOp(const TCode &c)
     case OperationType::Mod:
         a.modst();
         break;
+    case OperationType::NotEqual:
+        a.stnoteq();
+        break;
     default:
         throw std::domain_error("Unsupported binary operation");
     }
@@ -513,6 +518,9 @@ void Translator::opAssign(const TCode &c)
         break;
     case SymbolType::Function:
         a.ldloc_m(location(c.operand1.variable));
+        break;
+    case SymbolType::Null:
+        a.ld_null();
         break;
     default:
         throw std::domain_error("Unsupported operand type for assign operation");
@@ -707,6 +715,9 @@ void Translator::emit_ldc(const Operand &operand)
         break;
     case SymbolType::Function:
         a.ldloc_m(location(operand.function));
+        break;
+    case SymbolType::Null:
+        a.ld_null();
         break;
     default:
         throw std::domain_error("Unsupported type");

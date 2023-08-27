@@ -74,6 +74,7 @@ enum class OperationType
     Mod,            // %
     StoreActivationRecord,
     LoadActivationRecord,
+    NotEqual,       // op1!=op2
 };
 
 /**

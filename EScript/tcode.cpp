@@ -94,6 +94,10 @@ std::string TCode::toString() const
         numberOfOperands = 2;
         opSign = "==";
         break;
+    case OperationType::NotEqual:
+        numberOfOperands = 2;
+        opSign = "!=";
+        break;
     case OperationType::FunctionStart:  // FNSTART - начало блока функции, op1==Symbol*
         numberOfOperands = 1;
         opSign = "FNSTART";

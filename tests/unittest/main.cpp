@@ -31,6 +31,7 @@
 #include "dotoperation_test.h"
 #include "number_test.h"
 #include "callscriptfunction_test.h"
+#include "null_test.h"
 
 using namespace std;
 
@@ -67,6 +68,7 @@ int main()
     DotOperation_Test().run();
     Number_Test().run();
     CallScriptFunction_Test().run();
+    Null_Test().run();
     cout << "Tests OK" << endl;
     return 0;
 }

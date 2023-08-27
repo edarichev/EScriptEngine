@@ -30,6 +30,7 @@ SOURCES += \
         logical_test.cpp \
         main.cpp \
         math_test.cpp \
+        null_test.cpp \
         number_test.cpp \
         opcode_test.cpp \
         pvalue_test.cpp \
@@ -66,6 +67,7 @@ HEADERS += \
     lexer_test.h \
     logical_test.h \
     math_test.h \
+    null_test.h \
     number_test.h \
     opcode_test.h \
     pvalue_test.h \
