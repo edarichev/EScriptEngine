@@ -1,5 +1,19 @@
 /**
  * @file escript_global.h
+ *
+ * Eugen-Script
+ * The ECMAScript-like engine for C++ programs.
+ * Copyright (C) 2023, Evgeny Darichev
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  */
 #ifndef ESCRIPT_GLOBAL_H
 #define ESCRIPT_GLOBAL_H
@@ -33,10 +47,14 @@
 #include <cstring>
 #include <codecvt>
 #include <locale>
+#include <numeric>
 
 namespace escript {
 
 #if __cpp_lib_bit_cast
+
+using std::bit_cast;
+
 #else
 // https://en.cppreference.com/w/cpp/numeric/bit_cast
 
@@ -57,6 +75,9 @@ bit_cast(const From& src) noexcept
     std::memcpy(&dst, &src, sizeof(To));
     return dst;
 }
+
+using escript::bit_cast;
+
 #endif
 
 /**

@@ -17,7 +17,7 @@ SOURCES += \
     block.cpp \
     console.cpp \
     escript.cpp \
-    function.cpp \
+    functionobject.cpp \
     icodeemitter.cpp \
     keyword.cpp \
     lexer.cpp \
@@ -51,7 +51,7 @@ HEADERS += \
     console.h \
     escript.h \
     escriptengine.h \
-    function.h \
+    functionobject.h \
     icodeemitter.h \
     keyword.h \
     lexer.h \

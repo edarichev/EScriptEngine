@@ -1,6 +1,6 @@
 /**
- * @file symbol.cpp
- * @brief Запись в таблице символов (реализация)
+ * @file functionobject.cpp
+ * @brief Реализация класса функции.
  *
  * Eugen-Script
  * The ECMAScript-like engine for C++ programs.
@@ -17,45 +17,45 @@
  * Lesser General Public License for more details.
  */
 #include "stdafx.h"
-#include "symbol.h"
-#include "unit.h"
+#include "functionobject.h"
 
 namespace escript {
 
-uint64_t Symbol::location() const
+
+Function::Function(Symbol *sym) : _symbol(sym)
 {
-    return _location;
+    _managed = true;
 }
 
-void Symbol::setLocation(uint64_t newLocation)
-{
-    _location = newLocation;
-}
-
-void Symbol::addOffset(uint64_t offset)
-{
-    _location += offset;
-}
-
-Symbol::Symbol(const std::u32string &id)
-    : _name(id)
+Function::~Function()
 {
 
 }
 
-Symbol::~Symbol()
+uint64_t Function::callAddress() const
 {
-
+    return _callAddress;
 }
 
-const std::u32string &Symbol::name() const
+void Function::setCallAddress(uint64_t newCallAddress)
+{
+    _callAddress = newCallAddress;
+}
+
+const std::u32string &Function::name() const
 {
     return _name;
 }
 
-const std::string Symbol::utf8Name() const
+void Function::setName(const std::u32string &newName)
 {
-    return to_utf8(_name);
+    _name = newName;
 }
+
+void Function::addOffset(int64_t offset)
+{
+    _callAddress += offset;
+}
+
 
 } // namespace escript
