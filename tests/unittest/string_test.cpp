@@ -579,6 +579,8 @@ e = 'Tastatur' >= 'Maus';
 f = 'Lautsprecher' >= 'Apfel';
 g = 'Apfel' <= 'Lautsprecher';
 h = 'Apfel' >= 'Lautsprecher';
+i = 'Apfel' != 'Lautsprecher';
+j = 'Apfel' != 'Apfel';
 )";
     EScript engine;
     engine.eval(code1);
@@ -620,6 +622,16 @@ h = 'Apfel' >= 'Lautsprecher';
 
     auto h = mainTable->find(U"h");
     record = engine.getObjectRecord(h);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(false, record->data));
+
+    auto i = mainTable->find(U"i");
+    record = engine.getObjectRecord(i);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(true, record->data));
+
+    auto j = mainTable->find(U"j");
+    record = engine.getObjectRecord(j);
     assert(record->type == SymbolType::Boolean);
     assert(Compare::equals_bool(false, record->data));
 }

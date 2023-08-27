@@ -112,6 +112,9 @@ PValue::PValue(SymbolType t, int64_t rhs)
     case SymbolType::Array:
         arrValue = (Array*)rhs;
         break;
+    case SymbolType::Function:
+        function = (Function*)rhs;
+        break;
     case SymbolType::Variable: {
         ObjectRecord *rec = (ObjectRecord*)rhs;
         switch (rec->type) {
@@ -129,6 +132,9 @@ PValue::PValue(SymbolType t, int64_t rhs)
             break;
         case SymbolType::Array:
             arrValue = (Array*)rec->data;
+            break;
+        case SymbolType::Function:
+            function = (Function*)rec->data;
             break;
         default:
             throw std::domain_error("PValue: not supported type");
@@ -237,6 +243,8 @@ uint64_t PValue::value64() const
         return bit_cast<uint64_t>(strValue);
     case SymbolType::Array:
         return bit_cast<uint64_t>(arrValue);
+    case SymbolType::Function:
+        return bit_cast<uint64_t>(function);
     case SymbolType::Null:
         return 0;
     default:

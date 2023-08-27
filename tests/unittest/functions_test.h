@@ -20,6 +20,7 @@ private:
     void test_functionReturnsFunction();
     void test_function2ReturnsFunction();
     void test_functionFactory();
+    void test_arrayOfFunctions();
 };
 
 #endif // FUNCTIONS_TEST_H

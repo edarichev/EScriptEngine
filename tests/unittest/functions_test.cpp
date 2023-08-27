@@ -16,6 +16,7 @@ void Functions_Test::run()
     test_functionReturnsFunction();
     test_function2ReturnsFunction();
     test_functionFactory();
+    test_arrayOfFunctions();
     cleanupTestCase();
 }
 
@@ -280,5 +281,27 @@ y = func(12);
     auto record = engine.getObjectRecord(y);
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(60, record->data));
+}
+
+void Functions_Test::test_arrayOfFunctions()
+{
+    const std::u32string code1 = UR"(
+function fn1(x) { return x; }
+function fn2(x) { return 2*x; }
+function fn3(x) { return 3*x; }
+
+arr = [fn1, fn2, fn3];
+x = 7;
+a0 = arr[0];
+a = a0(x);
+
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto a = mainTable->find(U"a");
+    auto record = engine.getObjectRecord(a);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(7, record->data));
 }
 

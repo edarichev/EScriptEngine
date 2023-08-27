@@ -895,6 +895,10 @@ void Processor::stloc_m()
         ptrLValue->data = item.value;
         ptrLValue->managed = ((AutomationObject*)item.value)->managed();
         break;
+    case SymbolType::Function:
+        ptrLValue->type = SymbolType::Function;
+        ptrLValue->data = item.value;
+        break;
     case SymbolType::Null:
         ptrLValue->type = SymbolType::Null;
         ptrLValue->data = 0;
