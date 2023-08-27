@@ -275,7 +275,7 @@ void Array_Test::test_arrayRealKeys()
     const string prog1 = R"(
 a = [];
 a[10.5] = "hello";
-var x = a[10.5];
+var x = a[10];
 
 )";
     const std::u32string code1 = to_u32string(prog1);

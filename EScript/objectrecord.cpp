@@ -32,7 +32,7 @@ ObjectRecord::ObjectRecord(ObjectRecord &&rhs)
     data = rhs.data;
     rhs.counter = 0;
     rhs.data = 0;
-    rhs.type = SymbolType::Undefined;
+    rhs.type = SymbolType::Null;
 }
 
 ObjectRecord::~ObjectRecord()

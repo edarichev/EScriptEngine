@@ -70,7 +70,7 @@ class Function;
  */
 struct PValue
 {
-    SymbolType type { SymbolType::Undefined };
+    SymbolType type { SymbolType::Null };
     union {
         int64_t intValue { 0 };
         double realValue;

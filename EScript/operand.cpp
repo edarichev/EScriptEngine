@@ -78,9 +78,6 @@ std::string Operand::toString() const
     case SymbolType::Function:
         opStr = "function";
         break;
-    case SymbolType::Undefined:
-        opStr = "undefined";
-        break;
     case SymbolType::String:
         opStr = "string";
         break;

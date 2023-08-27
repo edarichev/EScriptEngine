@@ -145,7 +145,7 @@ void ICodeEmitter::fnLoadArgs()
 {
     TCode code;
     code.operation = OperationType::LoadArguments;
-    code.operand1.type = SymbolType::Undefined;
+    code.operand1.type = SymbolType::Null;
     _buffer->push_back(code);
 }
 
@@ -153,7 +153,7 @@ void ICodeEmitter::fnEnd()
 {
     TCode code;
     code.operation = OperationType::FunctionEnd;
-    code.operand1.type = SymbolType::Undefined;
+    code.operand1.type = SymbolType::Null;
     _buffer->push_back(code);
 }
 

@@ -39,11 +39,14 @@ struct PValue;
  */
 class ESCRIPT_EXPORT Array final : public AutomationObject
 {
+    // индексные элементы, индекс соответствует позиции в этом векторе
     std::vector<PValue> _indexedItems;
+    // именованные элементы
     std::map<std::u32string, PValue> _namedItems;
 
     using BaseClass = AutomationObject;
     using pFn = void (Array::*)(Processor *p);
+    // карта функций этого класса
     static std::map<std::u32string, pFn> _fn;
 public:
     /**
@@ -56,6 +59,13 @@ public:
     virtual ~Array();
     std::vector<PValue>::iterator begin() { return _indexedItems.begin(); }
     std::vector<PValue>::iterator end() { return _indexedItems.end(); }
+    /**
+     * @brief Возвращает индексный элемент, находящийся на указанной позиции
+     * @param index индекс от 0 и не более числа элементов, хранящихся в массиве
+     * @return если индекс выходит за пределы массива, возвращается пустой
+     *         объект PValue; если индекс отрицателен, он переводится в строку
+     *         и ищется как именованный.
+     */
     PValue get(int64_t index);
     PValue get(const std::u32string &index);
     void set(int64_t index, PValue value);

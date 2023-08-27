@@ -49,7 +49,7 @@ public:
     /**
      * @brief Тип хранимых данных
      */
-    SymbolType type = SymbolType::Undefined;
+    SymbolType type = SymbolType::Null;
     /**
      * @brief Если тип простой, то это сами данные. Если строка или объект -
      *        указатель на объект в куче.

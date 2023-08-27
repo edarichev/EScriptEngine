@@ -51,8 +51,6 @@ std::u32string to_u32string(const SymbolType &t, uint64_t v)
         return U"function";
     case SymbolType::Null:
         return U"null";
-    case SymbolType::Undefined:
-        return U"undefined";
     case SymbolType::Variable: {
         ObjectRecord *rec = (ObjectRecord*)v;
         return to_u32string(rec->type, rec->data);

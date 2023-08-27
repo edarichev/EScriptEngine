@@ -178,7 +178,7 @@ void Array::call_get(Processor *p)
     }
     auto index = args.top();
     PValue v;
-    if (index.ofType(SymbolType::Integer))
+    if (index.ofType(SymbolType::Integer) || index.ofType(SymbolType::Real))
         v = get((int64_t)index.getIntValue());
     else
         v = get(index.getStringValue());
@@ -196,7 +196,7 @@ void Array::call_set(Processor *p)
     // так чтобы тип Variable В массиве не хранился
     // но это могут быть массивы, объекты, функции и т.п.
     PValue v = PValue::getValue(argValue);
-    if (argIndex.ofType(SymbolType::Integer))
+    if (argIndex.ofType(SymbolType::Integer) || argIndex.ofType(SymbolType::Real))
         set((int64_t)argIndex.getIntValue(), v);
     else
         set(argIndex.getStringValue(), v);

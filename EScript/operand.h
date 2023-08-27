@@ -30,7 +30,7 @@ class StringObject;
 
 struct ESCRIPT_EXPORT Operand
 {
-    SymbolType type = SymbolType::Undefined;
+    SymbolType type = SymbolType::Null;
     union {
         IntType intValue = 0;
         RealType realValue;

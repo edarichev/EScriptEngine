@@ -28,7 +28,6 @@ namespace escript {
  */
 enum class SymbolType : uint8_t
 {
-    Undefined,
     Null,
     Integer,
     Real,

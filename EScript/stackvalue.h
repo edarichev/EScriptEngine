@@ -33,7 +33,7 @@ struct StackValue
     /**
      * Тип значения
      */
-    SymbolType type { SymbolType::Undefined };
+    SymbolType type { SymbolType::Null };
     /**
      * Значение: либо простой тип (число, boolean), либо указатель на
      * ObjectRecord или StringObject в таблице строк
