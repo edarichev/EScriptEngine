@@ -13,7 +13,7 @@ using namespace escript;
 #define ROW_COUNT 3
 
 // скрипт
-const std::u32string macro1 =
+static const char32_t *macro1 =
 UR"(c1 = spreadsheet.cell(0, 0);
 c1.text = "Hello";
 s = c1.text;
@@ -23,7 +23,7 @@ spreadsheet.cell(0, 3).text = "=";
 spreadsheet.cell(0, 4).text = s + spreadsheet.cell(0, 2).text;
 spreadsheet.cell(2, 2).style.color = "#FFFF00";
 sColor = spreadsheet.cell(2, 2).style.color.toString();
-spreadsheet.cell(2, 1).text = "желтый:";
+spreadsheet.cell(2, 1).text = "жёлтый:";
 spreadsheet.cell(2, 2).text = sColor;
 )";
 

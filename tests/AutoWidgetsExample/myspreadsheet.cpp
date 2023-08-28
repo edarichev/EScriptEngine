@@ -51,6 +51,11 @@ const std::u32string MySpreadSheet::getCellValue(int row, int col)
 
 std::shared_ptr<MyCell> MySpreadSheet::getCell(int row, int column)
 {
+    auto item = _table->item(row, column);
+    if (!item) {
+        item = new QTableWidgetItem (QString(""));
+        _table->setItem(row, column, item);
+    }
     if (!_cells[row][column]) {
         _cells[row][column] = std::make_shared<MyCell>(this->_table, row, column);
     }

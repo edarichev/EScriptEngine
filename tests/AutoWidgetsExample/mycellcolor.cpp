@@ -47,10 +47,6 @@ void MyCellColor::set(const std::u32string &c)
         size_t i = 0;
         int rgb = std::stoi(to_utf8(c.substr(1)), &i, 16);
         auto item = _cell->table()->item(_cell->row(), _cell->column());
-        if (!item) {
-            item = new QTableWidgetItem (QString());
-            _cell->table()->setItem(_cell->row(), _cell->column(), item);
-        }
         item->setBackgroundColor(QColor::fromRgb(QRgb(rgb)));
     }
 }
