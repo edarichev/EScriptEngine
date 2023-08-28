@@ -35,6 +35,8 @@ b = a == null; // -> b == true
 Linux, x64, C++17.
 
 ## Пример
+
+Так выглядит код на C++ и код макроса, который выполняется:
 ```C++
 // Предположим, в нашей программе есть какая-то таблица:
 MySpreadSheet spreadsheet; // объект, с которым нужно работать
@@ -63,7 +65,6 @@ assert(spreadsheet.getCellValue(1, 3) == U"Hello, world");
 assert(spreadsheet.getCellValue(1, 2) == U"12345");
 assert(spreadsheet.getCellValue(0, 0) == U"Hello, world!!!!");
 ```
-
 
 Движок принимает исполняемый скрипт в виде строки `std::u32string`, поэтому вы можете использовать:
 
@@ -895,6 +896,22 @@ assert(result->get(2).intValue == -1);
 assert(result->get(3).intValue == 7);   // и здесь тоже: 5 на 7
 
 ```
+## GUI
 
+В исходных кодах имеется проект `AutoWidgetsExample` на Qt. Так это приблизительно выглядит:
+
+![image](https://github.com/edarichev/EScriptEngine/blob/master/tests/AutoWidgetsExample/screenshot.png)
+
+```C++
+// минимальный пример: вы просто вводите текст скрипта и выполняете
+std::u32string code1 = ui->plainTextEdit->toPlainText().toStdU32String();
+MySpreadSheet spreadsheet(ui->tableWidget);
+EScript engine;
+engine.attachObject(&spreadsheet, U"spreadsheet");
+engine.eval(code1);
+engine.detachObject(&spreadsheet);
+```
+
+За этим кодом скрываются классы `MySpreadSheet`, `MyCell`, `MyCellStyle`, `MyCellColor`, которые перенаправляют вызовы соответствующих методов элементам `QTableWidget`.
 
 
