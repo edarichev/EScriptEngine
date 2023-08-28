@@ -784,6 +784,33 @@ void Parser::FunctionCallExpression()
     pushVariable(resultVariable);
 }
 
+void Parser::OptionalFunctorCall()
+{
+    if (lookahead() != Token::LeftParenth)
+        return;
+    if (_values.empty())
+        error("Expected expression before () operation");
+    switch (_values.top().type) {
+    case SymbolType::Variable:
+        break; // здесь должна быть некая временная переменная
+    default:
+        error("Expected variable before () operation");
+    }
+    auto func = popStackValue().variable;
+    match(Token::LeftParenth);
+    int nArgs = 0;
+    if (lookahead() != Token::RightParenth) {
+        _argumentsCountStack.push(0);
+        ArgumentList();
+        nArgs = _argumentsCountStack.top();
+        _argumentsCountStack.pop();
+    }
+    match(Token::RightParenth);
+    auto resultVariable = currentSymbolTable()->addTemp();
+    emitCallFunctor(func, nArgs, resultVariable);
+    pushVariable(resultVariable);
+}
+
 void Parser::ArgumentList()
 {
     do {
@@ -1218,6 +1245,9 @@ void Parser::OptionalDotOrBracketExpression()
         case Token::LeftBracket:
             OptionalArrayItemRefExpression();
             break;
+        case Token::LeftParenth: // вызов чего угодно как функции
+            OptionalFunctorCall();
+            break;
         default:
             return;
         }
@@ -1475,6 +1505,12 @@ void Parser::emitReturn()
 void Parser::emitCall(std::shared_ptr<Symbol> &func, int nArgs,
                       std::shared_ptr<Symbol> &resultVariable)
 {
+    _emitter->call(func.get(), nArgs, resultVariable);
+}
+
+void Parser::emitCallFunctor(Symbol *func, int nArgs, std::shared_ptr<Symbol> &resultVariable)
+{
+    // вызов любого объекта типа Variable/Function как функции
     _emitter->call(func, nArgs, resultVariable);
 }
 

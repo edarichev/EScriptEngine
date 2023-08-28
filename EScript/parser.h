@@ -108,6 +108,7 @@ private:
     void Term();
     void Factor();
     void FunctionCallExpression();
+    void OptionalFunctorCall();
     void ArgumentList();
     void AnyStatement();
     void ReturnStatement();
@@ -194,6 +195,7 @@ private:
     void emitEmptyReturn();
     void emitReturn();
     void emitCall(std::shared_ptr<Symbol> &func, int nArgs, std::shared_ptr<Symbol> &resultVariable);
+    void emitCallFunctor(Symbol *func, int nArgs, std::shared_ptr<Symbol> &resultVariable);
     void emitFnEnd();
     void emitCallAOMethod(Symbol *leftVariable,
                           const std::u32string &propName,

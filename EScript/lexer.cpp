@@ -125,6 +125,13 @@ Token Lexer::next()
         case ':':
             return TOKEN(Token::Colon);
         case '?':
+            if ((c = read()) < 0)
+                return TOKEN(Token::Question);
+            if (c == '?') {
+                PUSH(c);
+                return TOKEN(Token::NCO);
+            }
+            back();
             return TOKEN(Token::Question);
         case '(':
             return TOKEN(Token::LeftParenth);

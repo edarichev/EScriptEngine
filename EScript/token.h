@@ -126,6 +126,7 @@ enum class Token
     QuotedString,       // строка в кавычках
     BackQuotedString,   // строка в кавычках
     Identifier,         // идентификатор
+    NCO,                // ??
 };
 
 /**

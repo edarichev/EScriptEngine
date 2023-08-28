@@ -21,6 +21,8 @@ private:
     void test_function2ReturnsFunction();
     void test_functionFactory();
     void test_arrayOfFunctions();
+    void test_funcCallFormsArrayItem();
+    void test_funcCallFormsOfFuncResult();
 };
 
 #endif // FUNCTIONS_TEST_H

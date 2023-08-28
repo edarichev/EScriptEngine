@@ -190,7 +190,7 @@ void ICodeEmitter::fnEmptyReturn(std::shared_ptr<Symbol> &func)
     _buffer->push_back(code);
 }
 
-void ICodeEmitter::call(std::shared_ptr<Symbol> &func, int nArgs,
+void ICodeEmitter::call(Symbol *func, int nArgs,
                         std::shared_ptr<Symbol> &resultVariable)
 {
     // сохранить запись активации в любом случае,
@@ -208,7 +208,7 @@ void ICodeEmitter::call(std::shared_ptr<Symbol> &func, int nArgs,
     TCode codeFunc;
     codeFunc.operation = OperationType::Call;
     codeFunc.operand1.type = SymbolType::Function;
-    codeFunc.operand1.function = func.get();
+    codeFunc.operand1.function = func;
     _buffer->push_back(codeFunc);
 
     // загрузить запись активации в любом случае,

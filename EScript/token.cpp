@@ -56,7 +56,7 @@ const char *TokenName::_names[] = {
 "BitNot", "Question",
 "Colon", "Comma", "Semicolon",
 "RealNumber", "IntegerNumber", "QuotedString",
-"BackQuotedString", "Identifier"};
+"BackQuotedString", "Identifier", "NCO"};
 
 const Token TokenName::_values[] = {
 Token::Eof, Token::Break, Token::Case,
@@ -92,7 +92,7 @@ Token::Vertical, Token::LogicalOr, Token::BitOrAssign,
 Token::BitNot, Token::Question,
 Token::Colon, Token::Comma, Token::Semicolon,
 Token::RealNumber, Token::IntegerNumber, Token::QuotedString,
-Token::BackQuotedString, Token::Identifier};
+Token::BackQuotedString, Token::Identifier, Token::NCO};
 
 std::string TokenName::toString(Token token)
 {

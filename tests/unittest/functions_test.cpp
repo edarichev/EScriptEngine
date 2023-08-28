@@ -17,6 +17,8 @@ void Functions_Test::run()
     test_function2ReturnsFunction();
     test_functionFactory();
     test_arrayOfFunctions();
+    test_funcCallFormsArrayItem();
+    test_funcCallFormsOfFuncResult();
     cleanupTestCase();
 }
 
@@ -303,5 +305,44 @@ a = a0(x);
     auto record = engine.getObjectRecord(a);
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(7, record->data));
+}
+
+void Functions_Test::test_funcCallFormsArrayItem()
+{
+    const std::u32string code1 = UR"(
+function fn2(x) { return x*x; }
+
+arr = [fn2];
+a = arr[0](7);
+
+
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto a = mainTable->find(U"a");
+    auto record = engine.getObjectRecord(a);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(7*7, record->data));
+}
+
+void Functions_Test::test_funcCallFormsOfFuncResult()
+{
+    const std::u32string code1 = UR"(
+function fn2(x) { return x*x; }
+
+function fn() {
+    return fn2;
+}
+
+a = fn()(7);
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto a = mainTable->find(U"a");
+    auto record = engine.getObjectRecord(a);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(7*7, record->data));
 }
 

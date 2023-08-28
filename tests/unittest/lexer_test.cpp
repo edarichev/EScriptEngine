@@ -36,7 +36,7 @@ void Lexer_Test::test_allTokens()
             U" super switch this throw  try typeof var void while with yield\n"
             U" . ( { [ ) } ] + ++ += - -- -= ^ ^= ! != !== * *= / /=\n"
             U" % %= < <= << <<= > >= >> >>= >>> >>>= = == === & && &=\n"
-            U" | || |= ~  ? : ,;";
+            U" | || |= ~  ? : ,; ??";
 
     const Token tokens[] = {
         Token::Break,              // break
@@ -129,6 +129,7 @@ void Lexer_Test::test_allTokens()
         Token::Colon,              // :
         Token::Comma,              // ,
         Token::Semicolon,          // ;
+        Token::NCO,                // ??
     };
 
     Lexer lexer(strOnlyTokens);

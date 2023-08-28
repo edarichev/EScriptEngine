@@ -59,7 +59,7 @@ public:
     void fnArg(std::shared_ptr<Symbol> &argument);
     void fnReturn(std::shared_ptr<Symbol> &func);
     void fnEmptyReturn(std::shared_ptr<Symbol> &func);
-    void call(std::shared_ptr<Symbol> &func, int nArgs, std::shared_ptr<Symbol> &resultVariable);
+    void call(Symbol *func, int nArgs, std::shared_ptr<Symbol> &resultVariable);
     void startBlock(std::shared_ptr<Block> &block);
     void endBlock(std::shared_ptr<Block> &block);
     void push(const Operand &value);
