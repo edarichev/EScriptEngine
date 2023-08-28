@@ -118,7 +118,7 @@ y = "hello";
 
 Операции сравнения:
 
-`<, >, ==, !=, <=, >=`
+`<, >, ==, !=, <=, >=, ??`.
 
 Деление `/` - целочисленное. Если нужен вещественный результат, надо использовать 
 хотя бы одно число или переменную с плавающей точкой.
@@ -719,7 +719,7 @@ spreadsheet.cell(1, 2).text = "World"; // вызова метода, без об
 главное, чтобы класс наследовался от `AutomationObject`:
 
 ```javascript
-spreadsheet.cell(2, 2).style.color = "#00FFFF"; // жёлтый
+spreadsheet.cell(2, 2).style.color = "#00FFFF";
 sColor = spreadsheet.cell(2, 2).style.color.toString(); // == "#00FFFF"
 ```
 

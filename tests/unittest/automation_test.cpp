@@ -2,31 +2,31 @@
 #include "automation_test.h"
 #include <iomanip>
 
-class MyColor : public AutomationObject
+class MyCellColor : public AutomationObject
 {
     using BaseClass = AutomationObject;
-    using pFn = void (MyColor::*)(Processor *p);
+    using pFn = void (MyCellColor::*)(Processor *p);
     static std::map<std::u32string, pFn> _fn;
     int _rgb {};
 public:
-    MyColor()
+    MyCellColor()
     {
         buildFunctionsMap();
     }
-    MyColor(const std::u32string &c)
+    MyCellColor(const std::u32string &c)
     {
         if (c.find(U"#") == 0) {
             size_t i = 0;
             _rgb = std::stoi(to_utf8(c.substr(1)), &i, 16);
         }
     }
-    MyColor &operator=(const std::u32string &c)
+    MyCellColor &operator=(const std::u32string &c)
     {
-        MyColor ct(c);
+        MyCellColor ct(c);
         swap(ct, *this);
         return *this;
     }
-    static void swap(MyColor &l, MyColor &r) noexcept
+    static void swap(MyCellColor &l, MyCellColor &r) noexcept
     {
         std::swap(l._rgb, r._rgb);
     }
@@ -44,7 +44,7 @@ public:
     {
         if (!_fn.empty())
             return;
-        _fn[U"toString"] = &MyColor::call_toString;
+        _fn[U"toString"] = &MyCellColor::call_toString;
     }
 
     void call_toString(Processor *p)
@@ -57,35 +57,35 @@ public:
     }
 };
 
-std::map<std::u32string, MyColor::pFn> MyColor::_fn;
+std::map<std::u32string, MyCellColor::pFn> MyCellColor::_fn;
 
-class MyStyle : public AutomationObject
+class MyCellStyle : public AutomationObject
 {
     using BaseClass = AutomationObject;
-    using pFn = void (MyStyle::*)(Processor *p);
+    using pFn = void (MyCellStyle::*)(Processor *p);
     static std::map<std::u32string, pFn> _fn;
-    MyColor _color;
+    MyCellColor _color;
 public:
-    MyStyle()
+    MyCellStyle()
     {
         buildFunctionsMap();
     }
 
-    MyStyle(const MyStyle &c)
+    MyCellStyle(const MyCellStyle &c)
     {
         _color = c._color;
     }
 
-    MyStyle &operator=(const MyStyle &c)
+    MyCellStyle &operator=(const MyCellStyle &c)
     {
-        MyStyle tmp(c);
+        MyCellStyle tmp(c);
         swap(tmp, *this);
         return *this;
     }
 
-    void swap(MyStyle &l, MyStyle &r) noexcept
+    void swap(MyCellStyle &l, MyCellStyle &r) noexcept
     {
-        MyColor::swap(l._color, r._color);
+        MyCellColor::swap(l._color, r._color);
     }
 
     virtual bool call(const u32string &method, Processor *p) override
@@ -103,8 +103,8 @@ public:
     {
         if (!_fn.empty())
             return;
-        _fn[U"set_color"] = &MyStyle::call_set_color;
-        _fn[U"get_color"] = &MyStyle::call_get_color;
+        _fn[U"set_color"] = &MyCellStyle::call_set_color;
+        _fn[U"get_color"] = &MyCellStyle::call_get_color;
     }
 
     void call_get_color(Processor *p)
@@ -123,7 +123,7 @@ public:
     }
 };
 
-std::map<std::u32string, MyStyle::pFn> MyStyle::_fn;
+std::map<std::u32string, MyCellStyle::pFn> MyCellStyle::_fn;
 
 class MyCell : public AutomationObject
 {
@@ -131,7 +131,7 @@ class MyCell : public AutomationObject
     using pFn = void (MyCell::*)(Processor *p);
     std::u32string _value;
     static std::map<std::u32string, pFn> _fn;
-    MyStyle _style;
+    MyCellStyle _style;
 public:
     const std::u32string &value() const { return _value; }
     void setValue(const u32string &newValue) { _value = newValue; }
@@ -456,8 +456,8 @@ spreadsheet.cell(1, 2).text = "World";
 spreadsheet.cell(1, 2).text = spreadsheet.cell(1, 2).text + "!!!";
 spreadsheet.cell(1, 3).text = "Hello";
 p = spreadsheet.cell(1, 3).text[1] = "a";
-spreadsheet.cell(2, 2).style.color = "#00FFFF"; // yellow
-sColor = spreadsheet.cell(2, 2).style.color.toString(); // == "#00FFFF"
+spreadsheet.cell(2, 2).style.color = "#FFFF00"; // yellow
+sColor = spreadsheet.cell(2, 2).style.color.toString(); // == "#FFFF00"
 )";
     EScript engine;
     MySpreadSheet spreadsheet;
@@ -485,7 +485,7 @@ sColor = spreadsheet.cell(2, 2).style.color.toString(); // == "#00FFFF"
     auto sColor = mainTable->find(U"sColor");
     record = engine.getObjectRecord(sColor);
     assert(record->type == SymbolType::String);
-    assert(Compare::equals_string(U"#00FFFF", record->data));
+    assert(Compare::equals_string(U"#FFFF00", record->data));
 }
 
 
