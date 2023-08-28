@@ -52,6 +52,7 @@ Processor::Processor(Machine *m)
             {OpCode::LOG_OR, ArithmeticOperation::LOGOR },
             {OpCode::MODST, ArithmeticOperation::Mod },
             {OpCode::STNOTEQ, ArithmeticOperation::BoolNotEqual },
+            {OpCode::STNCO, ArithmeticOperation::NCO },
         };
     }
 }
@@ -627,6 +628,11 @@ void Processor::ld_null()
 void Processor::stnoteq()
 {
     binaryStackOp(OpCode::STNOTEQ);
+}
+
+void Processor::stnco()
+{
+    binaryStackOp(OpCode::STNCO);
 }
 
 void Processor::pushToStack(int64_t value)

@@ -52,6 +52,7 @@ enum class ArithmeticOperation : uint8_t
     LOGOR = 16,
     Mod = 17,
     BoolNotEqual = 18,
+    NCO = 19,
 };
 
 class StringObject;

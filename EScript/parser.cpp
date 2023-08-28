@@ -593,6 +593,11 @@ void Parser::LogicalOrOrAndExpression()
 void Parser::LogicalOrNCOExpression()
 {
     LogicalOrOrAndExpression();
+    if (lookahead() == Token::NCO) {
+        next();
+        LogicalOrOrAndExpression();
+        emitBinaryOp(OperationType::NCO);
+    }
 }
 
 void Parser::Term()
@@ -770,18 +775,8 @@ void Parser::FunctionCallExpression()
     if (!func)
         undeclaredIdentifier();
     match(Token::Identifier);
-    match(Token::LeftParenth);
-    int nArgs = 0;
-    if (lookahead() != Token::RightParenth) {
-        _argumentsCountStack.push(0);
-        ArgumentList();
-        nArgs = _argumentsCountStack.top();
-        _argumentsCountStack.pop();
-    }
-    match(Token::RightParenth);
-    auto resultVariable = currentSymbolTable()->addTemp();
-    emitCall(func, nArgs, resultVariable);
-    pushVariable(resultVariable);
+    pushFunction(func); // нужен для FunctionCallArgs()
+    FunctionCallArgs();
 }
 
 void Parser::OptionalFunctorCall()
@@ -792,10 +787,16 @@ void Parser::OptionalFunctorCall()
         error("Expected expression before () operation");
     switch (_values.top().type) {
     case SymbolType::Variable:
-        break; // здесь должна быть некая временная переменная
+        break; // здесь обязана быть некая временная переменная
     default:
         error("Expected variable before () operation");
     }
+    FunctionCallArgs();
+}
+
+void Parser::FunctionCallArgs()
+{
+    // функция должна быть помещена в стек парсера
     auto func = popStackValue().variable;
     match(Token::LeftParenth);
     int nArgs = 0;
@@ -807,7 +808,7 @@ void Parser::OptionalFunctorCall()
     }
     match(Token::RightParenth);
     auto resultVariable = currentSymbolTable()->addTemp();
-    emitCallFunctor(func, nArgs, resultVariable);
+    emitCall(func, nArgs, resultVariable);
     pushVariable(resultVariable);
 }
 
@@ -1360,6 +1361,7 @@ void Parser::emitBinaryOp(OperationType opType)
     case OperationType::LogOR:
     case OperationType::Mod:
     case OperationType::NotEqual:
+    case OperationType::NCO:
     {
         auto opRecord2 = popStackValue();
         auto opRecord1 = popStackValue();
@@ -1505,10 +1507,10 @@ void Parser::emitReturn()
 void Parser::emitCall(std::shared_ptr<Symbol> &func, int nArgs,
                       std::shared_ptr<Symbol> &resultVariable)
 {
-    _emitter->call(func.get(), nArgs, resultVariable);
+    emitCall(func.get(), nArgs, resultVariable);
 }
 
-void Parser::emitCallFunctor(Symbol *func, int nArgs, std::shared_ptr<Symbol> &resultVariable)
+void Parser::emitCall(Symbol *func, int nArgs, std::shared_ptr<Symbol> &resultVariable)
 {
     // вызов любого объекта типа Variable/Function как функции
     _emitter->call(func, nArgs, resultVariable);

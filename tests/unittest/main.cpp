@@ -32,6 +32,7 @@
 #include "number_test.h"
 #include "callscriptfunction_test.h"
 #include "null_test.h"
+#include "nco_test.h"
 
 using namespace std;
 
@@ -69,6 +70,7 @@ int main()
     Number_Test().run();
     CallScriptFunction_Test().run();
     Null_Test().run();
+    NCO_Test().run();
     cout << "Tests OK" << endl;
     return 0;
 }

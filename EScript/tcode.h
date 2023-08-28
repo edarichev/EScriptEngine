@@ -75,6 +75,7 @@ enum class OperationType
     StoreActivationRecord,
     LoadActivationRecord,
     NotEqual,       // op1!=op2
+    NCO,            // op1 == null ? op2 : op1
 };
 
 /**

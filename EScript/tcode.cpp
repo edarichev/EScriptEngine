@@ -34,6 +34,9 @@ std::string TCode::toString() const
     case OperationType::None:
         op = "NONE";
         break;
+    case OperationType::NCO:
+        op = "NCO";
+        break;
     case OperationType::Add:
         op = "+";
         opSign = assign;

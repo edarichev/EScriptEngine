@@ -57,7 +57,8 @@ private:
     std::stack<int> _exitLabels;
     // для подсчёта аргументов в ArgumentsList
     std::stack<int> _argumentsCountStack;
-    // для return - функции, return - к ближайшей функции
+    // для return: здесь помещаются указатели на функции,
+    // return применяется к ближайшей функции (верхней в стеке)
     std::stack<std::shared_ptr<Symbol> > _returnStack;
     // стек значений
     std::stack<Operand> _values;
@@ -109,6 +110,7 @@ private:
     void Factor();
     void FunctionCallExpression();
     void OptionalFunctorCall();
+    void FunctionCallArgs();
     void ArgumentList();
     void AnyStatement();
     void ReturnStatement();
@@ -195,7 +197,7 @@ private:
     void emitEmptyReturn();
     void emitReturn();
     void emitCall(std::shared_ptr<Symbol> &func, int nArgs, std::shared_ptr<Symbol> &resultVariable);
-    void emitCallFunctor(Symbol *func, int nArgs, std::shared_ptr<Symbol> &resultVariable);
+    void emitCall(Symbol *func, int nArgs, std::shared_ptr<Symbol> &resultVariable);
     void emitFnEnd();
     void emitCallAOMethod(Symbol *leftVariable,
                           const std::u32string &propName,

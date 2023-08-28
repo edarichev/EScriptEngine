@@ -57,6 +57,7 @@ Translator::Translator(Storage &s) : _storage(s)
             {OperationType::LogOR, ArithmeticOperation::LOGOR },
             {OperationType::Mod, ArithmeticOperation::Mod },
             {OperationType::NotEqual, ArithmeticOperation::BoolNotEqual },
+            {OperationType::NCO, ArithmeticOperation::NCO },
         };
     }
 }
@@ -171,6 +172,7 @@ void Translator::translateOperation(const TCode &c)
     case OperationType::LogOR:
     case OperationType::Mod:
     case OperationType::NotEqual:
+    case OperationType::NCO:
         binaryOp(c);
         break;
     case OperationType::Assign:
@@ -469,6 +471,9 @@ void Translator::binaryOp(const TCode &c)
         break;
     case OperationType::NotEqual:
         a.stnoteq();
+        break;
+    case OperationType::NCO:
+        a.stnco();
         break;
     default:
         throw std::domain_error("Unsupported binary operation");

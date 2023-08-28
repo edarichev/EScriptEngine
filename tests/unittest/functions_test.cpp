@@ -335,7 +335,7 @@ function fn() {
     return fn2;
 }
 
-a = fn()(7);
+a = fn()(7); // == 7*7
 )";
     EScript engine;
     engine.eval(code1);

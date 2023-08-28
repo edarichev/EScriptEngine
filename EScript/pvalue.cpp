@@ -313,6 +313,9 @@ PValue PValue::getValue(const StackValue &item)
 
 PValue PValue::binaryOpValues(const PValue &value1, const PValue &value2, ArithmeticOperation op)
 {
+    if (op == ArithmeticOperation::NCO) {
+        return value1.isNull() ? value2 : value1;
+    }
     if (value1.isNull() || value2.isNull()) {
         switch (op) {
         case ArithmeticOperation::BoolEqual:
