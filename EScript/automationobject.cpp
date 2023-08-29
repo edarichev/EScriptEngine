@@ -37,7 +37,7 @@ AutomationObject::AutomationObject()
 
 AutomationObject::~AutomationObject()
 {
-    _mark = 0xDEADBEEF;
+    _mark = OBJECT_REMOVED_MARK;
 }
 
 bool AutomationObject::call(const std::u32string &method, Processor *p)

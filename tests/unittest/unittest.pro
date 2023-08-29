@@ -40,6 +40,7 @@ SOURCES += \
         stdafx.cpp \
         string_test.cpp \
         switchcase_test.cpp \
+        ternaryconditionaloperator_test.cpp \
         variabledecl_test.cpp \
         whilestatement_test.cpp
 
@@ -78,6 +79,7 @@ HEADERS += \
     stdafx.h \
     string_test.h \
     switchcase_test.h \
+    ternaryconditionaloperator_test.h \
     variabledecl_test.h \
     whilestatement_test.h
 

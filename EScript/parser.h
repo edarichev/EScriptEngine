@@ -96,6 +96,7 @@ private:
     void FunctionDeclExpression();
     void Variable();
     void Expression();
+    void TernaryExpression();
     void SimpleExpression();
     void SimpleOrShiftExpression();
     void ShiftOrRelationExpression();

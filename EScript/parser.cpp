@@ -453,6 +453,30 @@ void Parser::Expression()
         break;
     }
     LogicalOrNCOExpression();
+    TernaryExpression();
+}
+
+void Parser::TernaryExpression()
+{
+    if (lookahead() != Token::Question)
+        return;
+    // тернарный условный оператор
+    // в стеке что-то есть
+    match(Token::Question);
+    int falseLabel = nextLabel();
+    int exitLabel = nextLabel();
+    auto tmp = currentSymbolTable()->addTemp();
+    emitIfFalseHeader(falseLabel);
+    popStackValue();
+    Expression();                   // true-значение
+    emitAssign(tmp.get());
+    match(Token::Colon);
+    emitGoto(exitLabel);
+    emitLabel(falseLabel);
+    Expression();                   // false-значение
+    emitAssign(tmp.get());
+    emitLabel(exitLabel);
+    pushVariable(tmp);
 }
 
 void Parser::SimpleExpression()
@@ -1311,7 +1335,7 @@ const u32string &Parser::tokenText() const
 void Parser::emitIfFalseHeader(int exitOrFalseLabelId)
 {
     auto valueType = _values.top().type;
-    // зависит от того, что тут есть
+    // TODO: зависит от того, что тут есть
     // если значение можно вычислить сейчас, то ветку false/true
     // можно выбросить и обойтись без ветвления
     // пока мы засунем во временную переменную

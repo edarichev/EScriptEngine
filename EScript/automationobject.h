@@ -23,6 +23,7 @@
 #include "stackvalue.h"
 
 #define OBJECT_EXISTS_MARK 0xCCCCCCCC
+#define OBJECT_REMOVED_MARK 0xDEADBEEF
 
 namespace escript {
 
