@@ -23,7 +23,7 @@
 
 namespace escript {
 
-class ESCRIPT_EXPORT Number : public AutomationObject
+class ESCRIPT_EXPORT Number final : public AutomationObject
 {
     using BaseClass = AutomationObject;
     typedef void (Number::*pFn)(Processor *p);

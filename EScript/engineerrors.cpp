@@ -23,10 +23,30 @@
 
 namespace escript {
 
-ArgumentNullException::ArgumentNullException(const char *file, int line)
-    : BaseClass(STR_ARGUMENT_NULL)
+Exception::Exception()
 {
 
 }
+
+Exception::Exception(int line, const char *file)
+    : _line(line), _file(file)
+{
+
+}
+
+Exception::~Exception(){}
+
+ArgumentNullException::ArgumentNullException(int line, const char *file)
+    : BaseClass(line, file)
+{
+
+}
+
+SyntaxError::SyntaxError(int line, int pos)
+    : _srcLine(line), _pos(pos)
+{
+
+}
+
 
 } // namespace escript

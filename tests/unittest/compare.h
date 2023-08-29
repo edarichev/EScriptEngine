@@ -18,8 +18,13 @@ public:
 
     static bool equals_double(double d1, uint64_t doubleAsUInt64)
     {
-        double d2 = escript::bit_cast<double>(doubleAsUInt64);
-        return std::abs(d1 - d2) <= std::numeric_limits<double>::epsilon()*100;
+        double d2 = bit_cast<double>(doubleAsUInt64);
+        uint64_t ud1 = bit_cast<uint64_t>(d1);
+        // в эти случаи включается NaN:
+        if (ud1 == doubleAsUInt64)
+            return true;
+        // остальное - с погрешностью
+        return equals_double(d1, d2);
     }
 
     static bool equals_bool(bool b, uint64_t boolAsUInt64)

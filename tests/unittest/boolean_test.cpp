@@ -16,6 +16,7 @@ void Boolean_Test::run()
     test_greaterOrEqual();
     test_equal();
     test_arrayItemsLess();
+    test_compareToNaN();
     cleanupTestCase();
 }
 
@@ -189,6 +190,26 @@ void Boolean_Test::test_arrayItemsLess()
     auto record = engine.getObjectRecord(x);
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(7, record->data));
+
+    auto b = mainTable->find(U"b");
+    record = engine.getObjectRecord(b);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(true, record->data));
+}
+
+void Boolean_Test::test_compareToNaN()
+{
+    const u32string code1 = UR"(
+x = NaN;
+b = x == NaN;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto x = mainTable->find(U"x");
+    auto record = engine.getObjectRecord(x);
+    assert(record->type == SymbolType::Real);
+    assert(Compare::equals_double(std::numeric_limits<double>::signaling_NaN(), record->data));
 
     auto b = mainTable->find(U"b");
     record = engine.getObjectRecord(b);

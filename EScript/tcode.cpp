@@ -26,7 +26,7 @@ namespace escript {
 std::string TCode::toString() const
 {
     std::string op;
-    // только для форматированного вывода, не реальное число
+    // число операндов: только для форматированного вывода, не реальное число
     int numberOfOperands = 0;
     std::string opSign;
     std::string assign = ":=";

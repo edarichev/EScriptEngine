@@ -323,7 +323,7 @@ PValue PValue::binaryOpValues(const PValue &value1, const PValue &value2, Arithm
         case ArithmeticOperation::BoolNotEqual:
             return PValue(value1.isNull() != value2.isNull());
         default:
-            throw ArgumentNullException(__FILE__, __LINE__);
+            throw ArgumentNullException(__LINE__, __FILE__);
         }
     }
     // в арифметических действиях true/false рассматриваем как целые числа 1, 0

@@ -461,22 +461,24 @@ void Parser::TernaryExpression()
     if (lookahead() != Token::Question)
         return;
     // тернарный условный оператор
-    // в стеке что-то есть
-    match(Token::Question);
-    int falseLabel = nextLabel();
-    int exitLabel = nextLabel();
+    assert(!_values.empty());       // в стеке - первое выражение, которое
+    match(Token::Question);         // рассматривается как логическое условие
+    int falseLabel = nextLabel();   // сделаем как if-else, результат каждой
+    int exitLabel = nextLabel();    // ветки поместим во временную переменную
+                                    // на выходе из правила эта переменная будет
+                                    // использоваться как результат выражения
     auto tmp = currentSymbolTable()->addTemp();
     emitIfFalseHeader(falseLabel);
-    popStackValue();
-    Expression();                   // true-значение
-    emitAssign(tmp.get());
+    popStackValue();                // это - логическое значение, убираем его
+    Expression();                   // true-ветка
+    emitAssign(tmp);
     match(Token::Colon);
     emitGoto(exitLabel);
     emitLabel(falseLabel);
-    Expression();                   // false-значение
-    emitAssign(tmp.get());
+    Expression();                   // false-ветка
+    emitAssign(tmp);
     emitLabel(exitLabel);
-    pushVariable(tmp);
+    pushVariable(tmp);              // результат - либо из true, либо из false-веток
 }
 
 void Parser::SimpleExpression()
@@ -707,25 +709,16 @@ void Parser::Factor()
             break;
         case Token::LeftBracket: {
             // обращение к элементу массива
-#if 0
-            pushBack(Token::Identifier, idText);
-            ArrayItemRefExpression();
-#else
             auto id = tokenText();
             auto arrValue = currentSymbolTable()->find(idText);
             if (!arrValue)
                 undeclaredIdentifier(idText);
             pushVariable(arrValue);
             OptionalDotOrBracketExpression();
-#endif
             break;
         }
         case Token::Dot: {
             // DotOperation: здесь важно различить: это слева от = или справа
-#if 0
-            pushBack(Token::Identifier, idText);
-            DotOperation();
-#else
             if (idText == U"Math") {
                 if (resolveMathConstant())
                     return;
@@ -735,7 +728,6 @@ void Parser::Factor()
                 undeclaredIdentifier(idText);
             pushVariable(opValue);
             OptionalDotOrBracketExpression();
-#endif
             break;
         }
         default:
@@ -749,6 +741,10 @@ void Parser::Factor()
     }
     case Token::IntegerNumber:
         pushInt(_lexer->lastIntegerNumber());
+        next();
+        break;
+    case Token::NaN:
+        pushReal(std::numeric_limits<double>::signaling_NaN());
         next();
         break;
     case Token::RealNumber:
@@ -778,7 +774,7 @@ void Parser::Factor()
         } else if (lookahead() == Token::LeftBracket) {
             auto tmpStr = currentSymbolTable()->addTemp();
             pushString(str);
-            emitAssign(tmpStr.get());
+            emitAssign(tmpStr);
             pushVariable(tmpStr);
             OptionalDotOrBracketExpression();
             return;
@@ -897,7 +893,7 @@ void Parser::ArrayDeclExpression()
             break;
         Expression();
         auto e = currentSymbolTable()->addTemp();
-        emitAssign(e.get());
+        emitAssign(e);
         pushVariable(e);
         emitPush();
         // в результате вызова всегда что-то есть, даже 0
@@ -999,7 +995,7 @@ void Parser::DotOperation()
         // создать временную переменную
         auto tmpStrValue = currentSymbolTable()->addTemp();
         pushString(tokenText());
-        emitAssign(tmpStrValue.get());
+        emitAssign(tmpStrValue);
         variableName = tmpStrValue->name();
         next();
     } else {
@@ -1062,7 +1058,7 @@ void Parser::OptionalDotOperation()
     case SymbolType::Real: {
         // если это литерал, то создать временную переменную
         auto tmpLiteralVar = currentSymbolTable()->addTemp();
-        emitAssign(tmpLiteralVar.get());
+        emitAssign(tmpLiteralVar);
         pushVariable(tmpLiteralVar);
         break;
     }
@@ -1123,7 +1119,7 @@ void Parser::PostfixOperation()
     // увеличить временную переменную, затолкать её в стек вместо первой
     auto top = stackValue();
     auto tmp = currentSymbolTable()->addTemp();
-    emitAssign(tmp.get());
+    emitAssign(tmp);
     switch (top.type) {
     case SymbolType::Integer:
         pushInt(top.intValue);
@@ -1187,7 +1183,7 @@ void Parser::SwitchStatement()
     Expression();
     // следующую переменную будем сравнивать со всеми значениями в case exprN:
     auto switchValue = currentSymbolTable()->addTemp(); // switch (expr1)
-    emitAssign(switchValue.get());
+    emitAssign(switchValue);
     match(Token::RightParenth);
     match(Token::LeftBrace);
     // для прохода (fall-through) из одного case в другой, если нет break
@@ -1258,9 +1254,9 @@ void Parser::SwitchStatement()
 void Parser::OptionalDotOrBracketExpression()
 {
     // наивысший приоритет
-    // операция точка или обращение к элементу[]
-    // это необязательное правило и применяется в особых местах
-    // перед этим в стек должна быть помещена переменная
+    // Операции 'точка' или 'обращение к элементу[]'
+    // Это необязательное правило и применяется в особых местах,
+    // перед этим в стек должна быть помещена переменная,
     // но только если сейчас токены "." или "["
     do {
         switch (lookahead()) {
@@ -1335,7 +1331,7 @@ const u32string &Parser::tokenText() const
 void Parser::emitIfFalseHeader(int exitOrFalseLabelId)
 {
     auto valueType = _values.top().type;
-    // TODO: зависит от того, что тут есть
+    // TODO: зависит от того, что тут есть:
     // если значение можно вычислить сейчас, то ветку false/true
     // можно выбросить и обойтись без ветвления
     // пока мы засунем во временную переменную
@@ -1348,7 +1344,7 @@ void Parser::emitIfFalseHeader(int exitOrFalseLabelId)
     } else {
         ptrValue = _values.top().variable;
     }
-    // здесь должна быть только переменная в стеке
+    // здесь должна быть только переменная в стеке,
     // иначе должна быть оптимизация, и сюда мы не доходим
     _emitter->iffalse(ptrValue, exitOrFalseLabelId);
 }
@@ -1365,38 +1361,13 @@ void Parser::emitLabel(int labelId)
 
 void Parser::emitBinaryOp(OperationType opType)
 {
-    switch (opType) {
-    case OperationType::Add:
-    case OperationType::Div:
-    case OperationType::Minus:
-    case OperationType::Multiply:
-    case OperationType::Less:
-    case OperationType::LessOrEqual:
-    case OperationType::Greater:
-    case OperationType::GreaterOrEqual:
-    case OperationType::Equal:
-    case OperationType::LShift:
-    case OperationType::RShift:
-    case OperationType::RShiftZero:
-    case OperationType::BitAND:
-    case OperationType::BitOR:
-    case OperationType::BitXOR:
-    case OperationType::LogAND:
-    case OperationType::LogOR:
-    case OperationType::Mod:
-    case OperationType::NotEqual:
-    case OperationType::NCO:
-    {
-        auto opRecord2 = popStackValue();
-        auto opRecord1 = popStackValue();
-        std::shared_ptr<Symbol> tmp = currentSymbolTable()->addTemp();
-        _emitter->binaryOp(opType, tmp.get(), opRecord1, opRecord2);
-        pushVariable(tmp);
-        break;
-    }
-    default:
-        throw std::domain_error("Invalid binary operation");
-    }
+    auto opRecord2 = popStackValue();
+    auto opRecord1 = popStackValue();
+    std::shared_ptr<Symbol> tmp = currentSymbolTable()->addTemp();
+    // правильная операция будет проверена внутри,
+    // чтобы не дублировать проверки:
+    _emitter->binaryOp(opType, tmp.get(), opRecord1, opRecord2);
+    pushVariable(tmp);
 }
 
 void Parser::emitBreak()
@@ -1421,16 +1392,13 @@ void Parser::emitUnaryOp(OperationType opType)
         // не нужно тут никакого кода, сразу выполняем действие
         switch (opType) {
         case OperationType::UMinus:
-            lastInt = -lastInt;
-            pushInt(lastInt);
+            pushInt(-lastInt);
             break;
         case OperationType::BitNOT:
-            lastInt = ~lastInt;
-            pushInt(lastInt);
+            pushInt(~lastInt);
             break;
         case OperationType::LogNOT:
-            lastInt = !lastInt;
-            pushBoolean(lastInt ? true : false);
+            pushBoolean(lastInt ? false : true);
             break;
         default:
             throw std::domain_error("Invalid unary operation");
@@ -1479,6 +1447,11 @@ void Parser::emitAssign(Symbol *lvalue)
     // после Expression всегда что-то есть в стеке
     auto rec = popStackValue();
     _emitter->assign(lvalue, rec);
+}
+
+void Parser::emitAssign(std::shared_ptr<Symbol> &lvalue)
+{
+    emitAssign(lvalue.get());
 }
 
 void Parser::emitFnStart(std::shared_ptr<Symbol> &func)

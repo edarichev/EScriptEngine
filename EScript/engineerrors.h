@@ -23,11 +23,29 @@
 
 namespace escript {
 
-class ESCRIPT_EXPORT ArgumentNullException : public std::domain_error
+class ESCRIPT_EXPORT Exception : public std::exception
 {
-    using BaseClass = std::domain_error;
+    int _line;
+    std::string _file;
 public:
-    ArgumentNullException(const char *file, int line);
+    Exception();
+    Exception(int line, const char *file);
+    virtual ~Exception();
+};
+
+class ESCRIPT_EXPORT ArgumentNullException : public Exception
+{
+    using BaseClass = Exception;
+public:
+    ArgumentNullException(int line, const char *file);
+};
+
+class ESCRIPT_EXPORT SyntaxError : public Exception
+{
+    int _srcLine = 0;
+    int _pos = 0;
+public:
+    SyntaxError(int line, int pos);
 };
 
 } // namespace escript

@@ -52,6 +52,7 @@ enum class Token
     Instanceof,         // instanceof
     Interface,          // interface
     Let,                // let
+    NaN,                // NaN
     New,                // new
     Null,               // null
     Package,            // package

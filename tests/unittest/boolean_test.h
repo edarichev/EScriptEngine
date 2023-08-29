@@ -16,6 +16,7 @@ private:
     void test_greaterOrEqual();
     void test_equal();
     void test_arrayItemsLess();
+    void test_compareToNaN();
 };
 
 #endif // BOOLEAN_TEST_H

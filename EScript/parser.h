@@ -177,6 +177,7 @@ private:
      */
     void emitUnaryOp(OperationType opType);
     void emitAssign(Symbol *lvalue);
+    void emitAssign(std::shared_ptr<Symbol> &lvalue);
     /**
      * @brief Записывает начало функции.
      * Текст текущего токена - имя функции в сигнатуре.
