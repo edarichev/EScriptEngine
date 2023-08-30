@@ -20,7 +20,7 @@ public:
     {
         double d2 = bit_cast<double>(doubleAsUInt64);
         uint64_t ud1 = bit_cast<uint64_t>(d1);
-        // в эти случаи включается NaN:
+        // в эти случаи включается NaN, Infinity и прочее:
         if (ud1 == doubleAsUInt64)
             return true;
         // остальное - с погрешностью

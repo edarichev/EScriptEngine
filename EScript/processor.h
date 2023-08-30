@@ -427,6 +427,11 @@ private:
 
     void binaryStackOp(OpCode opCode);
 
+    /**
+     * @brief Уменьшает счётчик ссылок предыущего значения переменной
+     * @param ptr
+     */
+    void releaseObject(ObjectRecord *ptr);
     // упаковка простых типов
 private:
     std::unique_ptr<Number> packNumber(const StackValue &v);

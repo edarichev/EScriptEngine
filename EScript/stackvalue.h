@@ -26,7 +26,10 @@ namespace escript {
 class Array;
 class Function;
 /**
- * @brief Значение, хранимое в стеке машины во время выполнения
+ * @brief Значение, хранимое в стеке машины во время выполнения.
+ * @details Функции get***Value извлекают значение либо из 'value',
+ *        либо, если это переменная, разыменовывают value,
+ *        считая его указателем на ObjectRecord/StringObject.
  */
 struct StackValue
 {
@@ -45,7 +48,6 @@ struct StackValue
     /**
      * @brief Возвращает либо строку, содержащуюся в экземпляре StringObject,
      *        либо преобразует в строку содержимое.
-     * @return
      */
     const std::u32string getStringValue() const noexcept(false);
     /**
@@ -59,7 +61,7 @@ struct StackValue
     Function *getFunction() const;
     /**
      * @brief Вернёт true, если тип равен указанному или если тип - переменная,
-     * и тип этой переменной равен указанному.
+     *        и тип этой переменной равен указанному.
      * @param t
      * @return
      */

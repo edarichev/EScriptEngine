@@ -151,14 +151,14 @@ void Processor::ldargs()
     ptr --;
     // предпоследним - число параметров в функции
     int64_t numOfParameters = *ptr;
-    //PtrIntType *pend = ptr;
     while (numOfVariables > 0) {
         ptr--;
         numOfVariables--;
     }
     // по идее, эту область теперь надо занулить, т.к. при каждом вызове
     // будет всё с чистого листа, но её обнулять нельзя:
-    // 1. здесь могут быть указатели на переменные-функции
+    // 1. здесь могут быть указатели на переменные-функции, которые
+    // одинаковы и хранятся между вызовами
     // 2. в этом нет смысла.
 
     // теперь мы на переменной arguments, пропустим её пока
@@ -166,7 +166,7 @@ void Processor::ldargs()
     ptr++;
     numOfParameters--;
     // теперь в каждую запись нужно вставить либо указатель на ObjectRecord,
-    // если это объект, либо сдлеать "по значению": создать ещё одну
+    // если это существующий объект, либо сделать "по значению": создать ещё одну
     // запись в ObjectRecord
 
     // здесь первым идёт число аргументов
@@ -688,6 +688,33 @@ void Processor::binaryStackOp(OpCode opCode)
     pushToStack(result.type, result.value64());
 }
 
+void Processor::releaseObject(ObjectRecord *ptr)
+{
+    if (!ptr)
+        return;
+    switch (ptr->type) {
+    case SymbolType::Boolean:
+    case SymbolType::Integer:
+    case SymbolType::Real:
+        ptr->counter--;
+        break;
+    case SymbolType::Array:
+    case SymbolType::Function:
+    case SymbolType::String:
+    case SymbolType::Object: {
+        AutomationObject *obj = (AutomationObject*)ptr->data;
+        if (!obj)
+            return;
+        obj->release();
+        break;
+    }
+    case SymbolType::Null:
+        break;
+    default:
+        throw std::domain_error("releaseObject: Unsupported type");
+    }
+}
+
 void Processor::addst()
 {
     binaryStackOp(OpCode::ADDST);
@@ -769,26 +796,30 @@ void Processor::ldc_int64_data64()
 
 void Processor::setValue(ObjectRecord *ptr, int64_t value)
 {
-    // TODO: обработать смену типа
+    // обработать смену типа
+    releaseObject(ptr);
     ptr->type = SymbolType::Integer;
     memcpy(&ptr->data, &value, sizeof(value));
 }
 
 void Processor::setValue(ObjectRecord *ptr, double value)
 {
-    // TODO: обработать смену типа
+    // обработать смену типа
+    releaseObject(ptr);
     ptr->type = SymbolType::Real;
     memcpy(&ptr->data, &value, sizeof(value));
 }
 
 void Processor::setValue(ObjectRecord *ptr, bool value)
 {
+    releaseObject(ptr);
     ptr->type = SymbolType::Boolean;
     ptr->data = value ? 1 : 0;
 }
 
 void Processor::setValue(ObjectRecord *ptr, StringObject *value)
 {
+    releaseObject(ptr);
     ptr->type = SymbolType::String;
     memcpy(&ptr->data, &value, sizeof(value));
 }
@@ -855,9 +886,6 @@ void Processor::stloc_m()
         case SymbolType::Array:
         case SymbolType::Object:
         case SymbolType::Function:
-//            ptrLValue = _storage->findRecord(item.value);
-//            assert(ptrLValue);
-//            break;
         case SymbolType::String:
             ptrLValue = _storage->findRecord(item.type, item.value);
             if (!ptrLValue)
@@ -892,9 +920,6 @@ void Processor::stloc_m()
         ptrLValue->data = item.value;
         break;
     case SymbolType::Array: // проверено выше
-        //ptrLValue->type = SymbolType::Array;
-        //ptrLValue->data = item.value;
-        //ptrLValue->reference = true; // TODO: нужно проверить все присваивания
         break;
     case SymbolType::Object:
         ptrLValue->type = SymbolType::Object;

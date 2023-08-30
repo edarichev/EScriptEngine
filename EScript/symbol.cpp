@@ -22,6 +22,17 @@
 
 namespace escript {
 
+Symbol::Symbol(const std::u32string &id)
+    : _name(id)
+{
+
+}
+
+Symbol::~Symbol()
+{
+
+}
+
 uint64_t Symbol::location() const
 {
     return _location;
@@ -35,17 +46,6 @@ void Symbol::setLocation(uint64_t newLocation)
 void Symbol::addOffset(uint64_t offset)
 {
     _location += offset;
-}
-
-Symbol::Symbol(const std::u32string &id)
-    : _name(id)
-{
-
-}
-
-Symbol::~Symbol()
-{
-
 }
 
 const std::u32string &Symbol::name() const

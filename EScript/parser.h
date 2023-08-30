@@ -201,6 +201,13 @@ private:
     void emitCall(std::shared_ptr<Symbol> &func, int nArgs, std::shared_ptr<Symbol> &resultVariable);
     void emitCall(Symbol *func, int nArgs, std::shared_ptr<Symbol> &resultVariable);
     void emitFnEnd();
+    /**
+     * @brief Генерация вызова метода объекта автоматизации
+     * @param leftVariable переменная "слева", у которой вызываем метод
+     * @param propName имя свойства/метода
+     * @param resultVariable в какую переменную поместить результат вызова
+     * @param nArgs число аргументов, помещённых в стек
+     */
     void emitCallAOMethod(Symbol *leftVariable,
                           const std::u32string &propName,
                           std::shared_ptr<Symbol> &resultVariable,
