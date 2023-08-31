@@ -24,12 +24,14 @@
 #include "console.h"
 #include "mathobject.h"
 #include "numberobject.h"
+#include "datetimeobject.h"
 
 namespace escript {
 
 static const char32_t *consoleId = U"console";
 static const char32_t *mathId = U"Math";
 static const char32_t *numberId = U"Number";
+static const char32_t *dateId = U"DateTime";
 
 EScript::EScript()
 {
@@ -117,6 +119,9 @@ void EScript::registerStandardObjects(std::shared_ptr<Block> &firstBlock)
     auto numberObject = unit()->block()->symbolTable()->find(numberId);
     if (!numberObject)
         numberObject = firstBlock->symbolTable()->add(numberId);
+    auto dateObject = unit()->block()->symbolTable()->find(dateId);
+    if (!dateObject)
+        dateObject = firstBlock->symbolTable()->add(dateId);
 }
 
 void EScript::addStandardObjects()
@@ -149,6 +154,15 @@ void EScript::addStandardObjects()
     _standardObjects[numberId] = number;
     numberRecord->data = (uint64_t)number;
     _machine.replaceValuePtr(numberSymbol, numberRecord);
+
+    auto dateSymbol = unit()->block()->symbolTable()->find(dateId);
+    auto dateRecord = _machine.storage().installRecord(dateSymbol.get());
+    dateRecord->type = SymbolType::Object;
+    DateTimeObject *date = new DateTimeObject();
+    date->addRef();
+    _standardObjects[dateId] = date;
+    dateRecord->data = (uint64_t)date;
+    _machine.replaceValuePtr(dateSymbol, dateRecord);
 }
 
 void EScript::registerDeferredObjects(std::shared_ptr<Block> &objectFileBlock)

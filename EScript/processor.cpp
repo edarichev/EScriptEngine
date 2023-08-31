@@ -651,6 +651,11 @@ void Processor::pushToStack(const std::u32string &value)
     pushToStack(SymbolType::String, (uint64_t)prevOrNew);
 }
 
+void Processor::pushToStack(const std::string &value)
+{
+    pushToStack(to_u32string(value));
+}
+
 void Processor::pushToStack(std::u32string &&value)
 {
     auto prevOrNew = _strings->add(value);

@@ -293,7 +293,7 @@ void Translator::translateFunctionBlock(std::vector<TCode>::const_iterator &it,
     size_t startPointOfData = outBuffer.size();
     // здесь таблица символов
     // сохраняем только символы из блоков кода. Если есть вложенные функции,
-    // то эти таблицы символов должны быть исключены
+    // то эти таблицы символов должны быть исключены - они сохранятся в блоках этих функций
     // это проверяется в writeAllSymbols
     uint32_t totalRecords = 0;
     writeAllSymbols(_tcodeBlock, outBuffer, totalRecords);
@@ -488,6 +488,9 @@ void Translator::opUMinus(const TCode &c)
     switch (c.operand1.type) {
     case SymbolType::Integer:
         a.ldc_int64_data64(c.operand1.intValue);
+        break;
+    case SymbolType::Real:
+        a.ldc_double_data64(c.operand1.realValue);
         break;
     case SymbolType::Variable:
         a.ldloc_m(location(c.operand1.variable));

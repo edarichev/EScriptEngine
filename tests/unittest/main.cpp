@@ -34,6 +34,7 @@
 #include "null_test.h"
 #include "nco_test.h"
 #include "ternaryconditionaloperator_test.h"
+#include "date_test.h"
 
 using namespace std;
 
@@ -73,6 +74,7 @@ int main()
     Null_Test().run();
     NCO_Test().run();
     TernaryConditionalOperator_Test().run();
+    Date_Test().run();
     cout << "Tests OK" << endl;
     return 0;
 }

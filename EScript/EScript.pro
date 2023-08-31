@@ -16,6 +16,7 @@ SOURCES += \
     automationobject.cpp \
     block.cpp \
     console.cpp \
+    datetimeobject.cpp \
     engineerrors.cpp \
     escript.cpp \
     functionobject.cpp \
@@ -50,6 +51,7 @@ HEADERS += \
     automationobject.h \
     block.h \
     console.h \
+    datetimeobject.h \
     engineerrors.h \
     escript.h \
     escriptengine.h \

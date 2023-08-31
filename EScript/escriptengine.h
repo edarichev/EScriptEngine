@@ -26,6 +26,8 @@
 #include "mathobject.h"
 #include "arrayobject.h"
 #include "functionobject.h"
+#include "datetimeobject.h"
+#include "console.h"
 #include "engineerrors.h"
 
 #endif // ESCRIPTENGINE_H

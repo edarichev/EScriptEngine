@@ -401,6 +401,7 @@ public:
     void pushToStack(int64_t value);
     void pushBooleanToStack(bool value);
     void pushToStack(const std::u32string &value);
+    void pushToStack(const std::string &value);
     void pushToStack(std::u32string &&value);
     void pushStringToStack(StringObject *strValue);
     void pushArrayToStack(Array *arrValue);
