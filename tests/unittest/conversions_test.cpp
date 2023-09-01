@@ -241,47 +241,47 @@ void Conversions_Test::test_convertToString()
     auto a = mainTable->find(U"a");
     auto record = engine.getObjectRecord(a);
     assert(record->type == SymbolType::String);
-    assert(U"12345" == ((StringObject*)record->data)->uString());
+    assert(U"12345" == ((StringObject*)record->data)->toString());
 
     const u32string code2 = U"a = 123 + '456';";
     engine.eval(code2);
     a = mainTable->find(U"a");
     record = engine.getObjectRecord(a);
     assert(record->type == SymbolType::String);
-    assert(U"123456" == ((StringObject*)record->data)->uString());
+    assert(U"123456" == ((StringObject*)record->data)->toString());
 
     const u32string code3 = U"a = '0123' + '456';";
     engine.eval(code3);
     a = mainTable->find(U"a");
     record = engine.getObjectRecord(a);
     assert(record->type == SymbolType::String);
-    assert(U"0123456" == ((StringObject*)record->data)->uString());
+    assert(U"0123456" == ((StringObject*)record->data)->toString());
 
     const u32string code4 = U"a = 'f=' + true;";
     engine.eval(code4);
     a = mainTable->find(U"a");
     record = engine.getObjectRecord(a);
     assert(record->type == SymbolType::String);
-    assert(U"f=true" == ((StringObject*)record->data)->uString());
+    assert(U"f=true" == ((StringObject*)record->data)->toString());
 
     const u32string code5 = U"a = 'b:' + false;";
     engine.eval(code5);
     a = mainTable->find(U"a");
     record = engine.getObjectRecord(a);
     assert(record->type == SymbolType::String);
-    assert(U"b:false" == ((StringObject*)record->data)->uString());
+    assert(U"b:false" == ((StringObject*)record->data)->toString());
 
     const u32string code6 = U"a = 'f=' + 123.45;";
     engine.eval(code6);
     a = mainTable->find(U"a");
     record = engine.getObjectRecord(a);
     assert(record->type == SymbolType::String);
-    assert(U"f=123.45" == ((StringObject*)record->data)->uString());
+    assert(U"f=123.45" == ((StringObject*)record->data)->toString());
 
     const u32string code7 = U"a = 36.6 + '_C';";
     engine.eval(code7);
     a = mainTable->find(U"a");
     record = engine.getObjectRecord(a);
     assert(record->type == SymbolType::String);
-    assert(U"36.6_C" == ((StringObject*)record->data)->uString());
+    assert(U"36.6_C" == ((StringObject*)record->data)->toString());
 }

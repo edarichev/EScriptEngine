@@ -363,12 +363,12 @@ void Processor::callm()
     // название метода - это следующая переменная в стеке
     auto methodNameItem = popFromStack();
     StringObject *method = nullptr;
-    std::u32string methodName;
+    const std::u32string *methodName = nullptr;
     // проверка типа
     switch (methodNameItem.type) {
     case SymbolType::String:
         method = (StringObject*)methodNameItem.value; // он напрямую в таблице строк
-        methodName = method->uString();
+        methodName = &method->refString();
         break;
     default:
         throw std::domain_error("Expected a string at top of stack");
@@ -378,7 +378,7 @@ void Processor::callm()
         packedNumber = packNumber(valueToBox);
         obj = packedNumber.get();
     }
-    obj->call(methodName, this);
+    obj->call(*methodName, this);
     // теперь в стеке возвращённое значение (одно или нет)
     // проверим, какой это тип и установим его в таблицу строк или объектов:
     auto result = popFromStack();

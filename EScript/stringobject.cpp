@@ -330,7 +330,12 @@ bool StringObject::operator==(const char32_t *s) const
     return s == _s;
 }
 
-const std::u32string &StringObject::uString() const
+const std::u32string StringObject::toString() const
+{
+    return _s;
+}
+
+const std::u32string &StringObject::refString() const
 {
     return _s;
 }

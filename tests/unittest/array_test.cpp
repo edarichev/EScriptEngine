@@ -225,7 +225,7 @@ x = a[0];
     auto x = mainTable->find(U"x");
     auto record = engine.getObjectRecord(x);
     assert(record->type == SymbolType::String);
-    assert(U"hello" == ((StringObject*)record->data)->uString());
+    assert(U"hello" == ((StringObject*)record->data)->toString());
 }
 
 void Array_Test::test_arrayStringKeys()
@@ -267,7 +267,7 @@ var x = a[0];
     auto x = mainTable->find(U"x");
     auto record = engine.getObjectRecord(x);
     assert(record->type == SymbolType::String);
-    assert(U"hello" == ((StringObject*)record->data)->uString());
+    assert(U"hello" == ((StringObject*)record->data)->toString());
 }
 
 void Array_Test::test_arrayRealKeys()
@@ -288,7 +288,7 @@ var x = a[10];
     auto x = mainTable->find(U"x");
     auto record = engine.getObjectRecord(x);
     assert(record->type == SymbolType::String);
-    assert(U"hello" == ((StringObject*)record->data)->uString());
+    assert(U"hello" == ((StringObject*)record->data)->toString());
 }
 
 void Array_Test::test_arrayRealValues()
@@ -528,7 +528,7 @@ x = fn()[1];
     auto x = mainTable->find(U"x");
     auto record = engine.getObjectRecord(x);
     assert(record->type == SymbolType::String);
-    assert(U"e" == ((StringObject*)record->data)->uString());
+    assert(U"e" == ((StringObject*)record->data)->toString());
 }
 
 void Array_Test::test_arrayLength()
@@ -1328,7 +1328,7 @@ x = a.join("*_*"); // -> 'hello*_*world*_*1*_*2*_*3'
     auto x = mainTable->find(U"x");
     auto record = engine.getObjectRecord(x);
     assert(record->type == SymbolType::String);
-    assert(U"hello*_*world*_*1*_*2*_*3" == ((StringObject*)record->data)->uString());
+    assert(U"hello*_*world*_*1*_*2*_*3" == ((StringObject*)record->data)->toString());
 }
 
 void Array_Test::test_arrayFilter()

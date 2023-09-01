@@ -114,7 +114,7 @@ struct PValue
      */
     uint64_t value64() const;
 
-    std::u32string uString() const;
+    std::u32string toString() const;
 
     static PValue getValue(ObjectRecord *ptr);
 

@@ -56,7 +56,7 @@ int64_t intValue(SymbolType type, uint64_t value)
     case SymbolType::Real:
         return (int64_t)bit_cast<double>(value);
     case SymbolType::String:
-        return to_int64(((StringObject*)value)->uString());
+        return to_int64(((StringObject*)value)->refString());
     case SymbolType::Variable:
         return intValue(((ObjectRecord*)value)->type, ((ObjectRecord*)value)->data);
     default:
@@ -74,7 +74,7 @@ double doubleValue(SymbolType type, uint64_t value)
     case SymbolType::Real:
         return bit_cast<double>(value);
     case SymbolType::String:
-        return to_double(((StringObject*)value)->uString());
+        return to_double(((StringObject*)value)->refString());
     case SymbolType::Variable:
         return doubleValue(((ObjectRecord*)value)->type, ((ObjectRecord*)value)->data);
     default:
@@ -105,7 +105,7 @@ bool boolValue(SymbolType type, uint64_t value)
     case SymbolType::Real:
         return (bool)value;
     case SymbolType::String:
-        return ((StringObject*)value)->uString() == U"true";
+        return ((StringObject*)value)->refString() == U"true";
     case SymbolType::Variable: {
         ObjectRecord *rec = (ObjectRecord*)value;
         return boolValue(rec->type, rec->data);

@@ -73,7 +73,7 @@ public:
     void set(const std::u32string &index, PValue value);
     int64_t length() const;
     void add(PValue value);
-    std::u32string uString() const;
+    const std::u32string toString() const override;
     // AutomationObject interface
 public:
     virtual bool call(const std::u32string &method, Processor *p) override;

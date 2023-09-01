@@ -252,7 +252,7 @@ uint64_t PValue::value64() const
     }
 }
 
-std::u32string PValue::uString() const
+std::u32string PValue::toString() const
 {
     return to_u32string(type, value64());
 }
@@ -371,7 +371,7 @@ PValue PValue::binaryOpValues(const PValue &value1, const PValue &value2, Arithm
     // всё остальное переводим в строку как получится
     switch (op) {
     case ArithmeticOperation::Add: {
-        auto str = value1.uString() + value2.uString();
+        auto str = value1.toString() + value2.toString();
         StringObject *newString = new StringObject(str);
         PValue ret;
         ret.strValue = newString;
@@ -379,17 +379,17 @@ PValue PValue::binaryOpValues(const PValue &value1, const PValue &value2, Arithm
         return ret;
     }
     case ArithmeticOperation::BoolLess:
-        return PValue(value1.uString() < value2.uString());
+        return PValue(value1.toString() < value2.toString());
     case ArithmeticOperation::BoolLessOrEqual:
-        return PValue(value1.uString() <= value2.uString());
+        return PValue(value1.toString() <= value2.toString());
     case ArithmeticOperation::BoolGreater:
-        return PValue(value1.uString() > value2.uString());
+        return PValue(value1.toString() > value2.toString());
     case ArithmeticOperation::BoolGreaterOrEqual:
-        return PValue(value1.uString() >= value2.uString());
+        return PValue(value1.toString() >= value2.toString());
     case ArithmeticOperation::BoolEqual:
-        return PValue(value1.uString() == value2.uString());
+        return PValue(value1.toString() == value2.toString());
     case ArithmeticOperation::BoolNotEqual:
-        return PValue(value1.uString() != value2.uString());
+        return PValue(value1.toString() != value2.toString());
     default:
         break;
     }

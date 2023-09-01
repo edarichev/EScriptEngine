@@ -30,6 +30,11 @@ bool AutomationObject::managed() const
     return _managed;
 }
 
+const std::u32string AutomationObject::toString() const
+{
+    return U"Object";
+}
+
 AutomationObject::AutomationObject()
 {
     buildFunctionsMap();

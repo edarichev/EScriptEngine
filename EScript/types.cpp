@@ -44,9 +44,9 @@ std::u32string to_u32string(const SymbolType &t, uint64_t v)
         break;
     }
     case SymbolType::String:
-        return ((StringObject*)v)->uString();
+        return ((StringObject*)v)->refString();
     case SymbolType::Array:
-        return ((Array*)v)->uString();
+        return ((Array*)v)->toString();
     case SymbolType::Function:
         return U"function";
     case SymbolType::Null:
@@ -54,6 +54,10 @@ std::u32string to_u32string(const SymbolType &t, uint64_t v)
     case SymbolType::Variable: {
         ObjectRecord *rec = (ObjectRecord*)v;
         return to_u32string(rec->type, rec->data);
+    }
+    case SymbolType::Object: {
+        AutomationObject *obj = (AutomationObject*)v;
+        return obj->toString();
     }
     default:
         throw std::domain_error("Conversion from SymbolType to u32string not supported");

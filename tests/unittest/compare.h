@@ -34,7 +34,7 @@ public:
 
     static bool equals_string(const std::u32string &s, uint64_t data)
     {
-        return s == ((StringObject*)data)->uString();
+        return s == ((StringObject*)data)->toString();
     }
 };
 

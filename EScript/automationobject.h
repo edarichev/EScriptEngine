@@ -64,7 +64,7 @@ public:
      * @return
      */
     bool managed() const;
-
+    virtual const std::u32string toString() const;
 private:
     void call_toString(Processor *p);
     static void buildFunctionsMap();

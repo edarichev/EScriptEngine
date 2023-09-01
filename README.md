@@ -71,7 +71,7 @@ assert(spreadsheet.getCellValue(0, 0) == U"Hello, world!!!!");
 |Integer|64 бита|int64_t|
 |Real|64 бита|double|
 |String|pointer|Внутренне - это строка std::u32string, можно задавать строковый литерал в одинарных, двойных или обратных кавычках|
-|Array|pointer|Ассоциативный массив|
+|Array|pointer|Ассоциативный/индексный массив|
 |Function|pointer|Функция|
 |Object|pointer|Пользовательский объект|
 
@@ -192,7 +192,7 @@ for (i = 1; i < 10; i = i + 1) {
 }
 ```
 ## Массивы
-Массивы могут содержать числа, строки. 
+Массивы могут содержать числа, строки, другие объекты. Элементы могут быть разных типов.
 Массив можно использовать как ассоциативный. 
 Следующие формы обращения к элементам допустимы:
 ```javascript
@@ -339,7 +339,7 @@ console.log(a, b, c, d, e);
 s = 'Hello';
 s[1] = 'a'; // Hello -> Hallo
 ```
-Это единственная операция со строками, приводящая к их изменению "на месте". Это ещё одно отличие от JavaScript, например 
+Это единственная операция со строками, приводящая к их изменению "на месте". Это ещё одно отличие от JavaScript,  
 она не приведёт к изменению строки, если выполнить её, к примеру, в nodejs.
 
 ## Функции
@@ -493,6 +493,13 @@ s = x.toString('%d.%M.%Y %H:%m:%S');
 z = 123.45;
 console.log("z=", z);
 ```
+Если переменная представляет собой объект, производный от automationObject, 
+у него автоматически вызывается метод `toString()`:
+```javascript
+x = DateTime.parse('04 Dec 1995 00:12:00 GMT');
+console.log(x); // вызывается x.toString()
+```
+
 Чтобы перенаправить вывод в другой поток, отличный от `std::cout`, явно укажите это:
 ```C++
 const std::string macro1 = R"(
@@ -500,15 +507,17 @@ const std::string macro1 = R"(
     console.log("z=", z);
     )";
 const std::u32string code1 = to_u32string(macro1);
-std::stringstream ss; // например, в строковый поток
+std::stringstream ss;      // например, в строковый поток
 EScript engine;
-engine.setOutStream(ss); // установить выходной поток
+engine.setOutStream(ss);   // установить выходной поток
 engine.eval(code1);
 std::cout << ss.rdbuf();
 ss.clear();
-ss.str(""); // сброс
+ss.str("");                // сброс
 ```
-Данные выводятся в кодировке UTF-8. Объект `console` ведёт себя как и в JavaScript (или, точнее, как в nodejs), вставляя пробел между выводимыми значениями и символ переноса строки в конце.
+Данные выводятся в кодировке UTF-8. Объект `console` ведёт себя как и в JavaScript 
+(или, точнее, как в nodejs), вставляя пробел между выводимыми значениями и символ переноса строки в конце.
+Вы можете заменить это поведение, используя `Console::setSeparateWithSpace()`.
 
 ## Объекты автоматизации
 
@@ -548,7 +557,7 @@ public:
     }
     void setCellValue(int row, int col, const StackValue &value)
     {
-        setCellValue(row, col, value.uString());
+        setCellValue(row, col, value.toString());
     }
     const std::u32string getCellValue(int row, int col) const
     {

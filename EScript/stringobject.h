@@ -73,7 +73,12 @@ public:
 
     bool operator==(const char32_t *s) const;
 
-    const std::u32string &uString() const;
+    const std::u32string toString() const override;
+    /**
+     * @brief Версия toString, но возвращает ссылку, чтобы не делать лишних копий.
+     * @return
+     */
+    const std::u32string &refString() const;
 
     static StringObject *concat(StringObject *s1, StringObject *s2);
     std::u32string substring(int64_t fromIndex, int64_t toIndex) const;

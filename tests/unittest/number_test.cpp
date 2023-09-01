@@ -72,7 +72,7 @@ s = x.toString();
     auto s = mainTable->find(U"s");
     auto record = engine.getObjectRecord(s);
     assert(record->type == SymbolType::String);
-    assert(U"32" == ((StringObject*)record->data)->uString());
+    assert(U"32" == ((StringObject*)record->data)->toString());
 }
 
 void Number_Test::test_toString2()
@@ -88,7 +88,7 @@ s = x.toString(2);
     auto s = mainTable->find(U"s");
     auto record = engine.getObjectRecord(s);
     assert(record->type == SymbolType::String);
-    assert(U"110000011" == ((StringObject*)record->data)->uString());
+    assert(U"110000011" == ((StringObject*)record->data)->toString());
 }
 
 void Number_Test::test_toString8()
@@ -104,7 +104,7 @@ s = x.toString(8);
     auto s = mainTable->find(U"s");
     auto record = engine.getObjectRecord(s);
     assert(record->type == SymbolType::String);
-    assert(U"603" == ((StringObject*)record->data)->uString());
+    assert(U"603" == ((StringObject*)record->data)->toString());
 }
 
 void Number_Test::test_toString16()
@@ -120,7 +120,7 @@ s = x.toString(16);
     auto s = mainTable->find(U"s");
     auto record = engine.getObjectRecord(s);
     assert(record->type == SymbolType::String);
-    assert(U"183" == ((StringObject*)record->data)->uString());
+    assert(U"183" == ((StringObject*)record->data)->toString());
 }
 
 void Number_Test::test_realToString()
@@ -136,7 +136,7 @@ s = x.toString();
     auto s = mainTable->find(U"s");
     auto record = engine.getObjectRecord(s);
     assert(record->type == SymbolType::String);
-    assert(U"387.561" == ((StringObject*)record->data)->uString());
+    assert(U"387.561" == ((StringObject*)record->data)->toString());
 }
 
 void Number_Test::test_realParenthExprToString()
@@ -151,7 +151,7 @@ s = (387.561).toString();
     auto s = mainTable->find(U"s");
     auto record = engine.getObjectRecord(s);
     assert(record->type == SymbolType::String);
-    assert(U"387.561" == ((StringObject*)record->data)->uString());
+    assert(U"387.561" == ((StringObject*)record->data)->toString());
 }
 
 void Number_Test::test_intParenthExprToString()
@@ -166,5 +166,5 @@ s = (165).toString();
     auto s = mainTable->find(U"s");
     auto record = engine.getObjectRecord(s);
     assert(record->type == SymbolType::String);
-    assert(U"165" == ((StringObject*)record->data)->uString());
+    assert(U"165" == ((StringObject*)record->data)->toString());
 }

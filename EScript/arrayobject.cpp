@@ -113,14 +113,14 @@ void Array::add(PValue value)
     set(_indexedItems.size(), value);
 }
 
-std::u32string Array::uString() const
+const std::u32string Array::toString() const
 {
     // вывести все элементы
     std::u32string s(U"[");
     int64_t n = _indexedItems.size();
     int64_t i = 0;
     for (; i < n; i++) {
-        s += _indexedItems[i].uString();
+        s += _indexedItems[i].toString();
         if (i < n - 1)
             s.append(U", ");
     }
@@ -385,7 +385,7 @@ void Array::call_join(Processor *p)
     std::u32string s;
     auto pend = std::prev(_indexedItems.end());
     for (auto it = _indexedItems.begin(); it != _indexedItems.end(); ++it) {
-        s.append((*it).uString());
+        s.append((*it).toString());
         if (it != pend)
             s.append(separator);
     }
