@@ -166,6 +166,7 @@ void Date_Test::test_create()
 {
     const u32string code1 = UR"(
 x = DateTime.create(2023, 8, 31, 19, 57, 45, 123);
+y = DateTime.create();
 )";
     EScript engine;
     engine.eval(code1);

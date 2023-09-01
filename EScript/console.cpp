@@ -22,16 +22,6 @@
 
 namespace escript {
 
-bool Console::separateWithSpace() const
-{
-    return _separateWithSpace;
-}
-
-void Console::setSeparateWithSpace(bool newSeparateWithSpace)
-{
-    _separateWithSpace = newSeparateWithSpace;
-}
-
 Console::Console()
 {
     _managed = true;
@@ -41,6 +31,16 @@ Console::Console()
 Console::~Console()
 {
 
+}
+
+bool Console::separateWithSpace() const
+{
+    return _separateWithSpace;
+}
+
+void Console::setSeparateWithSpace(bool newSeparateWithSpace)
+{
+    _separateWithSpace = newSeparateWithSpace;
 }
 
 void Console::log(std::vector<std::u32string> &args)

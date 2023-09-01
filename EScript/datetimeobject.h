@@ -63,6 +63,7 @@ public:
     // AutomationObject interface
 public:
     virtual bool call(const std::u32string &method, Processor *p) override;
+
 private:
     void buildFunctionsMap();
     void call_parse(Processor *p);
@@ -81,6 +82,7 @@ private:
     void call_toUtc(Processor *p);
     static std::chrono::time_point<std::chrono::system_clock> fromString(const std::string &str, const std::string &fmt);
     static std::string timeToString(const std::chrono::time_point<std::chrono::system_clock> &t, const std::string &format);
+    DateTimeObject *now();
 };
 
 } // namespace escript

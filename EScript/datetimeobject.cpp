@@ -28,10 +28,12 @@ std::map<std::u32string, DateTimeObject::pFn> DateTimeObject::_fn;
 
 DateTimeObject::DateTimeObject()
 {
+    _managed = true;
     buildFunctionsMap();
 }
 
 DateTimeObject::DateTimeObject(long msSinceEpoch)
+    : DateTimeObject()
 {
     std::chrono::time_point<std::chrono::system_clock, std::chrono::milliseconds>
         tp{std::chrono::milliseconds{msSinceEpoch}};
@@ -251,9 +253,8 @@ void DateTimeObject::call_ms(Processor *p)
     p->pushToStack(ms());
 }
 
-void DateTimeObject::call_now(Processor *p)
+DateTimeObject *escript::DateTimeObject::now()
 {
-    auto args = loadArguments(p);
     auto v = std::chrono::system_clock::now(); // это в UTC
     DateTimeObject dt0(v);
     auto ttUtc = std::chrono::system_clock::to_time_t(v);
@@ -262,7 +263,13 @@ void DateTimeObject::call_now(Processor *p)
     v = std::chrono::system_clock::from_time_t(timetloc);
     v += std::chrono::milliseconds(dt0.ms());
     DateTimeObject *dt = new DateTimeObject(v);
-    p->pushObjectToStack(dt);
+    return dt;
+}
+
+void DateTimeObject::call_now(Processor *p)
+{
+    auto args = loadArguments(p);
+    p->pushObjectToStack(now());
 }
 
 void DateTimeObject::call_utcNow(Processor *p)
@@ -275,6 +282,10 @@ void DateTimeObject::call_utcNow(Processor *p)
 void DateTimeObject::call_create(Processor *p)
 {
     auto args = loadArguments(p);
+    if (args.empty()) {
+        p->pushObjectToStack(now());
+        return;
+    }
     const int n = 7;
     int parts[n] = {1900, 1, 1, 0, 0, 0, 0};
     int i = 0;
