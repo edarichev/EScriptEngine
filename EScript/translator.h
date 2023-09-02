@@ -151,6 +151,8 @@ private:
     void opLogNot(const TCode &c);
     void opStoreActivationRecord(const TCode &c);
     void opLoadActivationRecord(const TCode &c);
+    void opCtor(const TCode &c);
+    void opChType(const TCode &c);
     /**
      * @brief Генерирует вывод команды ldc_*** в зависимотси от типа
      * @param type тип аргумента
@@ -164,6 +166,7 @@ private:
      */
     bool tryCalcBinaryOp(const TCode &c);
 };
+
 
 } // namespace escript
 

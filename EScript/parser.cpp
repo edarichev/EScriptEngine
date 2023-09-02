@@ -27,9 +27,14 @@ using namespace std;
 
 namespace escript {
 
-Parser::Parser(std::shared_ptr<Block> &block, StringContainer &strContainer,
+Parser::Parser(std::shared_ptr<Block> &block,
+               StringContainer &strContainer,
+               const std::map<u32string, ConstructorFunction> &classes,
                std::vector<TCode> &outBuffer)
-    : _rootBlock(block), _currentBlock(block), _strings(strContainer)
+    : _rootBlock(block),
+      _currentBlock(block),
+      _strings(strContainer),
+      _classes(classes)
 {
     _emitter = std::make_unique<ICodeEmitter>(outBuffer);
 }
@@ -448,6 +453,9 @@ void Parser::Expression()
         return;
     case Token::LeftBracket:
         ArrayDeclExpression();
+        return;
+    case Token::New:
+        NewExpression();
         return;
     default:
         break;
@@ -1275,6 +1283,28 @@ void Parser::OptionalDotOrBracketExpression()
     } while (lookahead() != Token::Eof);
 }
 
+void Parser::NewExpression()
+{
+    match(Token::New);
+    auto className = tokenText();
+    match(Token::Identifier);
+    auto classRecord = _classes.find(className);
+    if (classRecord == _classes.end())
+        undeclaredIdentifier(className);
+    match(Token::LeftParenth);
+    int nArgs = 0;
+    if (lookahead() != Token::RightParenth) {
+        _argumentsCountStack.push(0);
+        ArgumentList();
+        nArgs = _argumentsCountStack.top();
+        _argumentsCountStack.pop();
+    }
+    match(Token::RightParenth);
+    auto resultVariable = currentSymbolTable()->addTemp();
+    emitNewObject(className, classRecord->second, resultVariable, nArgs);
+    pushVariable(resultVariable);
+}
+
 bool Parser::resolveMathConstant()
 {
     match(Token::Dot);
@@ -1571,6 +1601,18 @@ void Parser::emitDecrement()
 void Parser::emitPop()
 {
     _emitter->pop();
+}
+
+void Parser::emitNewObject(
+        const std::u32string &className,
+        ConstructorFunction pFn, std::shared_ptr<Symbol> &resultVariable, int nArgs)
+{
+    // решаем здесь, нельзя ли привести к известным типам, например, Array, String и т.п.
+    // по умолчанию всегда Object
+    SymbolType resultType = SymbolType::Object;
+    if (className == U"Array")
+        resultType = SymbolType::Array;
+    _emitter->ctor(pFn, resultVariable, resultType, nArgs);
 }
 
 

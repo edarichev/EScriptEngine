@@ -23,6 +23,7 @@
 #include "symbol.h"
 #include "tcode.h"
 #include <vector>
+#include "automationobject.h"
 
 namespace escript {
 
@@ -85,6 +86,8 @@ public:
      */
     void increment();
     void decrement();
+    void ctor(ConstructorFunction pFn, std::shared_ptr<Symbol> &resultVariable,
+              SymbolType resultType, int nArgs);
 };
 
 } // namespace escript

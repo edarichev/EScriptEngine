@@ -65,7 +65,7 @@ void ICodeEmitter::binaryOp(OperationType operationType,
     code.operand1 = operand1;
     code.operand2 = operand2;
     code.operation = operationType;
-    _buffer->push_back(code);
+    _buffer->push_back(code); // TODO: заменить эти вызовы общей операцией
 }
 
 void ICodeEmitter::assign(Symbol *lvalue,
@@ -352,6 +352,20 @@ void ICodeEmitter::decrement()
 {
     TCode code;
     code.operation = OperationType::Decrement;
+    _buffer->push_back(code);
+}
+
+void ICodeEmitter::ctor(ConstructorFunction pFn,
+                        std::shared_ptr<Symbol> &resultVariable,
+                        SymbolType resultType,
+                        int nArgs)
+{
+    push(nArgs);
+    TCode code;
+    code.lvalue = resultVariable.get();
+    code.operand1.type = resultType;
+    code.operation = OperationType::CTOR;
+    code.operand1.ptr = (void*)pFn;
     _buffer->push_back(code);
 }
 

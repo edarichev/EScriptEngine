@@ -76,6 +76,8 @@ enum class OperationType
     LoadActivationRecord,
     NotEqual,       // op1!=op2
     NCO,            // op1 == null ? op2 : op1
+    CTOR,           // new className(), op1.ptr = ConstructorFunction
+    CHTYPE,         // type->op1.type
 };
 
 /**

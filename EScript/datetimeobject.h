@@ -59,7 +59,8 @@ public:
     int minute() const;
     int second() const;
     int ms() const;
-    const std::u32string toString() const;
+    const std::u32string toString() const override;
+    static AutomationObject *ctor(Processor *p);
     // AutomationObject interface
 public:
     virtual bool call(const std::u32string &method, Processor *p) override;
@@ -82,7 +83,8 @@ private:
     void call_toUtc(Processor *p);
     static std::chrono::time_point<std::chrono::system_clock> fromString(const std::string &str, const std::string &fmt);
     static std::string timeToString(const std::chrono::time_point<std::chrono::system_clock> &t, const std::string &format);
-    DateTimeObject *now();
+    static DateTimeObject *now();
+    static DateTimeObject *create(Processor *p);
 };
 
 } // namespace escript

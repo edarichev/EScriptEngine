@@ -32,6 +32,7 @@ SOURCES += \
         main.cpp \
         math_test.cpp \
         nco_test.cpp \
+        newexpression_test.cpp \
         null_test.cpp \
         number_test.cpp \
         opcode_test.cpp \
@@ -72,6 +73,7 @@ HEADERS += \
     logical_test.h \
     math_test.h \
     nco_test.h \
+    newexpression_test.h \
     null_test.h \
     number_test.h \
     opcode_test.h \

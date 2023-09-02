@@ -35,7 +35,8 @@ static const char32_t *dateId = U"DateTime";
 
 EScript::EScript()
 {
-
+    registerClass(U"Array", Array::ctor);
+    registerClass(U"DateTime", DateTimeObject::ctor);
 }
 
 EScript::~EScript()
@@ -82,7 +83,7 @@ void EScript::compile(const std::u32string &strCode)
     auto newBlock = unit()->block()->addBlock();
     registerStandardObjects(newBlock);
     registerDeferredObjects(newBlock);
-    Parser parser(newBlock, _machine.strings(), buffer);
+    Parser parser(newBlock, _machine.strings(), _classes, buffer);
     parser.parse(strCode);
     // TODO: оптимизатор промежуточного кода будет находиться здесь
     Translator translator(_machine.storage());
@@ -225,6 +226,11 @@ void EScript::detachObject(AutomationObject *obj)
     // его, правда, можно обнулить
     // убираем из таблицы объектов:
     _machine.storage().removeRecord(obj);
+}
+
+void EScript::registerClass(const std::u32string &className, ConstructorFunction pFn)
+{
+    _classes.insert_or_assign(className, pFn);
 }
 
 

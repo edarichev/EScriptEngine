@@ -15,7 +15,7 @@ https://www.epaperpress.com/lexandyacc/if.html
 %token LShift RelOp EqualityOp And Or
 %token NCO // ?? - Nullish coalescing operator
 %token PlusPlus MinusMinus
-%token Switch Case Default
+%token Switch Case Default New
 
 %nonassoc If
 %nonassoc Else
@@ -146,7 +146,12 @@ Expression : LogicalOrNCOExpression
            | AssignExpression
            | FunctionDeclExpression
            | ArrayDeclExpression
+           | NewExpression
            ;
+
+NewExpression : New Identifier '(' ')'
+              | New Identifier '(' ArgumentList ')'
+              ;
 
 ArrayDeclExpression : '[' ArrayDeclItems ']'
                     ;

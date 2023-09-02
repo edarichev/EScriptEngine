@@ -635,6 +635,22 @@ void Processor::stnco()
     binaryStackOp(OpCode::STNCO);
 }
 
+void Processor::ctor()
+{
+    next();
+    ConstructorFunction pFn = (ConstructorFunction)*(uint64_t*)_p;
+    auto pObj = pFn(this);
+    pushObjectToStack(pObj);
+    next(sizeof (uint64_t));
+}
+
+void Processor::chtype()
+{
+    next();
+    _stack.top().type = (SymbolType)*(uint8_t*)_p;
+    next(sizeof (uint8_t));
+}
+
 void Processor::pushToStack(int64_t value)
 {
     pushToStack(SymbolType::Integer, value);
@@ -925,6 +941,8 @@ void Processor::stloc_m()
         ptrLValue->data = item.value;
         break;
     case SymbolType::Array: // проверено выше
+        ptrLValue->type = SymbolType::Array;
+        ptrLValue->data = item.value;
         break;
     case SymbolType::Object:
         ptrLValue->type = SymbolType::Object;

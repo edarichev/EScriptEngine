@@ -44,6 +44,8 @@ private:
     // уже добавили стандартные объекты?
     bool _standardObjectsAdded = false;
     std::map<std::u32string, AutomationObject*> _standardObjects;
+    // классы, которые можно создавать в скрипте: производные от AutomationObject
+    std::map<std::u32string, ConstructorFunction> _classes;
 public:
     /**
      * @brief Создаёт новый экземпляр скриптового движка
@@ -84,6 +86,7 @@ public:
     void setOutStream(std::ostream &newOutStream);
     void attachObject(AutomationObject *obj, const std::u32string &name);
     void detachObject(AutomationObject *obj);
+    void registerClass(const std::u32string &className, ConstructorFunction pFn);
 private:
     /**
      * @brief Регистрирует в глобальной таблице символов стандартные объекты,

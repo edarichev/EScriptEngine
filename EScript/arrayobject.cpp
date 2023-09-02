@@ -138,6 +138,17 @@ const std::u32string Array::toString() const
     return s;
 }
 
+AutomationObject *Array::ctor(Processor *p)
+{
+    auto args = p->loadArguments();
+    Array *arr = new Array();
+    while (!args.empty()) {
+        arr->add(PValue(args.top()));
+        args.pop();
+    }
+    return arr;
+}
+
 void Array::setKeyValue(const std::u32string &key, const PValue &value)
 {
     _namedItems[key] = value;

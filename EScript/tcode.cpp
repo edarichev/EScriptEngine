@@ -217,6 +217,14 @@ std::string TCode::toString() const
         numberOfOperands = 0;
         opSign = "LD.AR";
         break;
+    case OperationType::CTOR:
+        numberOfOperands = 0;
+        opSign = "CTOR";
+        break;
+    case OperationType::CHTYPE:
+        numberOfOperands = 0;
+        opSign = "CHTYPE";
+        break;
     }
     std::string result;
     if (lvalue)

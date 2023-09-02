@@ -39,6 +39,7 @@ struct ESCRIPT_EXPORT Operand
         Symbol *function;
         Block *block;
         StringObject *strValue;
+        void *ptr;
     };
     Operand();
     explicit Operand(IntType value);

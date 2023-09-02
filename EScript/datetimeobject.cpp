@@ -152,6 +152,11 @@ const std::u32string DateTimeObject::toString() const
     return to_u32string(timeToString(_value, ""));
 }
 
+AutomationObject *DateTimeObject::ctor(Processor *p)
+{
+    return create(p);
+}
+
 bool DateTimeObject::call(const std::u32string &method, Processor *p)
 {
     if (method != U"toString" && BaseClass::call(method, p))
@@ -266,25 +271,11 @@ DateTimeObject *escript::DateTimeObject::now()
     return dt;
 }
 
-void DateTimeObject::call_now(Processor *p)
+DateTimeObject *DateTimeObject::create(Processor *p)
 {
-    auto args = loadArguments(p);
-    p->pushObjectToStack(now());
-}
-
-void DateTimeObject::call_utcNow(Processor *p)
-{
-    auto args = loadArguments(p);
-    DateTimeObject *dt = new DateTimeObject(std::chrono::system_clock::now());
-    p->pushObjectToStack(dt);
-}
-
-void DateTimeObject::call_create(Processor *p)
-{
-    auto args = loadArguments(p);
+    auto args = p->loadArguments();
     if (args.empty()) {
-        p->pushObjectToStack(now());
-        return;
+        return now();
     }
     const int n = 7;
     int parts[n] = {1900, 1, 1, 0, 0, 0, 0};
@@ -304,11 +295,29 @@ void DateTimeObject::call_create(Processor *p)
                 parts[5], // sec
                 parts[6]  // ms
                 );
-        p->pushObjectToStack(dt);
+        return dt;
     } catch (const std::exception &e) {
         delete dt;
         throw;
     }
+}
+
+void DateTimeObject::call_now(Processor *p)
+{
+    auto args = loadArguments(p);
+    p->pushObjectToStack(now());
+}
+
+void DateTimeObject::call_utcNow(Processor *p)
+{
+    auto args = loadArguments(p);
+    DateTimeObject *dt = new DateTimeObject(std::chrono::system_clock::now());
+    p->pushObjectToStack(dt);
+}
+
+void DateTimeObject::call_create(Processor *p)
+{
+    p->pushObjectToStack(create(p));
 }
 
 void DateTimeObject::call_toLocale(Processor *p)

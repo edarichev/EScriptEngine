@@ -29,6 +29,9 @@ namespace escript {
 
 class EScript;
 class Processor;
+class AutomationObject;
+
+using ConstructorFunction = AutomationObject* (*)(Processor *);
 
 /**
  * @brief Базовый класс для всех обёрток, в т.ч. классов в виртуальной машине.

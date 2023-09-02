@@ -60,14 +60,18 @@ private:
     // для return: здесь помещаются указатели на функции,
     // return применяется к ближайшей функции (верхней в стеке)
     std::stack<std::shared_ptr<Symbol> > _returnStack;
+    const std::map<std::u32string, ConstructorFunction> &_classes;
     // стек значений
     std::stack<Operand> _values;
 public:
     /**
      * @brief Создаёт новый экземпляр класса Parser
+     * @todo Скорее всего, стартовые параметры нужно вынести в какой-нибудь
+     *       Context-класс.
      */
     Parser(std::shared_ptr<Block> &block,
            StringContainer &strContainer,
+           const std::map<std::u32string, ConstructorFunction> &classes,
            std::vector<TCode> &outBuffer);
     /**
      * @brief производит синтаксический разбор строки кода
@@ -124,6 +128,7 @@ private:
     void VariableDeclBlock();
     void SwitchStatement();
     void OptionalDotOrBracketExpression();
+    void NewExpression();
 
     // некоторые подстановки для уменьшения длины методов
 private:
@@ -216,6 +221,7 @@ private:
     void emitIncrement();
     void emitDecrement();
     void emitPop();
+    void emitNewObject(const std::u32string &className, ConstructorFunction pFn, std::shared_ptr<Symbol> &resultVariable, int nArgs);
     // работа с символами
 private:
     /**

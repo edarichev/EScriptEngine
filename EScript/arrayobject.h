@@ -74,6 +74,18 @@ public:
     int64_t length() const;
     void add(PValue value);
     const std::u32string toString() const override;
+    /**
+     * @brief Функция-конструктор для создания нового объекта оператором 'new'
+     *        в скрипте.
+     * @details Оп-код 'CTOR' приводит к вызову функции с этой сигнатурой.
+     *        Функция-конструктор создаёт новый объект на основе параметров,
+     *        передаваемых через стек. Сама функция ничего никуда не помещает -
+     *        только возвращает новый объект. 'CTOR' сам зарегистрирует результат
+     *        в таблице объектов.
+     * @param p
+     * @return
+     */
+    static AutomationObject *ctor(Processor *p);
     // AutomationObject interface
 public:
     virtual bool call(const std::u32string &method, Processor *p) override;

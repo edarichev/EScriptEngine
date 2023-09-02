@@ -363,5 +363,19 @@
     {
         op1(OpCode::STNCO);
     }
+    /**
+     * @brief Создаёт экземпляр класса. Параметр — указатель на функцию-конструктор.
+     */
+    void ctor(uint64_t data)
+    {
+        op2(OpCode::CTOR, data);
+    }
+    /**
+     * @brief Меняет тип верхнего элемента стека.
+     */
+    void chtype(uint8_t data)
+    {
+        op2(OpCode::CHTYPE, data);
+    }
 
 

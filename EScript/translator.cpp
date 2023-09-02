@@ -250,6 +250,12 @@ void Translator::translateOperation(const TCode &c)
     case OperationType::Decrement:
         opDecrement(c);
         break;
+    case OperationType::CTOR:
+        opCtor(c);
+        break;
+    case OperationType::CHTYPE:
+        opChType(c);
+        break;
     default:
         throw std::domain_error("Can not translate operation: " + c.toString());
     }
@@ -700,6 +706,21 @@ void Translator::opLoadActivationRecord(const TCode &)
     ar <<= 32;
     ar |= (currentAddress - _activationRecords.top().second);
     a.ld_ar(ar);
+}
+
+void Translator::opCtor(const TCode &c)
+{
+    Assembler &a = as();
+    a.ctor((uint64_t)c.operand1.ptr);
+    if (c.operand1.type != SymbolType::Object)
+        a.chtype((uint8_t)c.operand1.type);
+    a.stloc_m((uint64_t)c.lvalue);
+}
+
+void Translator::opChType(const TCode &c)
+{
+    Assembler &a = as();
+    a.chtype((uint8_t)c.operand1.type);
 }
 
 void Translator::emit_ldc(const Operand &operand)
