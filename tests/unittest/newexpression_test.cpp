@@ -9,6 +9,7 @@ void NewExpression_Test::run()
     test_newArray();
     test_newArrayArgs();
     test_newDateTime();
+    test_newDateTimeExpr();
     cleanupTestCase();
 }
 
@@ -41,6 +42,7 @@ void NewExpression_Test::test_newArrayArgs()
 {
     const u32string code1 = UR"(
 a = new Array(12, 34, 56, "hello");
+x = a.length;
 )";
     EScript engine;
     engine.eval(code1);
@@ -55,6 +57,9 @@ a = new Array(12, 34, 56, "hello");
     assert(arr->get(1).intValue == 34);
     assert(arr->get(2).intValue == 56);
     assert(arr->get(3).strValue->refString() == U"hello");
+    record = engine.getObjectRecord(mainTable->find(U"x"));
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(4, record->data));
 }
 
 void NewExpression_Test::test_newDateTime()
@@ -100,4 +105,18 @@ ms = x.ms();
     record = engine.getObjectRecord(mainTable->find(U"ms"));
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(123, record->data));
+}
+
+void NewExpression_Test::test_newDateTimeExpr()
+{
+    const u32string code1 = UR"(
+year = (new DateTime(1995, 12, 4, 1, 12, 45, 123)).year() + 12;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto record = engine.getObjectRecord(mainTable->find(U"year"));
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(1995 + 12, record->data));
 }

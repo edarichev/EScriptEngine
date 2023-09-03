@@ -542,31 +542,33 @@ void Parser::RelationOrEqualityExpression()
 {
     ShiftOrRelationExpression();
     OperationType opType;
-    switch (lookahead()) {
-    case Token::Less:
-        opType = OperationType::Less;
-        break;
-    case Token::LessEqual:
-        opType = OperationType::LessOrEqual;
-        break;
-    case Token::Greater:
-        opType = OperationType::Greater;
-        break;
-    case Token::GreaterEqual:
-        opType = OperationType::GreaterOrEqual;
-        break;
-    case Token::Equal:
-        opType = OperationType::Equal;
-        break;
-    case Token::NotEqual:
-        opType = OperationType::NotEqual;
-        break;
-    default:
-        return;
-    }
-    next();
-    ShiftOrRelationExpression();
-    emitBinaryOp(opType);
+    do {
+        switch (lookahead()) {
+        case Token::Less:
+            opType = OperationType::Less;
+            break;
+        case Token::LessEqual:
+            opType = OperationType::LessOrEqual;
+            break;
+        case Token::Greater:
+            opType = OperationType::Greater;
+            break;
+        case Token::GreaterEqual:
+            opType = OperationType::GreaterOrEqual;
+            break;
+        case Token::Equal:
+            opType = OperationType::Equal;
+            break;
+        case Token::NotEqual:
+            opType = OperationType::NotEqual;
+            break;
+        default:
+            return;
+        }
+        next();
+        ShiftOrRelationExpression();
+        emitBinaryOp(opType);
+    } while (lookahead() != Token::Eof);
 }
 
 void Parser::BitwiseAndOrEqualityExpression()
@@ -605,23 +607,31 @@ void Parser::BitwiseOROrXORExpression()
 void Parser::LogicalAndOrBitORExpression()
 {
     BitwiseOROrXORExpression();
-    if (lookahead() == Token::LogicalAnd) {
-        // логическое AND
-        next();
-        BitwiseOROrXORExpression();
-        emitBinaryOp(OperationType::LogAND);
-    }
+    do {
+        if (lookahead() == Token::LogicalAnd) {
+            // логическое AND
+            next();
+            BitwiseOROrXORExpression();
+            emitBinaryOp(OperationType::LogAND);
+            continue;
+        }
+        break;
+    } while (lookahead() != Token::Eof);
 }
 
 void Parser::LogicalOrOrAndExpression()
 {
     LogicalAndOrBitORExpression();
-    if (lookahead() == Token::LogicalOr) {
-        // логическое OR
-        next();
-        LogicalAndOrBitORExpression();
-        emitBinaryOp(OperationType::LogOR);
-    }
+    do {
+        if (lookahead() == Token::LogicalOr) {
+            // логическое OR
+            next();
+            LogicalAndOrBitORExpression();
+            emitBinaryOp(OperationType::LogOR);
+            continue;
+        }
+        break;
+    } while (lookahead() != Token::Eof);
 }
 
 void Parser::LogicalOrNCOExpression()

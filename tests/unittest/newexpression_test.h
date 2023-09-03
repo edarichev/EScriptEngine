@@ -12,6 +12,7 @@ private:
     void test_newArray();
     void test_newArrayArgs();
     void test_newDateTime();
+    void test_newDateTimeExpr();
 };
 
 #endif // NEWEXPRESSION_TEST_H

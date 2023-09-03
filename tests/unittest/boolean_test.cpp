@@ -17,6 +17,9 @@ void Boolean_Test::run()
     test_equal();
     test_arrayItemsLess();
     test_compareToNaN();
+    test_complexExprOr();
+    test_complexExprAnd();
+    test_complexExprCalc();
     cleanupTestCase();
 }
 
@@ -213,6 +216,60 @@ b = x == NaN;
 
     auto b = mainTable->find(U"b");
     record = engine.getObjectRecord(b);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(true, record->data));
+}
+
+void Boolean_Test::test_complexExprOr()
+{
+    const u32string code1 = UR"(
+x = 3;
+y = 7;
+z = 8;
+b = x > y || x > z || y > z;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto b = mainTable->find(U"b");
+    auto record = engine.getObjectRecord(b);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(false, record->data));
+}
+
+void Boolean_Test::test_complexExprAnd()
+{
+    const u32string code1 = UR"(
+x = 3;
+y = 7;
+z = 8;
+b = x < y && x > z && y > z;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto b = mainTable->find(U"b");
+    auto record = engine.getObjectRecord(b);
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(false, record->data));
+}
+
+void Boolean_Test::test_complexExprCalc()
+{
+    const u32string code1 = UR"(
+x = 3;
+y = 7;
+z = 8;
+b = x < y || x > z || y > z || x + 10 > 10;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto b = mainTable->find(U"b");
+    auto record = engine.getObjectRecord(b);
     assert(record->type == SymbolType::Boolean);
     assert(Compare::equals_bool(true, record->data));
 }

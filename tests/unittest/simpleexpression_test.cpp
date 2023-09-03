@@ -23,6 +23,7 @@ void SimpleExpression_Test::run()
     test_sequentialRun();
     test_braceSimple();
     test_mod();
+    test_morePlus();
     cleanupTestCase();
 }
 
@@ -260,4 +261,16 @@ void SimpleExpression_Test::test_mod()
     auto record = engine.getObjectRecord(c);
     assert(record->type == SymbolType::Integer);
     assert(Compare::equals_int64(157 % 7, record->data));
+}
+
+void SimpleExpression_Test::test_morePlus()
+{
+    const u32string code1 = U"c = 1+2+3+4+5+6+7+8+9;";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto c = mainTable->find(U"c");
+    auto record = engine.getObjectRecord(c);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(1+2+3+4+5+6+7+8+9, record->data));
 }

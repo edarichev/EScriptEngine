@@ -23,6 +23,7 @@ private:
     void test_sequentialRun();
     void test_braceSimple();
     void test_mod();
+    void test_morePlus();
 };
 
 #endif // SIMPLEEXPRESSION_TEST_H

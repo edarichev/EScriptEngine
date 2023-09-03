@@ -17,6 +17,9 @@ private:
     void test_equal();
     void test_arrayItemsLess();
     void test_compareToNaN();
+    void test_complexExprOr();
+    void test_complexExprAnd();
+    void test_complexExprCalc();
 };
 
 #endif // BOOLEAN_TEST_H
