@@ -268,8 +268,7 @@ b = x < y || x > z || y > z || x + 10 > 10;
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
 
-    auto b = mainTable->find(U"b");
-    auto record = engine.getObjectRecord(b);
+    auto record = engine.getObjectRecord(mainTable->find(U"b"));
     assert(record->type == SymbolType::Boolean);
     assert(Compare::equals_bool(true, record->data));
 }

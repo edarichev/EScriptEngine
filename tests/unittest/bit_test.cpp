@@ -10,6 +10,9 @@ void Bit_Test::run()
     test_bitOr();
     test_bitXor();
     test_unaryBitNot();
+    test_complexBitOr();
+    test_complexBitAnd();
+    test_complexBitXor();
     cleanupTestCase();
 }
 
@@ -79,3 +82,53 @@ void Bit_Test::test_unaryBitNot()
     assert(Compare::equals_int64(~2363, record->data));
 }
 
+void Bit_Test::test_complexBitOr()
+{
+    const u32string code1 = UR"(
+a = 2363;
+b = 1411085;
+c = 5645;
+d = a | b | c;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto d = mainTable->find(U"d");
+    auto record = engine.getObjectRecord(d);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(2363 | 1411085 | 5645, record->data));
+}
+
+void Bit_Test::test_complexBitAnd()
+{
+    const u32string code1 = UR"(
+a = 2363;
+b = 1411085;
+c = 5645;
+d = a & b & c;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto d = mainTable->find(U"d");
+    auto record = engine.getObjectRecord(d);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(2363 & 1411085 & 5645, record->data));
+}
+
+void Bit_Test::test_complexBitXor()
+{
+    const u32string code1 = UR"(
+a = 2363;
+b = 1411085;
+c = 5645;
+d = a ^ b ^ c;
+)";
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+    auto d = mainTable->find(U"d");
+    auto record = engine.getObjectRecord(d);
+    assert(record->type == SymbolType::Integer);
+    assert(Compare::equals_int64(2363 ^ 1411085 ^ 5645, record->data));
+}

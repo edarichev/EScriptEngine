@@ -13,6 +13,9 @@ private:
     void test_bitOr();
     void test_bitXor();
     void test_unaryBitNot();
+    void test_complexBitOr();
+    void test_complexBitAnd();
+    void test_complexBitXor();
 };
 
 #endif // BIT_TEST_H

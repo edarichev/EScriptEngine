@@ -574,34 +574,46 @@ void Parser::RelationOrEqualityExpression()
 void Parser::BitwiseAndOrEqualityExpression()
 {
     RelationOrEqualityExpression();
-    if (lookahead() == Token::Ampersand) {
-        // побитовое AND
-        next();
-        RelationOrEqualityExpression();
-        emitBinaryOp(OperationType::BitAND);
-    }
+    do {
+        if (lookahead() == Token::Ampersand) {
+            // побитовое AND
+            next();
+            RelationOrEqualityExpression();
+            emitBinaryOp(OperationType::BitAND);
+            continue;
+        }
+        break;
+    } while (lookahead() != Token::Eof);
 }
 
 void Parser::BitwiseXOROrAndExpression()
 {
     BitwiseAndOrEqualityExpression();
-    if (lookahead() == Token::Caret) {
-        // побитовое XOR
-        next();
-        BitwiseAndOrEqualityExpression();
-        emitBinaryOp(OperationType::BitXOR);
-    }
+    do {
+        if (lookahead() == Token::Caret) {
+            // побитовое XOR
+            next();
+            BitwiseAndOrEqualityExpression();
+            emitBinaryOp(OperationType::BitXOR);
+            continue;
+        }
+        break;
+    } while (lookahead() != Token::Eof);
 }
 
 void Parser::BitwiseOROrXORExpression()
 {
     BitwiseXOROrAndExpression();
-    if (lookahead() == Token::Vertical) {
-        // побитовое OR
-        next();
-        BitwiseXOROrAndExpression();
-        emitBinaryOp(OperationType::BitOR);
-    }
+    do {
+        if (lookahead() == Token::Vertical) {
+            // побитовое OR
+            next();
+            BitwiseXOROrAndExpression();
+            emitBinaryOp(OperationType::BitOR);
+            continue;
+        }
+        break;
+    } while (lookahead() != Token::Eof);
 }
 
 void Parser::LogicalAndOrBitORExpression()
