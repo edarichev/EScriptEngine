@@ -144,6 +144,7 @@ bool operator<=(const PValue &v1, const PValue &v2);
 bool operator>(const PValue &v1, const PValue &v2);
 bool operator>=(const PValue &v1, const PValue &v2);
 bool operator==(const PValue &v1, const PValue &v2);
+bool operator!=(const PValue &v1, const PValue &v2);
 
 // для строк и неприводимых типов - другая функция
 template<typename T1, typename T2>
@@ -171,7 +172,7 @@ decltype(auto) calcValues(T1 v1, T2 v2, ArithmeticOperation op)
     case ArithmeticOperation::BoolEqual:
         return PValue(PValue(v1) == PValue(v2));
     case ArithmeticOperation::BoolNotEqual:
-        return PValue(PValue(v1) == PValue(v2));
+        return PValue(PValue(v1) != PValue(v2));
     case ArithmeticOperation::LShift:
         return PValue::lshift(PValue(v1), PValue(v2));
     case ArithmeticOperation::RShift:

@@ -20,6 +20,8 @@ void Boolean_Test::run()
     test_complexExprOr();
     test_complexExprAnd();
     test_complexExprCalc();
+    test_combinedExpr();
+    test_combinedNotEqual();
     cleanupTestCase();
 }
 
@@ -264,12 +266,69 @@ y = 7;
 z = 8;
 b = x < y || x > z || y > z || x + 10 > 10;
 )";
+    int x = 3;
+    int y = 7;
+    int z = 8;
+    bool b = x < y || x > z || y > z || x + 10 > 10;
+
     EScript engine;
     engine.eval(code1);
     auto mainTable = engine.unit()->block()->symbolTable();
 
     auto record = engine.getObjectRecord(mainTable->find(U"b"));
     assert(record->type == SymbolType::Boolean);
-    assert(Compare::equals_bool(true, record->data));
+    assert(Compare::equals_bool(b, record->data));
+}
+
+void Boolean_Test::test_combinedExpr()
+{
+    const u32string code1 = UR"(
+x = 3;
+y = 7;
+z = 8;
+b = x < y && (x > z || y > z) && x + 10 > 10;
+)";
+
+    int x = 3;
+    int y = 7;
+    int z = 8;
+    bool b = x < y && (x > z || y > z) && x + 10 > 10;
+
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto record = engine.getObjectRecord(mainTable->find(U"b"));
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(b, record->data));
+}
+
+void Boolean_Test::test_combinedNotEqual()
+{
+    const u32string code1 = UR"(
+x = 3;
+y = 7;
+z = 8;
+b = x != y && (x != z || y != z) && (x + 10 != 10);
+c = x != y && (x != z || y != z) && x + 10 != 10;
+)";
+
+    int x = 3;
+    int y = 7;
+    int z = 8;
+    bool b = x != y && (x != z || y != z) && (x + 10 != 10);
+    bool c = x != y && (x != z || y != z) && x + 10 != 10;
+
+    EScript engine;
+    engine.eval(code1);
+    auto mainTable = engine.unit()->block()->symbolTable();
+
+    auto record = engine.getObjectRecord(mainTable->find(U"b"));
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(b, record->data));
+
+    record = engine.getObjectRecord(mainTable->find(U"c"));
+    assert(record->type == SymbolType::Boolean);
+    assert(Compare::equals_bool(c, record->data));
 }
 

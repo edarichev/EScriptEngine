@@ -20,6 +20,8 @@ private:
     void test_complexExprOr();
     void test_complexExprAnd();
     void test_complexExprCalc();
+    void test_combinedExpr();
+    void test_combinedNotEqual();
 };
 
 #endif // BOOLEAN_TEST_H
