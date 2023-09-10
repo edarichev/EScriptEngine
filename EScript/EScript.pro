@@ -11,38 +11,38 @@ CONFIG += PRECOMPILE_HEADER
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    arrayobject.cpp \
-    assembler.cpp \
-    automationobject.cpp \
-    block.cpp \
-    console.cpp \
-    datetimeobject.cpp \
-    engineerrors.cpp \
-    escript.cpp \
-    functionobject.cpp \
-    icodeemitter.cpp \
-    keyword.cpp \
-    lexer.cpp \
-    machine.cpp \
-    mathobject.cpp \
-    numberobject.cpp \
-    objectrecord.cpp \
-    operand.cpp \
-    parser.cpp \
-    processor.cpp \
-    pvalue.cpp \
-    stackvalue.cpp \
-    stdafx.cpp \
-    storage.cpp \
-    stringcontainer.cpp \
-    stringobject.cpp \
-    symbol.cpp \
-    symboltable.cpp \
-    tcode.cpp \
-    token.cpp \
-    translator.cpp \
-    types.cpp \
-    unit.cpp
+    src/arrayobject.cpp \
+    src/assembler.cpp \
+    src/automationobject.cpp \
+    src/block.cpp \
+    src/console.cpp \
+    src/datetimeobject.cpp \
+    src/engineerrors.cpp \
+    src/escript.cpp \
+    src/functionobject.cpp \
+    src/icodeemitter.cpp \
+    src/keyword.cpp \
+    src/lexer.cpp \
+    src/machine.cpp \
+    src/mathobject.cpp \
+    src/numberobject.cpp \
+    src/objectrecord.cpp \
+    src/operand.cpp \
+    src/parser.cpp \
+    src/processor.cpp \
+    src/pvalue.cpp \
+    src/stackvalue.cpp \
+    src/stdafx.cpp \
+    src/storage.cpp \
+    src/stringcontainer.cpp \
+    src/stringobject.cpp \
+    src/symbol.cpp \
+    src/symboltable.cpp \
+    src/tcode.cpp \
+    src/token.cpp \
+    src/translator.cpp \
+    src/types.cpp \
+    src/unit.cpp
 
 HEADERS += \
     EScript_global.h \
@@ -69,7 +69,7 @@ HEADERS += \
     processor.h \
     pvalue.h \
     stackvalue.h \
-    stdafx.h \
+    src/stdafx.h \
     storage.h \
     stringcontainer.h \
     stringobject.h \
@@ -81,7 +81,7 @@ HEADERS += \
     types.h \
     unit.h
 
-PRECOMPILED_HEADER = stdafx.h
+PRECOMPILED_HEADER = src/stdafx.h
 
 # Default rules for deployment.
 unix {
