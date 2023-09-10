@@ -36,6 +36,10 @@ using ConstructorFunction = AutomationObject* (*)(Processor *);
 /**
  * @brief Базовый класс для всех обёрток, в т.ч. классов в виртуальной машине.
  * @details Чтобы сделать свойство, имя метода должно начинаться с "get_"
+ * @todo Пока принято вызывать метод объекта по имени. Теоретически можно
+ *       сделать так, чтобы получать адрес метода на этапе компиляции
+ *       (по возможности) и подставлять туда адрес функции.
+ *       В переменной _fn хранится имя/адрес.
  */
 class ESCRIPT_EXPORT AutomationObject
 {
@@ -48,13 +52,35 @@ protected:
 public:
     AutomationObject();
     virtual ~AutomationObject();
-    virtual bool call([[maybe_unused]] const std::u32string &method,
-                      [[maybe_unused]] Processor *p);
+    /**
+     * @brief Производит вызов метода этого объекта по его имени.
+     * @param p экземпляр процессора исполняющей машины
+     * @return true, если метод был выполнен. Вернёт false, если метод
+     *        не существует или планируется, что выполнение этого метода будет
+     *        в производном классе.
+     */
+    virtual bool call(const std::u32string &method,
+                      Processor *p);
+    /**
+     * @brief Уменьшает счётчик ссылок
+     */
     void release();
+    /**
+     * @brief Увеличивает счётчик ссылок
+     */
     void addRef();
-    int64_t counter() const;;
+    /**
+     * @brief Возвращает значение счётчика ссылок
+     */
+    int64_t counter() const;
 
     std::stack<StackValue> loadArguments(Processor *p) const;
+    /**
+     * @brief Проверяет существование объекта: должен быть установлен
+     *        маркер OBJECT_EXISTS_MARK в переменной _mark.
+     * @param pObject проверяемый объект
+     * @return true, если в _mark стоит OBJECT_EXISTS_MARK, иначе false.
+     */
     static bool exists(AutomationObject *pObject);
     /**
      * @brief Возвращает true, если этот объект может быть удалён автоматически
