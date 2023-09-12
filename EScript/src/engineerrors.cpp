@@ -42,10 +42,19 @@ ArgumentNullException::ArgumentNullException(int line, const char *file)
 
 }
 
-SyntaxError::SyntaxError(int line, int pos)
-    : _srcLine(line), _pos(pos)
+SyntaxError::SyntaxError(int line, int pos, const std::string_view &msg)
+    : _srcLine(line), _pos(pos), _msg(msg)
 {
+    std::stringstream ss;
+    ss << "Line: " << _srcLine
+       << ", position: " << _pos
+       << ": " << _msg;
+    _fullMessage = ss.str();
+}
 
+const char *SyntaxError::what() const noexcept
+{
+    return _fullMessage.c_str();
 }
 
 

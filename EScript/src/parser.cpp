@@ -22,6 +22,7 @@
 #include "stringcontainer.h"
 #include "automationobject.h"
 #include "mathobject.h"
+#include "engineerrors.h"
 
 using namespace std;
 
@@ -1784,12 +1785,7 @@ Operand Parser::stackValue()
 
 void Parser::error(const std::string &msg)
 {
-    std::stringstream ss;
-    ss << "Line: " << _lexer->line()
-       << ", position: " << _lexer->pos()
-       << ": ";
-    ss << msg;
-    throw domain_error(ss.str());
+    throw SyntaxError(_lexer->line(), _lexer->pos(), msg);
 }
 
 void Parser::expected(Token expectedToken) noexcept(false)

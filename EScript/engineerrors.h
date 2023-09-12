@@ -44,8 +44,11 @@ class ESCRIPT_EXPORT SyntaxError : public Exception
 {
     int _srcLine = 0;
     int _pos = 0;
+    std::string _msg;
+    std::string _fullMessage;
 public:
-    SyntaxError(int line, int pos);
+    SyntaxError(int line, int pos, const std::string_view &msg);
+    virtual const char* what() const noexcept override;
 };
 
 } // namespace escript
