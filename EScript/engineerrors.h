@@ -29,6 +29,11 @@ class ESCRIPT_EXPORT Exception : public std::exception
     std::string _file;
 public:
     Exception();
+    /**
+     * @brief Общая ошибка
+     * @param line подставьте __LINE__
+     * @param file подставьте __FILE__
+     */
     Exception(int line, const char *file);
     virtual ~Exception();
 };
@@ -47,6 +52,12 @@ class ESCRIPT_EXPORT SyntaxError : public Exception
     std::string _msg;
     std::string _fullMessage;
 public:
+    /**
+     * @brief Синтаксическая ошибка
+     * @param line номер строки в тексте скрипта
+     * @param pos позиция от начала строки в тексте скрипта
+     * @param msg дополнительное сообщение
+     */
     SyntaxError(int line, int pos, const std::string_view &msg);
     virtual const char* what() const noexcept override;
 };

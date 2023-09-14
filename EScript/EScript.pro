@@ -92,4 +92,6 @@ unix {
 DISTFILES += \
     ../LICENSE \
     ../README.md \
+    ../build.sh \
+    Makefile \
     expressions.g

@@ -281,6 +281,9 @@ void Processor::ldargs()
 
 void Processor::ret()
 {
+    // возврат из функции
+    // TODO: примерно здесь (перед вызовом RET) можно уменьшить счётчики ссылок,
+    // вероятно, сделать отдельной процедурой по примеру LDARGS
     next();
     setPC(_pcStack.top());
     _pcStack.pop();
@@ -579,7 +582,7 @@ void Processor::modst()
 
 void Processor::st_ar()
 {
-    // смещения таблицы с перменными относительно адреса текущей команды
+    // смещения таблицы с переменными относительно адреса текущей команды
     uint64_t ar = *(uint64_t*)(_p + sizeof (OpCodeType));
     uint32_t endOfActivationRecord = 0xFFFFFFFF & ar;
     ar >>= 32;
@@ -598,7 +601,7 @@ void Processor::st_ar()
 
 void Processor::ld_ar()
 {
-    // смещения таблицы с перменными относительно адреса текущей команды
+    // смещения таблицы с переменными относительно адреса текущей команды
     uint64_t ar = *(uint64_t*)(_p + sizeof (OpCodeType));
     // |...32bit start of AR...|...32bit end of AR...|
     uint32_t endOfActivationRecord = 0xFFFFFFFF & ar;
